@@ -376,7 +376,6 @@ def on_ui_tabs():
             gr.Markdown("手动输入项")
             with gr.Row():
                 additional_prompt = gr.Textbox("", label="额外的prompt")
-                additional_prompt.input(update_addition_input, inputs=additional_prompt)
 
         results = gr.Textbox("", label="生成的prompt")
         gen_button = gr.Button("生成prompt")
