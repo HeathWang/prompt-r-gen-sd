@@ -224,9 +224,9 @@ def gen_action(lora, lyco, embeddings, model_order, additional_prompt):
     project_config["lora"] = lora_config
     project_config["lyco"] = lyco_config
     project_config["embeddings"] = embeddings_config
+    if model_order == None or model_order == '':
+        model_order = "xyz"
     project_config["models_order"] = model_order
-    if additional_prompt == None or additional_prompt == '':
-        additional_prompt = "xyz"
     project_config["additional_prompt"] = additional_prompt
     return create_prompts(times, project_config)
 
@@ -371,7 +371,7 @@ def on_ui_tabs():
             with gr.Row():
                 embeddings = gr.Textbox("", label="embeddings【z】",
                                         info="格式如下：100, '100:0.6', '100:0.6'\n输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'100:0.8'，则表示lora权重0.8")
-                model_order = gr.Textbox("xyz", label="lora，lyco，embed顺序", info="xyz顺序")
+                model_order = gr.Textbox("xyz", label="lora，lyco，embed顺序", info="默认为xyz顺序，即按照lora，lyco，emb顺序")
         with gr.Box():
             gr.Markdown("手动输入项")
             with gr.Row():
