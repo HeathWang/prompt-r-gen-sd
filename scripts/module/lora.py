@@ -261,7 +261,7 @@ global_random_f = False
 
 def get_single_lora_prompt(category, weight=None, diff_style=0):
     if category <= 0:
-        return prompt
+        return ""
     if category == LoraCategory.FACE_FASHION:
         prompt = "fashi-g, makeup, mature female, <lora:fashigirl-v5.5-lora-naivae-64dim:{}>, ".format(
             get_random_weight(0.4, 0.8, 0.6, weight))
