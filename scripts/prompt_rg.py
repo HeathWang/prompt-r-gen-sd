@@ -225,7 +225,7 @@ def gen_action(lora, lyco, embeddings, model_order, additional_prompt):
     project_config["lyco"] = lyco_config
     project_config["embeddings"] = embeddings_config
     project_config["models_order"] = model_order
-    if additional_prompt == None or additional_prompt == ''
+    if additional_prompt == None or additional_prompt == '':
         additional_prompt = "xyz"
     project_config["additional_prompt"] = additional_prompt
     return create_prompts(times, project_config)
