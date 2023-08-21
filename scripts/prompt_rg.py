@@ -207,40 +207,12 @@ def update_obj_time(com_value):
 def update_suffix_times(com_value):
     base_update("suffix_words_random_times", com_value)
 
-
-def base_update_model(type_key, the_value):
-    arr = the_value.split(",")
-    target_list = []
-    if len(arr) > 0:
-        target_list = [x.strip() for x in arr if x.strip()]
-    base_update(type_key, target_list)
-
-
-def update_lora(com_value):
-    base_update_model("lora", com_value)
-
-
-def update_lyco(com_value):
-    base_update_model("lyco", com_value)
-
-
-def update_emb(com_value):
-    base_update_model("embeddings", com_value)
-
-
-def update_model_order(com_value):
-    base_update("models_order", com_value)
-
-
 def get_model_input(com_value):
     arr = com_value.split(",")
     target_list = []
     if len(arr) > 0:
         target_list = [x.strip() for x in arr if x.strip()]
     return target_list
-
-def update_addition_input(com_value):
-    base_update("additional_prompt", com_value)
 
 
 ######### gen #########
@@ -253,6 +225,8 @@ def gen_action(lora, lyco, embeddings, model_order, additional_prompt):
     project_config["lyco"] = lyco_config
     project_config["embeddings"] = embeddings_config
     project_config["models_order"] = model_order
+    if additional_prompt == None or additional_prompt == ''
+        additional_prompt = "xyz"
     project_config["additional_prompt"] = additional_prompt
     return create_prompts(times, project_config)
 
@@ -391,17 +365,13 @@ def on_ui_tabs():
             gr.Markdown("lora,embedding配置")
             with gr.Row():
                 lora = gr.Textbox("", label="Lora【x】",
-                                  info="格式如下：100, '100:0.6', '100:0.6'\n输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'100:0.8'，则表示lora权重0.8")
-                # lora.input(update_lora, inputs=lora)
+                                  info="格式如下：101, '101:0.6',    输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'101:0.8'，则表示lora权重0.8")
                 lyco = gr.Textbox("", label="lyco【y】",
-                                  info="格式如下：100, '100:0.6', '100:0.6'\n输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'100:0.8'，则表示lora权重0.8")
-                # lyco.change(update_lyco, inputs=lyco)
+                                  info="格式如下：101, '101:0.6',    输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'101:0.8'，则表示lora权重0.8")
             with gr.Row():
                 embeddings = gr.Textbox("", label="embeddings【z】",
                                         info="格式如下：100, '100:0.6', '100:0.6'\n输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'100:0.8'，则表示lora权重0.8")
-                # embeddings.input(update_emb, inputs=embeddings)
                 model_order = gr.Textbox("xyz", label="lora，lyco，embed顺序", info="xyz顺序")
-                # model_order.input(update_model_order, inputs=model_order)
         with gr.Box():
             gr.Markdown("手动输入项")
             with gr.Row():
