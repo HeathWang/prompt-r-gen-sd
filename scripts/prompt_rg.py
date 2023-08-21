@@ -4,8 +4,8 @@ from pathlib import Path
 
 from modules import script_callbacks
 
-from module.sd_nsfw_random import project_config as gen_config
-from module.web_api import (create_prompts)
+from scripts.module.sd_nsfw_random import project_config as gen_config
+from scripts.module.web_api import (create_prompts)
 
 project_config = gen_config
 times = 2
