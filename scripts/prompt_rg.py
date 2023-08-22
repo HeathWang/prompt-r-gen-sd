@@ -257,7 +257,7 @@ def on_ui_tabs():
                                  accessories_random_tims,
                                  object_random_times, suffix_words_random_times], outputs=results)
         send_button.click(send_action, inputs=results, outputs=t2i_text_box)
-        return [(ui_component, "Random Gen Prompt", "Random Gen Prompt")]
+        return [(ui_component, "随机提示词RP", "随机提示词RP")]
         # return ui_component
 
 def after_component(component, **kwargs):
