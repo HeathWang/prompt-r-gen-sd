@@ -120,7 +120,10 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
 
 def send_action(result_text):
     if t2i_text_box is not None:
-        return result_text
+        lines = result_text.split("\n")
+        stripped_lines = [line.strip() for line in lines]
+        if len(stripped_lines) > 0:
+            return stripped_lines[0]
 
 ######### UI #########
 def on_ui_tabs():
