@@ -288,4 +288,3 @@ def replace_config_by(custom_map):
         # check if the key exists in project_config
         if key in project_config:
             project_config[key] = custom_map[key]
-

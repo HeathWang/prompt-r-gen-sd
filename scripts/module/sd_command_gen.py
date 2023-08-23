@@ -12,10 +12,8 @@ import argparse
 from enum import IntEnum
 
 from module.configDB import (store_data_in_database, retrieve_data_from_database, list_alias,
-                                     delete_data_from_database)
+                             delete_data_from_database)
 from module.promptGen import (gen_prompt)
-
-
 
 # from scripts.module.configDB import (store_data_in_database, retrieve_data_from_database, list_alias,
 #                                      delete_data_from_database)
