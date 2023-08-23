@@ -1,16 +1,24 @@
 # -*- coding:utf-8 -*-
 
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(current_dir)
+sys.path.append(parent_dir)
+
 from enum import IntEnum
 
-from scripts.module.basePromptBuilder import (
+from module.basePromptBuilder import (
     get_config_value_by_key,
     get_starting_prompt, get_user_additional_prompt, get_realistic_prompt, get_angle_and_image_composition,
     get_girl_desc_prompt, get_job_prompt, get_body_wear_prompt, get_hair_eyes_prompt, get_place_prompt,
     get_bottom_prompt, LegWearType, NSFWType, FaceExpression, FootWearType, get_nsfw_prompt, get_uncensored_prompt,
     SexActType, get_s_act_sex_prompt, get_s_act_group_prompt, get_s_act_tentacles_prompt, BodyWearType, project_config
 )
-# import basePromptBuilder as pb
-from scripts.module.lora import (
+
+from module.lora import (
     gen_lora_prompt_list, gen_lycoris_prompt_list, get_embed_prompt, is_special_single, gen_lora_special,
     should_re_gen_prompt
 )
@@ -281,10 +289,3 @@ def replace_config_by(custom_map):
         if key in project_config:
             project_config[key] = custom_map[key]
 
-
-def command_ls():
-    return command_ls()
-
-
-def command_send(the_key):
-    return command_send(the_key)

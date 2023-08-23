@@ -1,11 +1,25 @@
 # -*- coding:utf-8 -*-
 
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(current_dir)
+sys.path.append(parent_dir)
+
 import argparse
 from enum import IntEnum
 
-from scripts.module.configDB import (store_data_in_database, retrieve_data_from_database, list_alias,
+from module.configDB import (store_data_in_database, retrieve_data_from_database, list_alias,
                                      delete_data_from_database)
-from scripts.module.promptGen import (gen_prompt)
+from module.promptGen import (gen_prompt)
+
+
+
+# from scripts.module.configDB import (store_data_in_database, retrieve_data_from_database, list_alias,
+#                                      delete_data_from_database)
+# from scripts.module.promptGen import (gen_prompt)
 
 output_file_name = "prompts.txt"
 
@@ -25,7 +39,7 @@ BACKGROUND_HALATION = 402, STYLE_BEAUTYLEGS = 601, STYLE_ABSTRACT_DREAMWAVE = 20
 
 project_config = {
     # "preset": 2,
-    "lora": [],  # x
+    "lora": [101],  # x
     "lyco": [],  # y
     "embeddings": [],  # z
     "models_order": 'xyz',  # lora, lyco, embeddings 输出顺序xyz

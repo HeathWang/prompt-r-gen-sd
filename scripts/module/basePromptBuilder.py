@@ -1,7 +1,4 @@
 # -*- coding:utf-8 -*-
-
-import builtins
-import inspect
 import random
 from enum import IntEnum
 
@@ -168,7 +165,8 @@ shoes_sandals = ['sandals', 'clog sandals', 'cross-laced sandals', 'flip-flops',
 shoes_slippers = ['slippers', 'animal slippers', 'ballet slippers', 'crocs', 'uwabaki']
 
 background_view = ["cityscapes", "landscape", "architecture", "buildings", "nature", "ruins", "outdoors", "indoors",
-                   "messy room", "seascape", "shrine", "pagoda", "temple", "far out space"]
+                   "messy room", "seascape", "shrine", "pagoda", "temple", "far out space", "east asian architecture",
+                   "chinese garden"]
 
 place = ["ancient greece", "alien planet", "spaceship", "american farm", "hell",
          "high school", "locker room", "bedroom", "dungeon", "castle", "classroom", "bathroom",
@@ -1261,29 +1259,6 @@ class NSFWType(IntEnum):
 
 
 make_prompt_strong_scale = 1.331
-
-
-def command_ls():
-    # 过滤掉内置变量和函数名
-    ls_list = []
-    globals_dict = globals()
-
-    for key, value in globals_dict.items():
-        # 如果变量不是Python内置的变量，且它出现在全局命名空间中，则添加到字典中
-        if key.startswith("__") or key.endswith("__") or key in builtins.__dict__ or inspect.isfunction(value):
-            continue
-        elif type(value) == list or type(value) == dict or type(value) == tuple:
-            ls_list.append(key)
-    return ls_list
-
-
-def command_send(the_key):
-    globals_dict = globals()
-    if the_key in globals_dict:
-        return globals_dict[the_key]
-    else:
-        return "null"
-
 
 project_config = {
     # 视角&地点
