@@ -1,5 +1,6 @@
 import modules.scripts as scripts
 from modules import script_callbacks
+
 import gradio as gr
 
 from scripts.module.sd_command_gen import project_config as gen_config
@@ -7,6 +8,7 @@ from scripts.module.web_api import (create_prompts)
 
 project_config = gen_config
 t2i_text_box = None
+
 
 def base_update(type_key, the_value):
     project_config[f"{type_key}"] = the_value
@@ -30,24 +32,26 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
                face_expression, add_girl_beautyful, has_girl_desc, nsfw_type, is_nsfw, is_uncensored, is_simple_nude,
                nude_strong, sexual_list_random_index_times, nude_list_random_index_times, has_starting, is_realistic,
                add_colors, enable_day_weather, enable_light_effect, enable_image_tech, accessories_random_tims,
-               object_random_times, suffix_words_random_times):
+               object_random_times, suffix_words_random_times, assign_angle, assign_body_framing, assign_place,
+               assign_pose, assign_job, assigin_expression, assign_clothes, assign_leg_wear, assign_shoes,
+               assign_leg_wear_color, assign_shoes_color, assign_hair_color):
     if angle:
         project_config["angle"] = ""
     else:
-        project_config["angle"] = "null"
+        project_config["angle"] = assign_angle
 
     if body_framing:
         project_config["body_framing"] = ""
     else:
-        project_config["body_framing"] = "null"
+        project_config["body_framing"] = assign_body_framing
 
     if location:
         project_config["place"] = ""
     else:
-        project_config["place"] = "null"
+        project_config["place"] = assign_place
 
     if pose_type == 2:
-        project_config["assign_pose"] = "null"
+        project_config["assign_pose"] = assign_pose
     else:
         project_config["assign_pose"] = ""
         project_config["pose_type"] = pose_type + 1
@@ -71,12 +75,15 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
     if profession:
         project_config["assign_profession"] = ""
     else:
-        project_config["assign_profession"] = "null"
+        project_config["assign_profession"] = assign_job
 
-    if hair_color == 0:
+    if hair_color and assign_hair_color == "":
         project_config["hair_color"] = "random"
     else:
-        project_config["hair_color"] = "null"
+        if assign_hair_color == "":
+            project_config["hair_color"] = "null"
+        else:
+            project_config["hair_color"] = assign_hair_color
     project_config["add_hair_style"] = add_hair_style
     project_config["enable_eye_color"] = enable_eye_color
     project_config["has_girl_desc"] = has_girl_desc
@@ -85,7 +92,7 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
     if face_expression <= 4:
         project_config["face_expression"] = face_expression + 1
     else:
-        project_config["assign_expression"] = "null"
+        project_config["assign_expression"] = assigin_expression
 
     project_config["nsfw_type"] = nsfw_type + 1
     project_config["is_nsfw"] = is_nsfw
@@ -106,6 +113,12 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
     project_config["object_random_times"] = object_random_times
     project_config["suffix_words_random_times"] = suffix_words_random_times
 
+    project_config["assign_body_clothes"] = assign_clothes
+    project_config["assign_leg_wear"] = assign_leg_wear
+    project_config["assign_shoes"] = assign_shoes
+    project_config["leg_wear_color"] = assign_leg_wear_color
+    project_config["shoes_color"] = assign_shoes_color
+
     lora_config = get_model_input(lora)
     lyco_config = get_model_input(lyco)
     embeddings_config = get_model_input(embeddings)
@@ -118,12 +131,14 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
     project_config["additional_prompt"] = additional_prompt
     return create_prompts(gen_times, project_config)
 
+
 def send_action(result_text):
     if t2i_text_box is not None:
         lines = result_text.split("\n")
         stripped_lines = [line.strip() for line in lines]
         if len(stripped_lines) > 0:
             return stripped_lines[0]
+
 
 ######### UI #########
 def on_ui_tabs():
@@ -133,7 +148,6 @@ def on_ui_tabs():
         with gr.Box():
             with gr.Row():
                 time_slider = gr.Slider(1, 6, value=4, label="随机生成条数", step=1, interactive=True)
-                auto_send = gr.Checkbox(False, label="自动发送到文生图", info="生成多条默认发送第一条", interactive=False)
 
         with gr.Box():
             gr.Markdown("视角、地点、动作")
@@ -178,13 +192,13 @@ def on_ui_tabs():
             gr.Markdown("人物描述")
             with gr.Row():
                 profession = gr.Checkbox(False, label="职业", info="随机职业，学生，护士...")
-                hair_color = gr.Dropdown(["随机RANDOM", "空NULL"], value="随机RANDOM", type="index", label="头发颜色",
-                                         info="", interactive=True)
+                hair_color = gr.Checkbox(True, label="头发颜色", info="", interactive=True)
                 add_hair_style = gr.Checkbox(False, label="头发风格", info="发型")
                 enable_eye_color = gr.Checkbox(True, label="眼睛颜色", info="")
             with gr.Row():
                 face_expression = gr.Dropdown(
-                    ["情绪EMOTIONS", "诱惑的SEXUAL", "笑容SMILE", "俏皮的SMUG", "以上随机", "空NULL"], value="笑容SMILE",
+                    ["情绪EMOTIONS", "诱惑的SEXUAL", "笑容SMILE", "俏皮的SMUG", "以上随机", "空NULL"],
+                    value="笑容SMILE",
                     type="index", label="表情", interactive=True)
                 add_girl_beautyful = gr.Checkbox(False, label="描述妹子的短词缀", info="")
                 has_girl_desc = gr.Checkbox(False, label="描述妹子的长词缀", info="")
@@ -234,6 +248,25 @@ def on_ui_tabs():
                                             info="格式如下：100, '100:0.6', '100:0.6'\n输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'100:0.8'，则表示lora权重0.8")
                     model_order = gr.Textbox("xyz", label="lora，lyco，embed顺序",
                                              info="默认为xyz顺序，即按照lora，lyco，emb顺序")
+        with gr.Accordion("精准控制项", open=False):
+            with gr.Box():
+                with gr.Row():
+                    assign_angle = gr.Textbox("null", label="指定视角")
+                    assign_body_framing = gr.Textbox("null", label="指定身体框架")
+                    assign_place = gr.Textbox("null", label="指定地点")
+                with gr.Row():
+                    assign_pose = gr.Textbox("null", label="指定人物动作")
+                    assign_job = gr.Textbox("null", label="指定角色")
+                    assigin_expression = gr.Textbox("", label="指定人物表情")
+                with gr.Row():
+                    assign_clothes = gr.Textbox("", label="指定衣服")
+                    assign_leg_wear = gr.Textbox("", label="指定袜子类型")
+                    assign_shoes = gr.Textbox("", label="指定鞋子类型")
+                with gr.Row():
+                    assign_leg_wear_color = gr.Textbox("", label="指定袜子颜色")
+                    assign_shoes_color = gr.Textbox("", label="指定鞋子颜色")
+                    assign_hair_color = gr.Textbox("", label="指定头发颜色")
+
         with gr.Box():
             gr.Markdown("手动输入项")
             with gr.Row():
@@ -255,10 +288,14 @@ def on_ui_tabs():
                                  has_starting, is_realistic,
                                  add_colors, enable_day_weather, enable_light_effect, enable_image_tech,
                                  accessories_random_tims,
-                                 object_random_times, suffix_words_random_times], outputs=results)
+                                 object_random_times, suffix_words_random_times, assign_angle, assign_body_framing,
+                                 assign_place, assign_pose, assign_job, assigin_expression, assign_clothes,
+                                 assign_leg_wear, assign_shoes, assign_leg_wear_color, assign_shoes_color,
+                                 assign_hair_color], outputs=results)
         send_button.click(send_action, inputs=results, outputs=t2i_text_box)
         return [(ui_component, "随机提示词RP", "随机提示词RP")]
         # return ui_component
+
 
 def after_component(component, **kwargs):
     # Find the text2img textbox component
@@ -268,6 +305,7 @@ def after_component(component, **kwargs):
     # Find the img2img textbox component
     # if kwargs.get("elem_id") == "img2img_prompt":  # postive prompt textbox
     #     self.boxxIMG = component
+
 
 # on_ui_tabs().launch(debug=True)
 script_callbacks.on_ui_tabs(on_ui_tabs)

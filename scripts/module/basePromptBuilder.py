@@ -1115,7 +1115,7 @@ def get_s_bottom_prompt():
 def get_assignment_prompt(the_assignment):
     the_value = get_config_value_by_key(the_assignment).lower()
     # check the_value, if is like nil, null, none, then return ""
-    if the_value == "nil" or the_value == "null" or the_value == "none":
+    if the_value == "nil" or the_value == "null" or the_value == "none" or the_value == "空":
         return ""
     else:
         return "(" + get_config_value_by_key(the_assignment) + "), "
