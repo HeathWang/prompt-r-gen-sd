@@ -6,6 +6,8 @@
 
 ~~目前仅支持画女孩提示词~~，其他待开发。
 
+功能预览：https://huggingface.co/spaces/heath1989/prompt-rp
+
 ## 功能
 
 <img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/snap_Shot.png" alt="ui" width="50%">
