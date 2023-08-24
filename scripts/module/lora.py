@@ -146,6 +146,7 @@ class LoraCategory(IntEnum):
     STYLE_outfit_torn = 517, # 实现衣服等战损的效果  outfit torn clothes
     STYLE_anxiang_L = 518, # anxiang | 暗香 (fp16/lite)
     STYLE_Twinkling_Twilight_Taproom = 519,  # Twinkling Twilight Taproom 128228@140369
+    STYLE_ChihunHentai = 520, # ChihunHentai/fascinating body Lora #106586@114480
 
 
     BACKGROUND_NEBULA_STYLE = 701,  # 星云幻想
@@ -728,6 +729,8 @@ def get_single_lora_prompt(category, weight=None, diff_style=0):
         prompt = "breast grab, cowgirl position, girl on top, straddling, grabbing, sex, vaginal,nude,1boy,pov, pussy juice,blush,penis, <lora:BREAST_GRAB_V2:{}>,".format(get_random_weight(0.8, 1, 0.85, weight))
     elif category == LoraCategory.pose_Against_glass_sex:
         prompt = "1girl, 3boy, against glass, huge breasts, sex from behind, overflow, breasts on glass, hand up, doggystyle, grabbing from behind,school uniform, thigh sex,penis, cum,panties, train interior,kiss,<lora:pose_glass_sex:{}>,".format(get_random_weight(0.9, 1, 1, weight))
+    elif category == LoraCategory.STYLE_ChihunHentai:
+        prompt = "ChihunHentai, PIXIV, <lora:ChihunHentai:{}>,".format(get_random_weight(0.6, 1, 0.65, weight))
     return prompt
 
 
