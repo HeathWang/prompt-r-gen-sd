@@ -1,18 +1,23 @@
-import modules.scripts as scripts
-from modules import script_callbacks
+# import modules.scripts as scripts
+# from modules import script_callbacks
+
+import os
+import sys
+import importlib
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(current_dir)
+sys.path.append(parent_dir)
 
 import gradio as gr
 
-from scripts.module.sd_command_gen import project_config as gen_config
-from scripts.module.web_api import (create_prompts)
+from module.sd_command_gen import project_config as gen_config
+from module.web_api import (create_prompts)
 
 project_config = gen_config
 t2i_text_box = None
-
-
-def base_update(type_key, the_value):
-    project_config[f"{type_key}"] = the_value
-    return project_config
+IS_PLUGIN = True
 
 
 def get_model_input(com_value):
@@ -293,8 +298,10 @@ def on_ui_tabs():
                                  assign_leg_wear, assign_shoes, assign_leg_wear_color, assign_shoes_color,
                                  assign_hair_color], outputs=results)
         send_button.click(send_action, inputs=results, outputs=t2i_text_box)
-        return [(ui_component, "随机提示词RP", "随机提示词RP")]
-        # return ui_component
+        if IS_PLUGIN:
+            return [(ui_component, "随机提示词RP", "随机提示词RP")]
+        else:
+            return ui_component
 
 
 def after_component(component, **kwargs):
@@ -302,11 +309,16 @@ def after_component(component, **kwargs):
     global t2i_text_box
     if kwargs.get("elem_id") == "txt2img_prompt":  # postive prompt textbox
         t2i_text_box = component
-    # Find the img2img textbox component
-    # if kwargs.get("elem_id") == "img2img_prompt":  # postive prompt textbox
-    #     self.boxxIMG = component
 
 
-# on_ui_tabs().launch(debug=True)
-script_callbacks.on_ui_tabs(on_ui_tabs)
-script_callbacks.on_after_component(after_component)
+if IS_PLUGIN:
+    module_plugin1 = "modules.script_callbacks"
+    script_module = importlib.import_module(module_plugin1)
+    script_module.on_ui_tabs(on_ui_tabs)
+    script_module.on_after_component(after_component)
+
+    pass
+else:
+    on_ui_tabs().launch(debug=True)
+# script_callbacks.on_ui_tabs(on_ui_tabs)
+# script_callbacks.on_after_component(after_component)
