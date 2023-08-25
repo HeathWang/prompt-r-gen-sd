@@ -67,6 +67,8 @@ class LoraConfigManager:
 
                 if trigger_words is not None and isinstance(trigger_words, str) and trigger_words.endswith(","):
                     trigger_words = trigger_words[:-1]
+                elif isinstance(trigger_words, str):
+                    pass
                 else:
                     trigger_words = ""
 
@@ -96,9 +98,13 @@ class LoraConfigManager:
                 print(model_obj)
                 identifer = f"{id_model}_{type_model}"
                 self._data[identifer] = model_obj
-
+            workbook.close()
         else:
             print(f"can NOT find target excel file：{target_file_path}")
 
     def query_data(self, model_id):
         return self._data[model_id]
+
+    def reload(self):
+        self._data = {}
+        self.loadData()

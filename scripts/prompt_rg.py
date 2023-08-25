@@ -135,6 +135,9 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
     return create_prompts(gen_times, project_config)
 
 
+def reload_action():
+    LoraConfigManager().reload()
+
 def send_action(result_text):
     if t2i_text_box is not None:
         lines = result_text.split("\n")
@@ -290,7 +293,9 @@ def on_ui_tabs():
                 with gr.Row():
                     gen_button = gr.Button("生成prompt")
                     send_button = gr.Button("发送到文生图")
-
+                with gr.Row():
+                    reload_button = gr.Button("重载模型excel")
+        reload_button.click(reload_action)
         gen_button.click(gen_action,
                          inputs=[time_slider, lora, lyco, embeddings, model_order, additional_prompt, angle,
                                  body_framing, location,
