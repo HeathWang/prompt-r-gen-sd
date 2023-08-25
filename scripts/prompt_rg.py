@@ -11,11 +11,12 @@ import gradio as gr
 
 from module.sd_command_gen import project_config as gen_config
 from module.web_api import (create_prompts)
+from module.model_manager import LoraConfigManager
 
 project_config = gen_config
 t2i_text_box = None
-IS_PLUGIN = True
-
+IS_PLUGIN = False
+model_manager = LoraConfigManager()
 
 def get_model_input(com_value):
     arr = com_value.split(",")

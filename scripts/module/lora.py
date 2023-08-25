@@ -1,7 +1,16 @@
 # -*- coding:utf-8 -*-
 
+import os
 import random
+import sys
 from enum import IntEnum
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(current_dir)
+sys.path.append(parent_dir)
+
+from model_manager import (ModelInfo, LoraConfigManager, )
 
 
 class LoraCategory(IntEnum):
@@ -22,7 +31,7 @@ class LoraCategory(IntEnum):
     FACE_CUTE_GIRL_MIX_TIKTOK = 116,  # ★★★★ 兼容ok
     FACE_ASIAN_GIRLS_FACE = 117,  # ★★★★ 亚洲女孩脸
     FACE_SHANHAIGUANWU = 118,  # 山海观雾，易水寒
-    FACE_MengX_girl_mix = 119, #  ★★★★ MengX girl_Mix 118533@137910
+    FACE_MengX_girl_mix = 119,  # ★★★★ MengX girl_Mix 118533@137910
 
     CHARACTER_ST_LOUIS = 201,  # ★★★★★ 圣路易斯
     CHARACTER_YAE_MIKO = 202,  # yae miko 2d，3d表现都可以
@@ -41,7 +50,7 @@ class LoraCategory(IntEnum):
     CHARACTER_Formidable_Swimsuit = 217,  # ★★★★ Formidable (Azur Lane) Swimsuit 可畏 泳装
     CHARACTER_Taihou_All_Skins = 218,  # Taihou (All Skins) 大凤
     CHARACTER_Howe_Pastry_Princess = 220,  # Howe (Pastry Princess) from Azur Lane | 碧蓝航线 豪
-    CHARACTER_yae_miko_real = 221, # 【原神】八重神子 超逼真
+    CHARACTER_yae_miko_real = 221,  # 【原神】八重神子 超逼真
 
     CLOTHES_LIQUID_CLOTHES = 302,  # 液体裙
     CLOTHES_HAREM_DANCER = 304,  # ★★★★ 舞娘服
@@ -57,7 +66,7 @@ class LoraCategory(IntEnum):
     CLOTHES_NIGHTDRESS_3D = 327,  # nightdress S2
     CLOTHES_APHRODITE_ROR = 339,  # sexy cosplay costume / Aphrodite 一种性感衣服
     CLOTHES_NAKED_APRON_3D = 340,  # NakedApron
-    CLOTHES_yellow_sexy_dress = 347, # ★★★★★ coat dress 129969@142529
+    CLOTHES_yellow_sexy_dress = 347,  # ★★★★★ coat dress 129969@142529
 
     # leg wear
     CLOTHES_NUDE_PANTYHOSE = 303,  # 肉色全身
@@ -70,10 +79,10 @@ class LoraCategory(IntEnum):
     CLOTHES_CRYSTALFRUIT_2D = 335,  # ★★★ Crystalfruit ——WHITE AND BLACK STOCKING
     CLOTHES_OIL_PANTYHOSE = 341,  # OIL PANTYHOSE
 
-    CLOTHES_cmmy_body_siut = 343, # 苍铭明月的情趣服装系列 - body suit
-    CLOTHES_cmmy_black_lace_suspenders = 344, # 苍铭明月的情趣服装系列 - black lace suspenders
-    CLOTHES_cmmy_Lingerie_v2 = 345, # 苍铭明月的情趣服装系列 - 
-    CLOTHES_cmmy_purple_sexy = 346, # 苍铭明月的情趣服装系列 - 紫色有货 119899@142295
+    CLOTHES_cmmy_body_siut = 343,  # 苍铭明月的情趣服装系列 - body suit
+    CLOTHES_cmmy_black_lace_suspenders = 344,  # 苍铭明月的情趣服装系列 - black lace suspenders
+    CLOTHES_cmmy_Lingerie_v2 = 345,  # 苍铭明月的情趣服装系列 -
+    CLOTHES_cmmy_purple_sexy = 346,  # 苍铭明月的情趣服装系列 - 紫色有货 119899@142295
 
     # 制服系列
     CLOTHES_PINK_NURSE_UNIFORM = 325,  # ★★★★ 粉色护士制服 3d
@@ -90,7 +99,7 @@ class LoraCategory(IntEnum):
     CLOTHES_DUNHUANG_APSARAS_DUDOU = 321,  # ★★★★ 敦煌仙子肚兜
     CLOTHES_PETAL_CHEONGSAM = 323,  # 汉旗袍
     CLOTHES_QINGHUA = 342,  # 青花 blue-and-white | Chinese ornament
-    CLOTHES_cheongsam_with_high_slit = 348, # cheongsam with a high slit 128508@140717
+    CLOTHES_cheongsam_with_high_slit = 348,  # cheongsam with a high slit 128508@140717
 
     # 裙子系列
     DRESS_DEEP_V_NECK = 306,
@@ -105,8 +114,7 @@ class LoraCategory(IntEnum):
     CLOTHES_CONCEPTSHORTSKIRT_ANIMTE = 361,  # ConceptShortSkirt(for extra shortness)
     CLOTHES_JK_MICRO_SKIRT_3D = 362,  # ★★★★ JK Micro Skirt
     CLOTHES_SEXY_CATHOLIC_SCHOOL_UNIFORM = 363,  # ★★★★★ 👍🏻我理想中的 Sexy Catholic school uniform
-    clothes_Sexy_school_uniform = 364, # Sexy school uniform 129547@142020
-
+    clothes_Sexy_school_uniform = 364,  # Sexy school uniform 129547@142020
 
     ACCESSORIES_GGX_HEELS = 401,  # ★★★★★ 👍🏻 尖头高跟
     ACCESSORIES_FLORAL_BOW_CRYSTAL_POINTY_HEELS = 410,  # ★★★★ 仙女尖头高跟鞋,动画model更适用
@@ -116,7 +124,7 @@ class LoraCategory(IntEnum):
     ACCESSORIES_CRYSTAL_FASHION = 404,  # ★★★ 水晶
 
     ACCESSORIES_BODYCHAIN = 402,  # ★★★ 身体锁链
-    ACCESSORIES_chest_chain = 405, # 情趣小饰品 胸链 | chest chain
+    ACCESSORIES_chest_chain = 405,  # 情趣小饰品 胸链 | chest chain
     ACCESSORIES_SNOWFLAKE_FASHION = 406,
     ACCESSORIES_BUBBLESUDS = 407,  # ★★★★ 洗浴泡泡
     ACCESSORIES_NAKED_BANDAGE = 408,  # ★★★ 绑带
@@ -143,18 +151,17 @@ class LoraCategory(IntEnum):
     STYLE_TCTH_FAIRY = 515,  # ★★★ TCTH-Fairy 蝴蝶裙子
     BODY_PERFECT_FULL_ROUND_BREASTS_SLIM_WAIST = 503,  # Perfect Full Round Breasts & Slim Waist 61099@120037
     STYLE_DREAMART = 516,  # DreamART Style
-    STYLE_outfit_torn = 517, # 实现衣服等战损的效果  outfit torn clothes
-    STYLE_anxiang_L = 518, # anxiang | 暗香 (fp16/lite)
+    STYLE_outfit_torn = 517,  # 实现衣服等战损的效果  outfit torn clothes
+    STYLE_anxiang_L = 518,  # anxiang | 暗香 (fp16/lite)
     STYLE_Twinkling_Twilight_Taproom = 519,  # Twinkling Twilight Taproom 128228@140369
-    STYLE_ChihunHentai = 520, # ChihunHentai/fascinating body Lora #106586@114480
-
+    STYLE_ChihunHentai = 520,  # ChihunHentai/fascinating body Lora #106586@114480
 
     BACKGROUND_NEBULA_STYLE = 701,  # 星云幻想
     BACKGROUND_CHINESE_STYLE_FUTURE = 702,  # ★★★★ 中国风与未来科技感的结合
     BACKGROUND_HUNDRED_FLOWERS_BREW = 703,  # 百花酿
     BACKGROUND_GLOWING_STARS = 704,  # 发光星星
     BACKGROUND_BUTTERFLY_FLOWERS = 707,  # 🦋和花
-    BACKGROUND_Bokeh_Glowing_Dust = 708, # Bokeh and Glowing Dust 129763@142279
+    BACKGROUND_Bokeh_Glowing_Dust = 708,  # Bokeh and Glowing Dust 129763@142279
 
     ANGLE_STRADDLING_INCOMING_KISS = 801,  # ★★★ pov kiss
     ANGLE_ARM_SUPPORT_AND_FROM_BELOW = 802,  # ★★★ pov压迫感
@@ -189,9 +196,9 @@ class LoraCategory(IntEnum):
     POSE_RIDING_SEX_3D = 627,  # 骑乘
     POSE_GUIDED_BREAST_GRAB = 629,  # 抓奈子 Guided Breast Grab
     POSE_HOLDING_WAIST_POV_COWGIRL = 630,  # Holding Waist POV Cowgirl Position
-    pose_cowgirl_with_hands_on_knees = 631, # cowgirl with hands on knees #128170@140297
-    pose_POV_Breast_Grab_Cowgirl = 632, # POV Breast Grab Cowgirl # 111022@138862 
-    pose_Against_glass_sex = 633, # Against glass sex #126935@138852
+    pose_cowgirl_with_hands_on_knees = 631,  # cowgirl with hands on knees #128170@140297
+    pose_POV_Breast_Grab_Cowgirl = 632,  # POV Breast Grab Cowgirl # 111022@138862
+    pose_Against_glass_sex = 633,  # Against glass sex #126935@138852
 
     POSE_BREASTS_ON_GLASS = 601,  # 挤玻璃
     POSE_PUSSY_ON_GLASS = 617,  # ass 挤玻璃
@@ -262,6 +269,17 @@ global_random_f = False
 
 def get_single_lora_prompt(category, weight=None, diff_style=0):
     prompt = ""
+    model = LoraConfigManager().query_data(f"{category}_1")
+    if isinstance(model, ModelInfo):
+
+        if model.trigger_words != "":
+            prompt = "{},<lora:{}:{}>,".format(model.trigger_words, model.name_model,
+                                               get_random_weight(model.min_widget, model.max_widget, model.default_widget, weight))
+
+        else:
+            prompt = "<lora:{}:{}>,".format(model.name_model,
+                                            get_random_weight(model.min_widget, model.max_widget, model.default_widget, weight))
+    """
     if category <= 0:
         return prompt
     if category == LoraCategory.FACE_FASHION:
@@ -282,9 +300,7 @@ def get_single_lora_prompt(category, weight=None, diff_style=0):
     elif category == LoraCategory.CHARACTER_YAE_MIKO:
         prompt = "<lora:YaeMiko_mix:{}>, ".format(get_random_weight(0.6, 0.8, 0.7, weight))
     elif category == LoraCategory.CLOTHES_CHINA_DRESS:
-        """
-        触发词：china dress或dress, 但最好发挥想象力改一改，比如"green printed china dress", "purple plaid china dress"，"blue printed plaid china dress"等等，如果只用触发词，那么生成的衣服会很单一
-        """
+        
         prompt = "china dress, <lora:ChinaDress:{}>, ".format(get_random_weight(0.4, 0.6, 0.55, weight))
     elif category == LoraCategory.CLOTHES_NUDE_PANTYHOSE:
         prompt = "<lora:Nude_pantyhose:{}>, pantyhose, ".format(get_random_weight(0.4, 0.8, 0.6, weight))
@@ -731,11 +747,25 @@ def get_single_lora_prompt(category, weight=None, diff_style=0):
         prompt = "1girl, 3boy, against glass, huge breasts, sex from behind, overflow, breasts on glass, hand up, doggystyle, grabbing from behind,school uniform, thigh sex,penis, cum,panties, train interior,kiss,<lora:pose_glass_sex:{}>,".format(get_random_weight(0.9, 1, 1, weight))
     elif category == LoraCategory.STYLE_ChihunHentai:
         prompt = "ChihunHentai, PIXIV, <lora:ChihunHentai:{}>,".format(get_random_weight(0.6, 1, 0.65, weight))
+    """
     return prompt
 
 
 def get_single_lycoris_prompt(category, weight=None, diff_style=0):
     prompt = ""
+    model = LoraConfigManager().query_data(f"{category}_2")
+    if isinstance(model, ModelInfo):
+
+        if model.trigger_words != "":
+            prompt = "{},<lyco:{}:{}>,".format(model.trigger_words, model.name_model,
+                                               get_random_weight(model.min_widget, model.max_widget,
+                                                                 model.default_widget, weight))
+
+        else:
+            prompt = "<lyco:{}:{}>,".format(model.name_model,
+                                            get_random_weight(model.min_widget, model.max_widget, model.default_widget,
+                                                              weight))
+    """
     if category == LyCORIS.POSE_SAYA_POV_MISSIONARY_STRANGLING:
         prompt = "(vaginal,strangling, lying, pussy juice), <lyco:Saya-pov_missionary_strangling:{}>, ".format(
             get_random_weight(0.8, 1, 1, weight))
@@ -815,11 +845,7 @@ def get_single_lycoris_prompt(category, weight=None, diff_style=0):
             get_random_weight(0.4, 0.8, 0.6, weight))
     elif category == LyCORIS.POSE_POV_GROUP_SEX:
         # https://civitai.com/models/114843/pov-group-sex-or-sex-with-multiple-girls
-        """
-        Basic prompts are Multiple girls, 1boy, pov, sex, 3girls or 2girls and they can be combined with Missionary or Sex from behind
-        Cowgirl position: Cowgirl position, Girl on top, Straddling
-        Reverse cowgirl position: Reverse cowgirl position, cowgirl position, ass, straddling, sex from behind, girl on top
-        """
+
         if diff_style == 0:
             prompt = "<lyco:PovGroupSex_v10:{}>, (3girls,multiple girls:1), sex ,1boy,pov,cowgirl position,smile,blush,large breasts, looking at viewer, nipples,pussy,pussy juice,penis, thighhighs,garter belt,mature female, ".format(
                 get_random_weight(0.8, 0.9, 0.8, weight))
@@ -834,6 +860,7 @@ def get_single_lycoris_prompt(category, weight=None, diff_style=0):
     elif category == LyCORIS.CLOTHES_BRIDAL_LINGERIE:
         prompt = "bridal lingerie, bridal veil, <lyco:bridalLingerieClothes:{}>,".format(
             get_random_weight(0.7, 0.8, 0.8, weight))
+    """
     return prompt
 
 
@@ -932,23 +959,11 @@ def should_re_gen_prompt(lora_list):
         return False
     return True
 
-
-def gen_lora_special(lora_list):
-    global global_random_f
-    global_random_f = False
-    prompt_list = []
-    for lora in lora_list:
-        lora_name, weight, prompt_type = convert_widget_string(lora)
-        prompt_list.append(get_single_lora_prompt(lora_name, weight, diff_style=prompt_type))
-    # make prompt_list to string with ""
-    prompt = "".join(prompt_list)
-    return prompt
-
-
 def is_special_single(lora_list):
     white_list = [LoraCategory.POSE_POV_DOGGY_ANAL, LoraCategory.POSE_PANTIES_PULLED_ASIDE_FUCK,
                   LoraCategory.POSE_POV_WAIST_GRAB_ANIMATE, LoraCategory.POSE_XIAOMA_DACHE_2D,
-                  LoraCategory.CHARACTER_SHANHAIGUANWU_COS, LoraCategory.POSE_AMAZON_POSITION_ANIMATE_297, LoraCategory.pose_Against_glass_sex]
+                  LoraCategory.CHARACTER_SHANHAIGUANWU_COS, LoraCategory.POSE_AMAZON_POSITION_ANIMATE_297,
+                  LoraCategory.pose_Against_glass_sex]
     lyco_white_list = []
     for lora in lora_list:
         lora_name, weight, prompt_type = convert_widget_string(lora)
