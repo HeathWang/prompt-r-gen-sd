@@ -8,7 +8,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(current_dir)
 sys.path.append(parent_dir)
 
-from module.promptGen import gen_prompt
+from promptGen import gen_prompt
 
 
 def create_prompts(prompt_count, project_config):

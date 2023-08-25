@@ -10,7 +10,7 @@ sys.path.append(parent_dir)
 
 from enum import IntEnum
 
-from module.basePromptBuilder import (
+from basePromptBuilder import (
     get_config_value_by_key,
     get_starting_prompt, get_user_additional_prompt, get_realistic_prompt, get_angle_and_image_composition,
     get_girl_desc_prompt, get_job_prompt, get_body_wear_prompt, get_hair_eyes_prompt, get_place_prompt,
@@ -18,7 +18,7 @@ from module.basePromptBuilder import (
     SexActType, get_s_act_sex_prompt, get_s_act_group_prompt, get_s_act_tentacles_prompt, BodyWearType, project_config
 )
 
-from module.lora import (
+from lora import (
     gen_lora_prompt_list, gen_lycoris_prompt_list, get_embed_prompt, is_special_single, gen_lora_special,
     should_re_gen_prompt
 )

@@ -1,9 +1,6 @@
-# import modules.scripts as scripts
-# from modules import script_callbacks
-
+import importlib
 import os
 import sys
-import importlib
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -317,8 +314,5 @@ if IS_PLUGIN:
     script_module.on_ui_tabs(on_ui_tabs)
     script_module.on_after_component(after_component)
 
-    pass
 else:
     on_ui_tabs().launch(debug=True)
-# script_callbacks.on_ui_tabs(on_ui_tabs)
-# script_callbacks.on_after_component(after_component)
