@@ -21,6 +21,7 @@ class ModelInfo:
 
 class LoraConfigManager(object):
     _data = {}
+    _lastModifyTime = 0
 
     _instance = None
 
@@ -33,18 +34,22 @@ class LoraConfigManager(object):
     def __init__(self):
         pass
 
-    def loadData(self):
-        # 获取当前Python文件的路径
+    def get_excel_file_path(self):
         current_file_path = os.path.abspath(__file__)
         current_folder = os.path.dirname(current_file_path)
         parent_folder = os.path.dirname(current_folder)
 
         target_file_name = "modelsConfig.xlsx"
         target_file_path = os.path.join(parent_folder, target_file_name)
+        return target_file_path
+
+    def loadData(self):
+        target_file_path = self.get_excel_file_path()
 
         # 检查文件是否存在
         if os.path.exists(target_file_path):
             print(f"find target excel file：{target_file_path}")
+            self._lastModifyTime = os.path.getmtime(target_file_path)
             workbook = pyxl.load_workbook(target_file_path)
             sheet = workbook.active
             for row in sheet.iter_rows(min_row=2, values_only=True):  # 从第2行开始遍历
@@ -90,7 +95,7 @@ class LoraConfigManager(object):
                 is_special = (is_special == 1)
                 model_obj = ModelInfo(id_model, type_model, name_model, trigger_words, min_widget, max_widget,
                                       default_widget, is_special)
-                print(model_obj)
+                # print(model_obj)
                 identifer = f"{id_model}_{type_model}"
                 self._data[identifer] = model_obj
             workbook.close()
@@ -98,8 +103,16 @@ class LoraConfigManager(object):
             print(f"can NOT find target excel file：{target_file_path}")
 
     def query_data(self, model_id):
-        return self._data[model_id]
+        if self._lastModifyTime != os.path.getmtime(self.get_excel_file_path()):
+            self.reload()
+            if model_id in self._data:
+                return self._data[model_id]
+        else:
+            if model_id in self._data:
+                return self._data[model_id]
+        return None
 
     def reload(self):
+        self._lastModifyTime = os.path.getmtime(self.get_excel_file_path())
         self._data = {}
         self.loadData()

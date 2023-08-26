@@ -270,7 +270,6 @@ global_random_f = False
 def get_single_lora_prompt(category, weight=None, diff_style=0):
     prompt = ""
     lora = LoraConfigManager()
-    print("lora单例! id为 %s" % id(lora))
     model = lora.query_data(f"{category}_1")
     if isinstance(model, ModelInfo):
 

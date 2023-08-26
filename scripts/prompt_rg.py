@@ -11,7 +11,6 @@ import gradio as gr
 
 from module.sd_command_gen import project_config as gen_config
 from module.web_api import (create_prompts)
-from module.model_manager import LoraConfigManager
 
 project_config = gen_config
 t2i_text_box = None
@@ -134,12 +133,6 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
     project_config["additional_prompt"] = additional_prompt
     return create_prompts(gen_times, project_config)
 
-
-def reload_action():
-    # lora = LoraConfigManager()
-    # print("lora单例! id为 %s" % id(lora))
-    pass
-
 def send_action(result_text):
     if t2i_text_box is not None:
         lines = result_text.split("\n")
@@ -180,7 +173,7 @@ def on_ui_tabs():
                                                        label="胸大小描述", info="依次增大= =#", interactive=True)
                             body_wear = gr.Dropdown(
                                 ["裙子dress", "制服UNIFORM", "紧身衣BODYSUIT", "传统服饰TRADITIONAL",
-                                 "上下搭配(如上身体恤下身短裙)", "以上随机", "空NULL"], value="裙子dress",
+                                 "上下搭配(如上身体恤下身短裙)", "以上随机", "空NULL"], value="空NULL",
                                 type="index", label="衣服", info="", interactive=True)
                             top_wear = gr.Dropdown(
                                 ["衬衫SHIRTS", "外套COAT", "毛衣SWEATER", "其他OTHERS", "以上随机RANDOM"],
@@ -295,9 +288,7 @@ def on_ui_tabs():
                 with gr.Row():
                     gen_button = gr.Button("生成prompt")
                     send_button = gr.Button("发送到文生图")
-                with gr.Row():
-                    reload_button = gr.Button("重载模型excel")
-        reload_button.click(reload_action)
+
         gen_button.click(gen_action,
                          inputs=[time_slider, lora, lyco, embeddings, model_order, additional_prompt, angle,
                                  body_framing, location,
