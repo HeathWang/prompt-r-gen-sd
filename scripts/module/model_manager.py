@@ -19,21 +19,16 @@ class ModelInfo:
         return f"{self.id_model} {self.type_model} {self.name_model} {self.trigger_words} {self.min_widget} {self.max_widget} {self.default_widget} {self.is_special}"
 
 
-def singleton_with_init(cls):
-    instances = {}  # 用于存储实例的字典
-
-    def get_instance(*args, **kwargs):
-        if cls not in instances:
-            instances[cls] = cls(*args, **kwargs)
-            instances[cls].loadData()
-        return instances[cls]
-
-    return get_instance
-
-
-@singleton_with_init
-class LoraConfigManager:
+class LoraConfigManager(object):
     _data = {}
+
+    _instance = None
+
+    def __new__(cls, *args, **kw):
+        if cls._instance is None:
+            cls._instance = object.__new__(cls, *args, **kw)
+            cls._instance.loadData()
+        return cls._instance
 
     def __init__(self):
         pass

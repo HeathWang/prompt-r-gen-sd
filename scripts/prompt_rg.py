@@ -16,7 +16,7 @@ from module.model_manager import LoraConfigManager
 project_config = gen_config
 t2i_text_box = None
 IS_PLUGIN = False
-model_manager = LoraConfigManager()
+
 
 def get_model_input(com_value):
     arr = com_value.split(",")
@@ -136,7 +136,9 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
 
 
 def reload_action():
-    LoraConfigManager().reload()
+    # lora = LoraConfigManager()
+    # print("lora单例! id为 %s" % id(lora))
+    pass
 
 def send_action(result_text):
     if t2i_text_box is not None:

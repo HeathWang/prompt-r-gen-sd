@@ -10,7 +10,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(current_dir)
 sys.path.append(parent_dir)
 
-from model_manager import (ModelInfo, LoraConfigManager, )
+from model_manager import (ModelInfo, LoraConfigManager)
 
 
 class LoraCategory(IntEnum):
@@ -269,7 +269,9 @@ global_random_f = False
 
 def get_single_lora_prompt(category, weight=None, diff_style=0):
     prompt = ""
-    model = LoraConfigManager().query_data(f"{category}_1")
+    lora = LoraConfigManager()
+    print("lora单例! id为 %s" % id(lora))
+    model = lora.query_data(f"{category}_1")
     if isinstance(model, ModelInfo):
 
         if model.trigger_words != "":
