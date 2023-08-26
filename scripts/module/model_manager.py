@@ -80,8 +80,6 @@ class LoraConfigManager(object):
                 if max_widget is not None:
                     if isinstance(max_widget, str) and max_widget.isdigit():
                         max_widget = float(max_widget)
-                    else:
-                        max_widget = 1
                 else:
                     max_widget = 1
                 if default_widget is not None:
