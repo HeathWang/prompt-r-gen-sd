@@ -5,7 +5,7 @@ import openpyxl as pyxl
 
 class ModelInfo:
     def __init__(self, id_model, type_model, name_model, trigger_words="", min_widget=0.4, max_widget=1,
-                 default_widget=0.6, is_special=False):
+                 default_widget=0.6, is_special=False, user_desc=""):
         self.id_model = id_model
         self.type_model = type_model
         self.name_model = name_model
@@ -14,6 +14,7 @@ class ModelInfo:
         self.max_widget = max_widget
         self.default_widget = default_widget
         self.is_special = is_special
+        self.user_desc = user_desc
 
     def __str__(self):
         return f"{self.id_model} {self.type_model} {self.name_model} {self.trigger_words} {self.min_widget} {self.max_widget} {self.default_widget} {self.is_special}"
@@ -62,6 +63,7 @@ class LoraConfigManager(object):
                 max_widget = row[5]
                 default_widget = row[6]
                 is_special = row[7]
+                user_desc = row[8]
 
                 if id_model is None or type_model is None or name_model is None:
                     continue
@@ -93,7 +95,7 @@ class LoraConfigManager(object):
 
                 is_special = (is_special == 1)
                 model_obj = ModelInfo(id_model, type_model, name_model, trigger_words, min_widget, max_widget,
-                                      default_widget, is_special)
+                                      default_widget, is_special, user_desc)
                 # print(model_obj)
                 identifer = f"{id_model}_{type_model}"
                 if is_special:
@@ -126,3 +128,26 @@ class LoraConfigManager(object):
             return True
 
         return False
+
+    def export_to_data_frame(self):
+        data = []
+        for key, value in self._data.items():
+            obj_index = key.split("_")[0]
+            obj_type = value.type_model
+            if obj_type == 1 or obj_index == "1":
+                obj_type = "Lora"
+            elif obj_type == 2 or obj_index == "2":
+                obj_type = "Loha"
+            elif obj_type == 3 or obj_index == "3":
+                obj_type = "Embedding"
+            obj_name = value.name_model
+            obj_desc = value.user_desc
+            data.append([key, obj_index, obj_type, obj_name, obj_desc])
+
+        # sort data with key obj
+        data.sort(key=lambda x: x[0])
+        # loop data, and remove every firt obj from child node
+        for i in range(len(data)):
+            data[i].remove(data[i][0])
+        return data
+
