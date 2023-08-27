@@ -19,8 +19,7 @@ from basePromptBuilder import (
 )
 
 from lora import (
-    gen_lora_prompt_list, gen_lycoris_prompt_list, get_embed_prompt, is_special_single, gen_lora_special,
-    should_re_gen_prompt
+    gen_lora_prompt_list, gen_lycoris_prompt_list, get_embed_prompt, is_special_single, should_re_gen_prompt
 )
 
 
@@ -57,7 +56,7 @@ def gen_lora_prompt():
     if is_special_single(lora_list) or is_special_single(lyco_list):
         for v in order_arr:
             if v == 'x':
-                prompt = prompt + gen_lora_special(lora_list)
+                prompt = prompt + gen_lora_prompt_list(lora_list)
             elif v == 'y':
                 prompt = prompt + get_lyco_prompt(lyco_list)
             elif v == 'z':
