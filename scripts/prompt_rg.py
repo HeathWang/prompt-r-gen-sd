@@ -240,6 +240,23 @@ def on_ui_tabs():
                                                                            interactive=True)
                                 nude_list_random_index_times = gr.Slider(0, 9, value=0, step=1, label="裸体词缀随机数",
                                                                          interactive=True)
+                    with gr.Accordion("Lora Loha embedding控制", open=False):
+                        gr.Markdown(
+                            """
+                            关于lora/loha/embedding详细配置使用：[点我查看](https://github.com/HeathWang/prompt-r-gen-sd#lora-loha-embedding%E6%8E%A7%E5%88%B6%E8%AF%B4%E6%98%8E)
+                            """
+                        )
+                        with gr.Box():
+                            with gr.Row():
+                                lora = gr.Textbox("", label="Lora【x】",
+                                                  info="格式如下：101, '101:0.6',    输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'101:0.8'，则表示lora权重0.8")
+                                lyco = gr.Textbox("", label="lyco【y】",
+                                                  info="格式如下：101, '101:0.6',    输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'101:0.8'，则表示lora权重0.8")
+                            with gr.Row():
+                                embeddings = gr.Textbox("", label="embeddings【z】",
+                                                        info="格式如下：100, '100:0.6', '100:0.6'\n输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'100:0.8'，则表示lora权重0.8")
+                                model_order = gr.Textbox("xyz", label="lora，lyco，embed顺序",
+                                                         info="默认为xyz顺序，即按照lora，lyco，emb顺序")
                     with gr.Box():
                         gr.Markdown("其他")
                         with gr.Row():
@@ -259,18 +276,7 @@ def on_ui_tabs():
                             suffix_words_random_times = gr.Slider(0, 10, value=0, step=1, label="形容词缀随机数",
                                                                   info="一些描述奇幻，美丽相关的词缀",
                                                                   interactive=True)
-                    with gr.Accordion("Lora Loha embedding控制", open=False):
-                        with gr.Box():
-                            with gr.Row():
-                                lora = gr.Textbox("", label="Lora【x】",
-                                                  info="格式如下：101, '101:0.6',    输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'101:0.8'，则表示lora权重0.8")
-                                lyco = gr.Textbox("", label="lyco【y】",
-                                                  info="格式如下：101, '101:0.6',    输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'101:0.8'，则表示lora权重0.8")
-                            with gr.Row():
-                                embeddings = gr.Textbox("", label="embeddings【z】",
-                                                        info="格式如下：100, '100:0.6', '100:0.6'\n输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'100:0.8'，则表示lora权重0.8")
-                                model_order = gr.Textbox("xyz", label="lora，lyco，embed顺序",
-                                                         info="默认为xyz顺序，即按照lora，lyco，emb顺序")
+
                     with gr.Accordion("精准控制项", open=False):
                         with gr.Box():
                             with gr.Row():
