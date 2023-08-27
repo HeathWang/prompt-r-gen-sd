@@ -134,11 +134,11 @@ class LoraConfigManager(object):
         for key, value in self._data.items():
             obj_index = key.split("_")[0]
             obj_type = value.type_model
-            if obj_type == 1 or obj_index == "1":
+            if obj_type == 1 or obj_type == "1":
                 obj_type = "Lora"
-            elif obj_type == 2 or obj_index == "2":
+            elif obj_type == 2 or obj_type == "2":
                 obj_type = "Loha"
-            elif obj_type == 3 or obj_index == "3":
+            elif obj_type == 3 or obj_type == "3":
                 obj_type = "Embedding"
             obj_name = value.name_model
             obj_desc = value.user_desc
