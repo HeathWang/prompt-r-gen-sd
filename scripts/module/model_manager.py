@@ -21,6 +21,7 @@ class ModelInfo:
 
 class LoraConfigManager(object):
     _data = {}
+    _special_ids = set()
     _lastModifyTime = 0
 
     _instance = None
@@ -95,6 +96,8 @@ class LoraConfigManager(object):
                                       default_widget, is_special)
                 # print(model_obj)
                 identifer = f"{id_model}_{type_model}"
+                if is_special:
+                    self._special_ids.add(identifer)
                 self._data[identifer] = model_obj
             workbook.close()
         else:
@@ -113,4 +116,13 @@ class LoraConfigManager(object):
     def reload(self):
         self._lastModifyTime = os.path.getmtime(self.get_excel_file_path())
         self._data = {}
+        self._special_ids = set()
         self.loadData()
+
+    def check_special(self, model_id):
+        if f"{model_id}_1" in self._special_ids:
+            return True
+        if f"{model_id}_2" in self._special_ids:
+            return True
+
+        return False

@@ -143,5 +143,9 @@ def should_re_gen_prompt(lora_list):
     return True
 
 
-def is_special_single(lora_list):
+def is_special_single(model_list):
+    for model in model_list:
+        model_name, weight, prompt_type = convert_widget_string(model)
+        if LoraConfigManager().check_special(model_name):
+            return True
     return False
