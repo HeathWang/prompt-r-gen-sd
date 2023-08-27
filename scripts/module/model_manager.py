@@ -50,7 +50,7 @@ class LoraConfigManager(object):
 
         # 检查文件是否存在
         if os.path.exists(target_file_path):
-            print(f"find target excel file：{target_file_path}")
+            print(f"loading prompt-r-gen-sd excel file：{target_file_path}")
             self._lastModifyTime = os.path.getmtime(target_file_path)
             workbook = pyxl.load_workbook(target_file_path)
             sheet = workbook.active
@@ -103,7 +103,7 @@ class LoraConfigManager(object):
                 self._data[identifer] = model_obj
             workbook.close()
         else:
-            print(f"can NOT find target excel file：{target_file_path}")
+            print(f"can NOT find prompt-r-gen-sd excel file：{target_file_path}")
 
     def query_data(self, model_id):
         if self._lastModifyTime != os.path.getmtime(self.get_excel_file_path()):
