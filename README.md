@@ -28,6 +28,9 @@
 ### 配置修改
 该功能可实现输入个人自定义的文字来生成本地Lora/Loha/embedding提示词。
 安装本extension成功后，可以在extensions/prompt-r-gen-sd/scripts 文件中找到`modelsConfig.xlsx`，打开该excel，直接进行编辑。
+
+你也可以通过下面的地址下载：https://huggingface.co/spaces/heath1989/prompt-rp/resolve/main/modelsConfig.xlsx
+
 参照下面的图示添加你本地的lora等模型配置：
 
 <img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/model_guide.png" alt="guide" width="100%">
