@@ -9,9 +9,9 @@ sys.path.append(parent_dir)
 
 import gradio as gr
 
-from module.sd_command_gen import project_config as gen_config
-from module.web_api import (create_prompts)
-from module.model_manager import (LoraConfigManager)
+from promptsModules.sd_command_gen import project_config as gen_config
+from promptsModules.web_api import (create_prompts)
+from promptsModules.model_manager import (LoraConfigManager)
 
 project_config = gen_config
 t2i_text_box = None
