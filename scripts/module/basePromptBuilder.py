@@ -110,10 +110,10 @@ hairColor = ["white hair", "black hair", "purple hair", "pink hair", "aqua hair"
              "red hair", "brown hair", "green hair", "grey hair", "multicolored hair", "silver hair", "gradient hair",
              "two-tone hair"]
 
-hair_style = ["colored_inner_hair", "crystal_hair", "expressive_hair", "floating hair", "messy_hair",
-              "shiny_hair", "wet_hair", "hair_strand", "crystals texture hair", "wavy hair"]
+hair_style = ["colored inner hair", "crystal hair", "expressive hair", "floating hair", "messy_hair",
+              "shiny_hair", "wet hair", "hair strand", "crystals texture hair", "wavy hair", "ponytail"]
 
-hairLength = ["long", "very long", "absurdly long"]
+hairLength = ["long", "very long", "absurdly long", "short", "medium"]
 
 hair_others = ["bangs", "hair between eyes", "blunt bangs", "side blunt bangs"]
 
@@ -430,7 +430,18 @@ def get_girl_desc_prompt():
     if check_config_value_is_not_none("assign_girl_description"):
         return get_assignment_prompt("assign_girl_description")
 
+    girl_cnt = get_config_value_by_key("girl_cnt")
     prompt = "1girl, "
+    if girl_cnt == 0:
+        return ""
+    elif girl_cnt == 1:
+        pass
+    elif 1 < girl_cnt <= 5:
+        prompt = f"{girl_cnt}girls, "
+    elif girl_cnt == 6:
+        prompt = "6+girls, "
+    elif girl_cnt > 6:
+        prompt = "multiple girls, "
     if get_config_value_by_key("add_girl_beautyful"):
         return prompt + get_random_from_list(beautifier) + " girl, "
 
@@ -936,24 +947,35 @@ def get_bottom_wear_prompt(type_value):
     return bottom_wear_output
 
 
-def get_hair_color_prompt():
+def get_hair_prompt():
+    prompt = ""
+    has_hair_length = get_config_value_by_key("add_hair_length")
+    if has_hair_length:
+        prompt = prompt + get_random_from_list(hairLength)
+
     hair_assign = get_assignment_prompt("hair_color")
     if hair_assign == "":
-        return " hair"
+        prompt = ""
     elif "r" in hair_assign or "random" in hair_assign:
-        return " and " + get_random_from_list(hairColor)
+        if has_hair_length:
+            prompt = prompt + " and " + get_random_from_list(hairColor)
+        else:
+            prompt = prompt + get_random_from_list(hairColor)
     else:
-        return " and " + get_config_value_by_key("hair_color") + " hair"
+        if has_hair_length:
+            prompt = prompt + " and " + get_config_value_by_key("hair_color") + " hair"
+        else:
+            prompt = prompt + get_config_value_by_key("hair_color") + " hair"
+
+    return prompt
 
 
 def get_hair_eyes_prompt():
     current_prompt = ""
     current_prompt = get_face_expression() \
                      + get_breasts_size_prompt() \
-                     + get_random_from_list(hairLength) \
-                     + get_hair_color_prompt() \
-                     + ", "
-
+                     + get_hair_prompt() \
+ \
     if get_config_value_by_key("add_hair_style"):
         current_prompt = current_prompt \
                          + get_standard_prompt(hair_style)
@@ -1016,11 +1038,15 @@ def get_bottom_prompt():
         target_prompt = target_prompt + get_standard_prompt(light_effects)
     if get_config_value_by_key("enable_image_tech"):
         target_prompt = target_prompt + get_standard_prompt(image_techniques)
-    target_prompt = (target_prompt
-                     + get_standard_prompt(hair_accessories)
-                     + get_standard_prompt(neck_accessories)
-                     + get_standard_prompt(earrings)
-                     + "jewelry, ultra-detailed, 8k, ")
+
+    if get_config_value_by_key("add_hair_accessories"):
+        target_prompt = target_prompt + get_standard_prompt(hair_accessories)
+    if get_config_value_by_key("add_neck_accessories"):
+        target_prompt = target_prompt + get_standard_prompt(neck_accessories)
+    if get_config_value_by_key("add_earrings"):
+        target_prompt = target_prompt + get_standard_prompt(earrings)
+    if get_config_value_by_key("add_detail_suffix"):
+        target_prompt = target_prompt + "jewelry, ultra-detailed, 8k, "
 
     if get_config_value_by_key("enable_day_weather"):
         target_prompt = target_prompt \
@@ -1319,13 +1345,19 @@ project_config = {
     "man_random": False,
 
     # 人物描述
+    "girl_cnt": 1,  # 人物数量
     "has_girl_desc": False,  # 是否加入超长的girl描述，目前看来大部分不需要
     "add_girl_beautyful": True,  # girl前缀描述
+    "add_hair_length": True,  # 是否加入发长描述
     "add_hair_style": False,  # 是否加入发型描述
+    "add_hair_accessories": False,  # 是否加入发饰描述
+    "add_neck_accessories": False,  # 是否加入颈饰描述
+    "add_earrings": False,  # 是否加入耳饰描述
 
     # 其他配置
     "is_realistic": True,
     "use_starting": True,  # 是否使用咒语起手式
+    "add_detail_suffix": False,  # 是否加入细节描述
     "add_colors": False,
     "additional_prompt": "",
     "enable_day_weather": False,  # 是否启用天气

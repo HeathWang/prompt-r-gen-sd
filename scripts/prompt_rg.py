@@ -37,7 +37,8 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
                add_colors, enable_day_weather, enable_light_effect, enable_image_tech, accessories_random_tims,
                object_random_times, suffix_words_random_times, assign_angle, assign_body_framing, assign_place,
                assign_pose, assign_job, assigin_expression, assign_clothes, assign_leg_wear, assign_shoes,
-               assign_leg_wear_color, assign_shoes_color, assign_hair_color):
+               assign_leg_wear_color, assign_shoes_color, assign_hair_color, hair_accessories, neck_accessories,
+               earrings, has_ending, hair_length, people_cnt):
     if angle:
         project_config["angle"] = ""
     else:
@@ -88,6 +89,7 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
         else:
             project_config["hair_color"] = assign_hair_color
     project_config["add_hair_style"] = add_hair_style
+    project_config["add_hair_length"] = hair_length
     project_config["enable_eye_color"] = enable_eye_color
     project_config["has_girl_desc"] = has_girl_desc
     project_config["add_girl_beautyful"] = add_girl_beautyful
@@ -121,6 +123,12 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
     project_config["assign_shoes"] = assign_shoes
     project_config["leg_wear_color"] = assign_leg_wear_color
     project_config["shoes_color"] = assign_shoes_color
+
+    project_config["add_hair_accessories"] = hair_accessories
+    project_config["add_neck_accessories"] = neck_accessories
+    project_config["add_earrings"] = earrings
+    project_config["add_detail_suffix"] = has_ending
+    project_config["girl_cnt"] = people_cnt
 
     lora_config = get_model_input(lora)
     lyco_config = get_model_input(lyco)
@@ -210,10 +218,17 @@ def on_ui_tabs():
                     with gr.Box():
                         gr.Markdown("人物描述")
                         with gr.Row():
-                            profession = gr.Checkbox(False, label="职业", info="随机职业，学生，护士...")
-                            hair_color = gr.Checkbox(True, label="头发颜色", info="", interactive=True)
-                            add_hair_style = gr.Checkbox(False, label="头发风格", info="发型")
-                            enable_eye_color = gr.Checkbox(True, label="眼睛颜色", info="")
+                            profession = gr.Checkbox(False, label="职业")
+                            people_cnt = gr.Slider(0, 8, value=1, label="人物数量", step=1, interactive=True)
+                        with gr.Row():
+                            hair_length = gr.Checkbox(True, label="头发长度")
+                            hair_color = gr.Checkbox(True, label="头发颜色", interactive=True)
+                            add_hair_style = gr.Checkbox(False, label="头发风格")
+                            enable_eye_color = gr.Checkbox(True, label="眼睛颜色")
+                        with gr.Row():
+                            hair_accessories = gr.Checkbox(True, label="头饰")
+                            neck_accessories = gr.Checkbox(True, label="颈部饰物")
+                            earrings = gr.Checkbox(True, label="耳环")
                         with gr.Row():
                             face_expression = gr.Dropdown(
                                 ["情绪EMOTIONS", "诱惑的SEXUAL", "笑容SMILE", "俏皮的SMUG", "以上随机", "空NULL"],
@@ -261,8 +276,11 @@ def on_ui_tabs():
                         gr.Markdown("其他")
                         with gr.Row():
                             has_starting = gr.Checkbox(True, label="是否使用起手式", info="best quality, absurdres,")
-                            is_realistic = gr.Checkbox(False, label="是否添加真实词缀")
+                            has_ending = gr.Checkbox(True, label="添加细节", info="jewelry, ultra-detailed, 8k,")
+                            is_realistic = gr.Checkbox(False, label="是否添加真实词缀",
+                                                       info="realistic, photorealistic")
                             add_colors = gr.Checkbox(False, label="是否添加多彩词缀")
+                        with gr.Row():
                             enable_day_weather = gr.Checkbox(False, label="是否添加天气信息")
                             enable_light_effect = gr.Checkbox(True, label="是否添加灯光效果")
                             enable_image_tech = gr.Checkbox(False, label="是否开启图像技术，如模糊")
@@ -286,7 +304,7 @@ def on_ui_tabs():
                             with gr.Row():
                                 assign_pose = gr.Textbox("null", label="指定人物动作")
                                 assign_job = gr.Textbox("null", label="指定角色")
-                                assigin_expression = gr.Textbox("", label="指定人物表情")
+                                assigin_expression = gr.Textbox("null", label="指定人物表情")
                             with gr.Row():
                                 assign_clothes = gr.Textbox("", label="指定衣服")
                                 assign_leg_wear = gr.Textbox("", label="指定袜子类型")
@@ -330,7 +348,8 @@ def on_ui_tabs():
                                  object_random_times, suffix_words_random_times, assign_angle, assign_body_framing,
                                  assign_place, assign_pose, assign_job, assigin_expression, assign_clothes,
                                  assign_leg_wear, assign_shoes, assign_leg_wear_color, assign_shoes_color,
-                                 assign_hair_color], outputs=results)
+                                 assign_hair_color, hair_accessories, neck_accessories, earrings, has_ending,
+                                 hair_length, people_cnt], outputs=results)
         send_button.click(send_action, inputs=results, outputs=t2i_text_box)
         if IS_PLUGIN:
             return [(ui_component, "随机提示词RP", "随机提示词RP")]
