@@ -249,12 +249,12 @@ def on_ui_tabs():
                         with gr.Box():
                             with gr.Row():
                                 lora = gr.Textbox("", label="Lora【x】",
-                                                  info="格式如下：101, '101:0.6',    输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'101:0.8'，则表示lora权重0.8")
+                                                  info="格式如下：101, 101:0.6, 路易斯:0.65")
                                 lyco = gr.Textbox("", label="lyco【y】",
-                                                  info="格式如下：101, '101:0.6',    输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'101:0.8'，则表示lora权重0.8")
+                                                  info="格式如下：101, 101:0.6, 添加细节:1")
                             with gr.Row():
                                 embeddings = gr.Textbox("", label="embeddings【z】",
-                                                        info="格式如下：100, '100:0.6', '100:0.6'\n输入单纯的数字100，或者使用''包裹数字，加上:后面跟上权重'100:0.8'，则表示lora权重0.8")
+                                                        info="格式如下：100, ul:0.6")
                                 model_order = gr.Textbox("xyz", label="lora，lyco，embed顺序",
                                                          info="默认为xyz顺序，即按照lora，lyco，emb顺序")
                     with gr.Box():

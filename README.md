@@ -24,7 +24,32 @@
 10. 可将生成内容一键发送到文生图
 
 ## Lora/Loha/embedding控制说明
+
+### 配置修改
 该功能可实现输入个人自定义的文字来生成本地Lora/Loha/embedding提示词。
+安装本extension成功后，可以在extensions/prompt-r-gen-sd/scripts 文件中找到`modelsConfig.xlsx`，打开该excel，直接进行编辑。
+参照下面的图示添加你本地的lora等模型配置：
+<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/model_guide.png" alt="guide" width="50%">
+
+### 使用说明
+<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/ui_lora.png" alt="lora" width="50%">
+点开“Lora Loha embedding控制”下拉菜单，以本地下载的`st louis epoch5.safetensors`为例，
+在lora框输入：
+1. "圣姨"，则表示“lora模型按照指定权重随机”
+2. "圣姨:0.6"，则说明"lora模型固定0.6权重"
+
+对于使用多个模型，中间以“,”分割即可
+如：
+1. "圣姨,666:0.8,xyz"，则表示"生成这3个配置lora的提示词"
+
+### Lora/Loha/embedding输出顺序
+默认情况下，按照Lora/Loha/embedding顺序输出，你可以在顺序更改输入框更改它们的输出顺序。
+1. xyz：Lora/Loha/embedding
+2. yxz：Loha/Lora/embedding
+3. zxy：embedding/Lora/loha
+......
+
+
 
 ## 后续功能
 
