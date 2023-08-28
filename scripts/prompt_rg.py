@@ -243,7 +243,7 @@ def on_ui_tabs():
                     with gr.Accordion("Lora Loha embedding控制", open=False):
                         gr.Markdown(
                             """
-                            关于lora/loha/embedding详细配置使用：[点我查看](https://github.com/HeathWang/prompt-r-gen-sd#lora-loha-embedding%E6%8E%A7%E5%88%B6%E8%AF%B4%E6%98%8E)
+                            关于lora/loha/embedding详细配置使用：[点我查看](https://github.com/HeathWang/prompt-r-gen-sd#loralohaembedding%E6%8E%A7%E5%88%B6%E8%AF%B4%E6%98%8E)
                             """
                         )
                         with gr.Box():
