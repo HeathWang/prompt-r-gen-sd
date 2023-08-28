@@ -974,8 +974,8 @@ def get_hair_eyes_prompt():
     current_prompt = ""
     current_prompt = get_face_expression() \
                      + get_breasts_size_prompt() \
-                     + get_hair_prompt() \
- \
+                     + get_hair_prompt()
+
     if get_config_value_by_key("add_hair_style"):
         current_prompt = current_prompt \
                          + get_standard_prompt(hair_style)
