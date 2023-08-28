@@ -29,12 +29,16 @@
 该功能可实现输入个人自定义的文字来生成本地Lora/Loha/embedding提示词。
 安装本extension成功后，可以在extensions/prompt-r-gen-sd/scripts 文件中找到`modelsConfig.xlsx`，打开该excel，直接进行编辑。
 参照下面的图示添加你本地的lora等模型配置：
+
 <img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/model_guide.png" alt="guide" width="50%">
+修改excel保存后，配置可实时生效。
+对于云端部署的，需要云端覆盖`modelsConfig.xlsx`方可生效。
 
 ### 使用说明
 <img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/ui_lora.png" alt="lora" width="50%">
 点开“Lora Loha embedding控制”下拉菜单，以本地下载的`st louis epoch5.safetensors`为例，
 在lora框输入：
+
 1. "圣姨"，则表示“lora模型按照指定权重随机”
 2. "圣姨:0.6"，则说明"lora模型固定0.6权重"
 
