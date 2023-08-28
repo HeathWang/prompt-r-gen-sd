@@ -10,7 +10,7 @@
 
 ## 功能
 
-<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/snap_Shot.png" alt="ui" width="50%">
+<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/snap_Shot.png" alt="ui" width="100%">
 
 1. 可配置一次生成的提示词数量，最小1，最大6
 2. 可随机视角、地点、人物动作
@@ -30,12 +30,12 @@
 安装本extension成功后，可以在extensions/prompt-r-gen-sd/scripts 文件中找到`modelsConfig.xlsx`，打开该excel，直接进行编辑。
 参照下面的图示添加你本地的lora等模型配置：
 
-<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/model_guide.png" alt="guide" width="50%">
+<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/model_guide.png" alt="guide" width="100%">
 修改excel保存后，配置可实时生效。
 对于云端部署的，需要云端覆盖`modelsConfig.xlsx`方可生效。
 
 ### 使用说明
-<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/ui_lora.png" alt="lora" width="50%">
+<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/ui_lora.png" alt="lora" width="100%">
 点开“Lora Loha embedding控制”下拉菜单，以本地下载的`st louis epoch5.safetensors`为例，
 在lora框输入：
 
