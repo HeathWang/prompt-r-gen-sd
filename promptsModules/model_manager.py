@@ -40,10 +40,9 @@ class LoraConfigManager(object):
     def get_excel_file_path(self):
         current_file_path = os.path.abspath(__file__)
         current_folder = os.path.dirname(current_file_path)
-        parent_folder = os.path.dirname(current_folder)
 
         target_file_name = "modelsConfig.xlsx"
-        target_file_path = os.path.join(parent_folder, target_file_name)
+        target_file_path = os.path.join(current_folder, target_file_name)
         return target_file_path
 
     def loadData(self):
