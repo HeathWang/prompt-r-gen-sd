@@ -66,7 +66,7 @@ def gen_lora_prompt_list(lora_list, random_f=False):
     global_random_f = random_f
     prompt_list = []
     for lora in lora_list:
-        lora_name, weight, prompt_type = convert_widget_string(lora)
+        lora_name, weight = convert_widget_string(lora)
         prompt_list.append(get_single_lora_prompt(lora_name, weight))
     prompt = "".join(prompt_list)
     return prompt
@@ -77,7 +77,7 @@ def gen_lycoris_prompt_list(lycoris_list, random_f=False):
     global_random_f = random_f
     prompt_list = []
     for lyco in lycoris_list:
-        lyco_name, weight, prompt_type = convert_widget_string(lyco)
+        lyco_name, weight = convert_widget_string(lyco)
         prompt_list.append(get_single_lycoris_prompt(lyco_name, weight))
     prompt = "".join(prompt_list)
     return prompt
@@ -88,7 +88,7 @@ def get_embed_prompt(embedding_list):
     global_random_f = True
     prompt_list = []
     for embedding_str in embedding_list:
-        embedding, weight, prompt_type = convert_widget_string(embedding_str)
+        embedding, weight = convert_widget_string(embedding_str)
         prompt_list.append(get_single_embedding_prompt(embedding, weight))
 
     prompt = "".join(prompt_list)
@@ -115,26 +115,18 @@ def get_single_embedding_prompt(category, weight=None):
 def convert_widget_string(model_str):
     # check if model_str is int or float
     if isinstance(model_str, int) or isinstance(model_str, float):
-        return model_str, None, 0
+        return model_str, None
     elif isinstance(model_str, str):
 
         if ':' in model_str:
             splitted = model_str.split(':')
-            before_colon = int(splitted[0])
+            before_colon = splitted[0]
             after_colon = splitted[1]
-            prompt_type = '0'
-            if len(splitted) > 2:
-                prompt_type = splitted[2]
-            if prompt_type is not None and prompt_type.isdigit():
-                prompt_type = int(prompt_type)
-            return before_colon, after_colon, prompt_type
+            return before_colon, after_colon
         else:
-            result = None
-            if model_str.isdigit():
-                result = int(model_str)
-            return result, None, 0
+            return model_str, None
     else:
-        raise ValueError("model_str is not int or float or str")
+        raise ValueError("CAN NOT VALIDATE MODEL STRING")
 
 
 def should_re_gen_prompt(lora_list):
@@ -145,7 +137,7 @@ def should_re_gen_prompt(lora_list):
 
 def is_special_single(model_list):
     for model in model_list:
-        model_name, weight, prompt_type = convert_widget_string(model)
+        model_name, weight = convert_widget_string(model)
         if LoraConfigManager().check_special(model_name):
             return True
     return False

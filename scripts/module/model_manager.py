@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 import os
 
 import openpyxl as pyxl
@@ -150,4 +151,3 @@ class LoraConfigManager(object):
         for i in range(len(data)):
             data[i].remove(data[i][0])
         return data
-
