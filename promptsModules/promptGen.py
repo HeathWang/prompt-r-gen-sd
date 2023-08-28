@@ -1,16 +1,9 @@
 # -*- coding:utf-8 -*-
 
-import os
-import sys
-
-current_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(current_dir)
-sys.path.append(current_dir)
-sys.path.append(parent_dir)
 
 from enum import IntEnum
 
-from basePromptBuilder import (
+from promptsModules.basePromptBuilder import (
     get_config_value_by_key,
     get_starting_prompt, get_user_additional_prompt, get_realistic_prompt, get_angle_and_image_composition,
     get_girl_desc_prompt, get_job_prompt, get_body_wear_prompt, get_hair_eyes_prompt, get_place_prompt,
@@ -18,7 +11,7 @@ from basePromptBuilder import (
     SexActType, get_s_act_sex_prompt, get_s_act_group_prompt, get_s_act_tentacles_prompt, BodyWearType, project_config
 )
 
-from lora import (
+from promptsModules.lora import (
     gen_lora_prompt_list, gen_lycoris_prompt_list, get_embed_prompt, is_special_single, should_re_gen_prompt
 )
 
