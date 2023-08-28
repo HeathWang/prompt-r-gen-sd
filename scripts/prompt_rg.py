@@ -28,7 +28,7 @@ def get_model_input(com_value):
 
 ######### gen #########
 # 我有史以来写的最长的方法
-def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt, angle, body_framing, location,
+def gen_action(gen_times, widget_lora, widget_lyco, widget_embeddings, model_order, additional_prompt, angle, body_framing, location,
                pose_type,
                dynamic_mode, breasts_size, body_wear, top_wear, bottom_wear, leg_wear, panties, shoes_type, body_with,
                body_status, body_desc, cloth_trim, profession, hair_color, add_hair_style, enable_eye_color,
@@ -130,9 +130,9 @@ def gen_action(gen_times, lora, lyco, embeddings, model_order, additional_prompt
     project_config["add_detail_suffix"] = has_ending
     project_config["girl_cnt"] = people_cnt
 
-    lora_config = get_model_input(lora)
-    lyco_config = get_model_input(lyco)
-    embeddings_config = get_model_input(embeddings)
+    lora_config = get_model_input(widget_lora)
+    lyco_config = get_model_input(widget_lyco)
+    embeddings_config = get_model_input(widget_embeddings)
     project_config["lora"] = lora_config
     project_config["lyco"] = lyco_config
     project_config["embeddings"] = embeddings_config
@@ -263,13 +263,13 @@ def on_ui_tabs():
                         )
                         with gr.Box():
                             with gr.Row():
-                                lora = gr.Textbox("", label="Lora【x】",
-                                                  info="格式如下：101, 101:0.6, 路易斯:0.65")
-                                lyco = gr.Textbox("", label="lyco【y】",
-                                                  info="格式如下：101, 101:0.6, 添加细节:1")
+                                widget_lora = gr.Textbox("", label="Lora【x】",
+                                                  info="格式如下：101, 101:0.6, 路易斯:0.65", elem_id="rp_widget_lora")
+                                widget_lyco = gr.Textbox("", label="lyco【y】",
+                                                  info="格式如下：101, 101:0.6, 添加细节:1", elem_id="rp_widget_lyco")
                             with gr.Row():
-                                embeddings = gr.Textbox("", label="embeddings【z】",
-                                                        info="格式如下：100, ul:0.6")
+                                widget_embeddings = gr.Textbox("", label="embeddings【z】",
+                                                        info="格式如下：100, ul:0.6", elem_id="rp_widget_embeddings")
                                 model_order = gr.Textbox("xyz", label="lora，lyco，embed顺序",
                                                          info="默认为xyz顺序，即按照lora，lyco，emb顺序")
                     with gr.Box():
@@ -335,7 +335,7 @@ def on_ui_tabs():
             review_btn.click(load_config_action, outputs=data_sheet)
 
         gen_button.click(gen_action,
-                         inputs=[time_slider, lora, lyco, embeddings, model_order, additional_prompt, angle,
+                         inputs=[time_slider, widget_lora, widget_lyco, widget_embeddings, model_order, additional_prompt, angle,
                                  body_framing, location,
                                  pose_type, dynamic_mode, breasts_size, body_wear, top_wear, bottom_wear, leg_wear,
                                  panties, shoes_type, body_with, body_status, body_desc, cloth_trim, profession,
