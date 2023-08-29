@@ -74,13 +74,8 @@ def gen_action(gen_times, widget_lora, widget_lyco, widget_embeddings, model_ord
     else:
         project_config["assign_profession"] = assign_job
 
-    if hair_color and assign_hair_color == "":
-        project_config["hair_color"] = "random"
-    else:
-        if assign_hair_color == "":
-            project_config["hair_color"] = "null"
-        else:
-            project_config["hair_color"] = assign_hair_color
+    project_config["hair_color"] = hair_color
+    project_config["assign_hair_color"] = assign_hair_color
     project_config["add_hair_style"] = add_hair_style
     project_config["add_hair_length"] = hair_length
     project_config["enable_eye_color"] = enable_eye_color

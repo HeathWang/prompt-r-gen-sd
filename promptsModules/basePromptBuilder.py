@@ -953,19 +953,25 @@ def get_hair_prompt():
     if has_hair_length:
         prompt = prompt + get_random_from_list(hairLength)
 
-    hair_assign = get_assignment_prompt("hair_color")
-    if hair_assign == "":
-        prompt = ""
-    elif "r" in hair_assign or "random" in hair_assign:
+    enable_hair_color_random = get_config_value_by_key("hair_color")
+    target_hair_color = get_assignment_prompt("assign_hair_color")
+
+    if target_hair_color != "":
         if has_hair_length:
-            prompt = prompt + " and " + get_random_from_list(hairColor)
+            prompt = prompt + " and " + get_config_value_by_key("assign_hair_color") + " hair, "
         else:
-            prompt = prompt + get_random_from_list(hairColor)
+            prompt = prompt + get_config_value_by_key("assign_hair_color") + " hair, "
     else:
         if has_hair_length:
-            prompt = prompt + " and " + get_config_value_by_key("hair_color") + " hair"
+            if enable_hair_color_random:
+                prompt = prompt + " and " + get_standard_prompt(hairColor)
+            else:
+                prompt = prompt + " hair, "
         else:
-            prompt = prompt + get_config_value_by_key("hair_color") + " hair"
+            if enable_hair_color_random:
+                prompt = prompt + get_standard_prompt(hairColor)
+            else:
+                pass
 
     return prompt
 
@@ -1141,7 +1147,7 @@ def get_s_bottom_prompt():
 def get_assignment_prompt(the_assignment):
     the_value = get_config_value_by_key(the_assignment).lower()
     # check the_value, if is like nil, null, none, then return ""
-    if the_value == "nil" or the_value == "null" or the_value == "none" or the_value == "空":
+    if the_value == "nil" or the_value == "null" or the_value == "none" or the_value == "空" or the_value == "":
         return ""
     else:
         return "(" + get_config_value_by_key(the_assignment) + "), "
@@ -1312,7 +1318,7 @@ project_config = {
     # 颜色，只用给颜色即可
     "leg_wear_color": "",
     "shoes_color": "",
-    "hair_color": "",
+    "hair_color": False,
     "enable_eye_color": True,
     "disable_all_color": True,
     # 直接指定prompt，这会直接跳过其他配置，并且自动加深prompt权重
@@ -1324,6 +1330,7 @@ project_config = {
     "assign_body_clothes": "",
     "assign_panties": "",
     "assign_girl_description": "",
+    "assign_hair_color": "",  # 指定头发颜色
 
     # 装饰、物品、形容词
     "accessories_random_tims": 3,  # max:6 NOTE：对于某些model，如何这些prompt出现，可能会影响视角效果
