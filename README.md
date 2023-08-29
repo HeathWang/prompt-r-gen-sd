@@ -6,7 +6,7 @@
 
 ~~目前仅支持画女孩提示词~~，其他待开发。
 
-功能预览：https://huggingface.co/spaces/heath1989/prompt-rp
+功能预览：[https://huggingface.co/spaces/heath1989/prompt-rp](https://huggingface.co/spaces/heath1989/prompt-r-gen-sd)
 
 ## 功能
 
@@ -54,6 +54,7 @@
 1. xyz：Lora/Loha/embedding
 2. yxz：Loha/Lora/embedding
 3. zxy：embedding/Lora/loha
+
 ......
 
 
