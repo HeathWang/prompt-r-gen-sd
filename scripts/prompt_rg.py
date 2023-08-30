@@ -1,4 +1,5 @@
 import importlib
+import re
 
 import gradio as gr
 
@@ -136,7 +137,9 @@ def send_action(result_text):
         lines = result_text.split("\n")
         stripped_lines = [line.strip() for line in lines]
         if len(stripped_lines) > 0:
-            return stripped_lines[0]
+            top_ele = stripped_lines[0]
+            top_ele = re.sub(r'\n+$', '', top_ele)
+            return top_ele
 
 
 def load_config_action():
