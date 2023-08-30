@@ -161,9 +161,7 @@ def on_ui_tabs():
                     with gr.Box():
                         with gr.Row():
                             time_slider = gr.Slider(1, 6, value=4, label="随机生成条数", step=1, interactive=True)
-
-                    with gr.Box():
-                        gr.Markdown("视角、地点、动作")
+                    with gr.Accordion("视角、地点、动作", open=False):
                         with gr.Row():
                             angle = gr.Checkbox(False, label="视角", info="正面，侧面，背面...")
                             body_framing = gr.Checkbox(False, label="身体框架", info="肖像，半身，全身...")
@@ -174,8 +172,7 @@ def on_ui_tabs():
                                                     info="人物动作，站、坐、躺...")
                             dynamic_mode = gr.Checkbox(False, label="动态模式",
                                                        info="使用dynamic pose, angle，需对应配置勾选")
-                    with gr.Box():
-                        gr.Markdown("身体穿着描述, 选择空NULL则不生成该tag")
+                    with gr.Accordion("人物衣着", open=False):
                         with gr.Column():
                             with gr.Row():
                                 breasts_size = gr.Dropdown(["medium", "large", "huge", "gigantic", "空NULL"],
@@ -210,8 +207,7 @@ def on_ui_tabs():
                                 body_status = gr.Checkbox(False, label="身体状态", info="湿身、出汗...")
                                 body_desc = gr.Checkbox(False, label="身体描述", info="完美身材，纤细身体...")
                                 cloth_trim = gr.Checkbox(False, label="衣服装饰", info="蕾丝，丝带，金色，花等等...")
-                    with gr.Box():
-                        gr.Markdown("人物描述")
+                    with gr.Accordion("人物描述", open=False):
                         with gr.Row():
                             profession = gr.Checkbox(False, label="职业")
                             people_cnt = gr.Slider(0, 8, value=1, label="人物数量", step=1, interactive=True)
@@ -271,8 +267,7 @@ def on_ui_tabs():
                                                                elem_id="rp_widget_embeddings")
                                 model_order = gr.Textbox("xyz", label="lora，lyco，embed顺序",
                                                          info="默认为xyz顺序，即按照lora，lyco，emb顺序")
-                    with gr.Box():
-                        gr.Markdown("其他")
+                    with gr.Accordion("其他", open=False):
                         with gr.Row():
                             has_starting = gr.Checkbox(True, label="是否使用起手式", info="best quality, absurdres,")
                             has_ending = gr.Checkbox(True, label="添加细节", info="jewelry, ultra-detailed, 8k,")
