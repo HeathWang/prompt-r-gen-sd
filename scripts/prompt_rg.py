@@ -3,9 +3,9 @@ import re
 
 import gradio as gr
 
+from promptsModules.model_manager import (LoraConfigManager)
 from promptsModules.sd_command_gen import project_config as gen_config
 from promptsModules.web_api import (create_prompts)
-from promptsModules.model_manager import (LoraConfigManager)
 
 project_config = gen_config
 t2i_text_box = None
@@ -22,7 +22,8 @@ def get_model_input(com_value):
 
 ######### gen #########
 # 我有史以来写的最长的方法
-def gen_action(gen_times, widget_lora, widget_lyco, widget_embeddings, model_order, additional_prompt, angle, body_framing, location,
+def gen_action(gen_times, widget_lora, widget_lyco, widget_embeddings, model_order, additional_prompt, angle,
+               body_framing, location,
                pose_type,
                dynamic_mode, breasts_size, body_wear, top_wear, bottom_wear, leg_wear, panties, shoes_type, body_with,
                body_status, body_desc, cloth_trim, profession, hair_color, add_hair_style, enable_eye_color,
@@ -32,7 +33,7 @@ def gen_action(gen_times, widget_lora, widget_lyco, widget_embeddings, model_ord
                object_random_times, suffix_words_random_times, assign_angle, assign_body_framing, assign_place,
                assign_pose, assign_job, assigin_expression, assign_clothes, assign_leg_wear, assign_shoes,
                assign_leg_wear_color, assign_shoes_color, assign_hair_color, hair_accessories, neck_accessories,
-               earrings, has_ending, hair_length, people_cnt):
+               earrings, has_ending, hair_length, people_cnt, body_skin):
     if angle:
         project_config["angle"] = ""
     else:
@@ -69,6 +70,7 @@ def gen_action(gen_times, widget_lora, widget_lyco, widget_embeddings, model_ord
     project_config["body_with"] = body_with
     project_config["body_status"] = body_status
     project_config["body_description"] = body_desc
+    project_config["body_skin"] = body_skin
     project_config["cloth_trim"] = cloth_trim
     if profession:
         project_config["assign_profession"] = ""
@@ -140,6 +142,8 @@ def send_action(result_text):
             top_ele = stripped_lines[0]
             top_ele = re.sub(r'\n+$', '', top_ele)
             return top_ele
+    else:
+        raise gr.Error("请安装到sd webui中使用此功能.")
 
 
 def load_config_action():
@@ -220,6 +224,7 @@ def on_ui_tabs():
                             hair_accessories = gr.Checkbox(True, label="头饰")
                             neck_accessories = gr.Checkbox(True, label="颈部饰物")
                             earrings = gr.Checkbox(True, label="耳环")
+                            body_skin = gr.Checkbox(False, label="皮肤")
                         with gr.Row():
                             face_expression = gr.Dropdown(
                                 ["情绪EMOTIONS", "诱惑的SEXUAL", "笑容SMILE", "俏皮的SMUG", "以上随机", "空NULL"],
@@ -255,12 +260,15 @@ def on_ui_tabs():
                         with gr.Box():
                             with gr.Row():
                                 widget_lora = gr.Textbox("", label="Lora【x】",
-                                                  info="格式如下：101, 101:0.6, 路易斯:0.65", elem_id="rp_widget_lora")
+                                                         info="格式如下：101, 101:0.6, 路易斯:0.65",
+                                                         elem_id="rp_widget_lora")
                                 widget_lyco = gr.Textbox("", label="lyco【y】",
-                                                  info="格式如下：101, 101:0.6, 添加细节:1", elem_id="rp_widget_lyco")
+                                                         info="格式如下：101, 101:0.6, 添加细节:1",
+                                                         elem_id="rp_widget_lyco")
                             with gr.Row():
                                 widget_embeddings = gr.Textbox("", label="embeddings【z】",
-                                                        info="格式如下：100, ul:0.6", elem_id="rp_widget_embeddings")
+                                                               info="格式如下：100, ul:0.6",
+                                                               elem_id="rp_widget_embeddings")
                                 model_order = gr.Textbox("xyz", label="lora，lyco，embed顺序",
                                                          info="默认为xyz顺序，即按照lora，lyco，emb顺序")
                     with gr.Box():
@@ -311,7 +319,7 @@ def on_ui_tabs():
                             additional_prompt = gr.Textbox("", label="额外的prompt")
                 with gr.Column(scale=1):
                     gr.Markdown("prompt输出：")
-                    results = gr.Textbox("", label="生成的prompt", lines=20, show_copy_button=True, interactive=False)
+                    results = gr.Textbox("", label="生成的prompt", lines=20, show_copy_button=True, interactive=True)
                     with gr.Row():
                         gen_button = gr.Button("生成prompt")
                         send_button = gr.Button("发送到文生图")
@@ -326,7 +334,8 @@ def on_ui_tabs():
             review_btn.click(load_config_action, outputs=data_sheet)
 
         gen_button.click(gen_action,
-                         inputs=[time_slider, widget_lora, widget_lyco, widget_embeddings, model_order, additional_prompt, angle,
+                         inputs=[time_slider, widget_lora, widget_lyco, widget_embeddings, model_order,
+                                 additional_prompt, angle,
                                  body_framing, location,
                                  pose_type, dynamic_mode, breasts_size, body_wear, top_wear, bottom_wear, leg_wear,
                                  panties, shoes_type, body_with, body_status, body_desc, cloth_trim, profession,
@@ -340,7 +349,7 @@ def on_ui_tabs():
                                  assign_place, assign_pose, assign_job, assigin_expression, assign_clothes,
                                  assign_leg_wear, assign_shoes, assign_leg_wear_color, assign_shoes_color,
                                  assign_hair_color, hair_accessories, neck_accessories, earrings, has_ending,
-                                 hair_length, people_cnt], outputs=results)
+                                 hair_length, people_cnt, body_skin], outputs=results)
         send_button.click(send_action, inputs=results, outputs=t2i_text_box)
         if IS_PLUGIN:
             return [(ui_component, "随机提示词RP", "随机提示词RP")]
@@ -362,4 +371,6 @@ if IS_PLUGIN:
     script_module.on_after_component(after_component)
 
 else:
-    on_ui_tabs().launch(debug=True)
+    app = on_ui_tabs()
+    app.queue(max_size=10)
+    app.launch(debug=True)

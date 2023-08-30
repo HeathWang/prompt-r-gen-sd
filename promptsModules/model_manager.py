@@ -107,6 +107,7 @@ class LoraConfigManager(object):
 
     def query_data(self, model_id):
         if self._lastModifyTime != os.path.getmtime(self.get_excel_file_path()):
+            print("prompt config changed, reloading....")
             self.reload()
             if model_id in self._data:
                 return self._data[model_id]

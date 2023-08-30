@@ -20,7 +20,7 @@ BACKGROUND_HALATION = 402, STYLE_BEAUTYLEGS = 601, STYLE_ABSTRACT_DREAMWAVE = 20
 """
 // adetailer prompt:
 <lora:MengX girl_Mix:0.8>, 1girl, smile, cute, 18yo, extremely detailed eyes and face, beautiful face,
-<lora:cutegirl25d:0.9>, 1girl, smile, cute, 18yo,
+<lora:cutegirl25d:0.4>, 1girl, (smile), cute, 18yo,
 """
 
 project_config = {

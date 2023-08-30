@@ -247,6 +247,9 @@ body_with = ["zentangle", "entangled", "chained", "bondage", "handcuffs", "leash
 
 body_desc_list = ["perfect body", "slim body", "perfect female body", "slender body", "soaked body", "steaming body"]
 
+body_skin = ["shiny skin", "smooth skin", "soft skin", "glowing skin", "flawless skin", "porcelain skin",
+             "luminous skin"]
+
 details = ["elaborate", "ornate", "intricate", "detailed", "fine", "refined",
            "complicated", "convoluted", "extensive", "exhaustive", "far-reaching", "informative",
            "in-depth", "thorough", "step-by-step", "exact", "precise", "exquisite", "lavish",
@@ -680,6 +683,15 @@ def get_body_description_prompt():
     return current_prompt
 
 
+def get_body_skin_prompt():
+    current_prompt = ""
+    if get_config_value_by_key("body_skin"):
+        current_prompt = current_prompt + get_standard_prompt(body_skin)
+        return current_prompt
+    else:
+        return current_prompt
+
+
 def get_accessories_mix_prompt():
     random_times = 1
     random_times = get_config_value_by_key("accessories_random_tims")
@@ -839,6 +851,7 @@ def get_body_wear_prompt():
                                + get_bottom_wear_prompt(bottom_wear)
 
     body_wear_output = body_wear_output \
+                       + get_body_skin_prompt() \
                        + get_body_description_prompt() \
                        + get_legwear_prompt() \
                        + get_body_with_prompt() \
@@ -1313,6 +1326,7 @@ project_config = {
     "body_with": True,
     "body_status": True,
     "body_description": False,
+    "body_skin": False,
     "cloth_trim": True,
 
     # 颜色，只用给颜色即可
