@@ -1,3 +1,9 @@
+---
+title: prompt-r-gen-sd
+app_file: scripts/prompt_rg.py
+sdk: gradio
+sdk_version: 3.40.1
+---
 # prompt-r-gen-sd
 
 ## 介绍
