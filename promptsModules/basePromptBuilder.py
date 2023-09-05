@@ -24,10 +24,9 @@ legwear_style = ["aran", "bow", "cross-laced", "fishnet", "fluffy", "frilled", "
                  "latex", "bell", "o-ring", "pleated", "ribbed", "ribbon", "seamed", "back-seamed",
                  "front-seamed", "side-seamed", "see-through", "shiny", "side-tie", "spiked", "studded", "toeless",
                  "bridal", "stirrup", "trimmed", "fur-trimmed", "lace-trimmed", "ribbon-trimmed", "zipper",
-                 "animal ear", "torn", "mismatched", "naked", "nude"]
+                 "animal ear", "torn", "mismatched", "naked"]
 
-legwear_color = ["aqua", "beige", "black", "blue", "brown", "green", "grey", "lavender", "orange", "pink", "purple",
-                 "red", "tan", "white", "yellow", "gradient", "multicolored", "two-tone"]
+legwear_color = ["beige", "black", "brown", "grey", "white", "gradient", "multicolored", "two-tone", "flesh-colored", "nude"]
 
 dress_color = ["black", "blue", "pink", "purple", "white", "multicolored", "two-tone", "red"]
 
