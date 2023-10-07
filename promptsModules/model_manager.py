@@ -6,7 +6,7 @@ import openpyxl as pyxl
 
 class ModelInfo:
     def __init__(self, id_model, type_model, name_model, trigger_words="", min_widget=0.4, max_widget=1,
-                 default_widget=0.6, is_special=False, user_desc=""):
+                 default_widget=0.6, is_special=False, user_desc="", sheet_index=1):
         self.id_model = id_model
         self.type_model = type_model
         self.name_model = name_model
@@ -16,6 +16,7 @@ class ModelInfo:
         self.default_widget = default_widget
         self.is_special = is_special
         self.user_desc = user_desc
+        self.sheet_index = sheet_index
 
     def __str__(self):
         return f"{self.id_model} {self.type_model} {self.name_model} {self.trigger_words} {self.min_widget} {self.max_widget} {self.default_widget} {self.is_special}"
@@ -54,6 +55,7 @@ class LoraConfigManager(object):
             self._lastModifyTime = os.path.getmtime(target_file_path)
             workbook = pyxl.load_workbook(target_file_path)
             sheet = workbook.active
+            real_index = 0
             for row in sheet.iter_rows(min_row=2, values_only=True):  # 从第2行开始遍历
                 id_model = row[0]
                 type_model = row[1]
@@ -94,8 +96,9 @@ class LoraConfigManager(object):
                     default_widget = 0.6
 
                 is_special = (is_special == 1)
+                real_index += 1
                 model_obj = ModelInfo(id_model, type_model, name_model, trigger_words, min_widget, max_widget,
-                                      default_widget, is_special, user_desc)
+                                      default_widget, is_special, user_desc, real_index)
                 # print(model_obj)
                 identifer = f"{id_model}_{type_model}"
                 if is_special:
@@ -143,7 +146,8 @@ class LoraConfigManager(object):
                 obj_type = "Embedding"
             obj_name = value.name_model
             obj_desc = value.user_desc
-            data.append([key, obj_index, obj_type, obj_name, obj_desc])
+            sheet_index = value.sheet_index
+            data.append([key, sheet_index, obj_index, obj_type, obj_name, obj_desc])
 
         # sort data with key obj
         data.sort(key=lambda x: x[0])

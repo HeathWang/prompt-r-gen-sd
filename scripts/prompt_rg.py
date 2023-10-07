@@ -321,9 +321,9 @@ def on_ui_tabs():
         with gr.Tab("查看配置"):
             review_btn = gr.Button("加载excel配置")
             data_sheet = gr.DataFrame(
-                headers=["id", "类型", "模型名", "描述"],
-                datatype=["number", "str", "str", "str"],
-                col_count=4,
+                headers=["序列", "id", "类型", "模型名", "描述"],
+                datatype=['number', "str", "str", "str", "str"],
+                col_count=5,
                 interactive=False,
             )
             review_btn.click(load_config_action, outputs=data_sheet)
