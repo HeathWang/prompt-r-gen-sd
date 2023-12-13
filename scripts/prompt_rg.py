@@ -6,10 +6,23 @@ import gradio as gr
 from promptsModules.model_manager import (LoraConfigManager)
 from promptsModules.sd_command_gen import project_config as gen_config
 from promptsModules.web_api import (create_prompts)
+from promptsModules.db.datamodel import (
+    DataBase,
+    ExtraPathType,
+    Image as DbImg,
+    Tag,
+    Folder,
+    ImageTag,
+    ExtraPath,
+    FileInfoDict,
+    Cursor
+)
+
+from promptsModules.db.update_image_data import (update_image_data, rebuild_image_index)
 
 project_config = gen_config
 t2i_text_box = None
-IS_PLUGIN = True
+IS_PLUGIN = False
 
 
 def get_model_input(com_value):
@@ -149,6 +162,16 @@ def send_action(result_text):
 def load_config_action():
     return LoraConfigManager().export_to_data_frame()
 
+
+def get_prompts_from_folder(file_path):
+    print(f"Processing folder: {file_path}")
+    try:
+        DataBase._initing = True
+        conn = DataBase.get_conn()
+        img_count = DbImg.count(conn)
+        update_image_data([file_path])
+    finally:
+        DataBase._initing = False
 
 ######### UI #########
 def on_ui_tabs():
@@ -327,6 +350,11 @@ def on_ui_tabs():
                 interactive=False,
             )
             review_btn.click(load_config_action, outputs=data_sheet)
+        with gr.Tab('提取prompt'):
+            with gr.Column():
+                file_path = gr.Textbox("", label="文件路径", lines=1, show_copy_button=True, interactive=True)
+                extract_btn = gr.Button("提取prompt")
+                extract_btn.click(get_prompts_from_folder, inputs=[file_path])
 
         gen_button.click(gen_action,
                          inputs=[time_slider, widget_lora, widget_lyco, widget_embeddings, model_order,
