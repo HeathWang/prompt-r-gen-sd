@@ -185,10 +185,13 @@ def search_action(key_input):
         folder_paths=[]
     )
     list_search = []
+    unique_pos_prompts = set()
     index = 0
     for img in imgs:
-        list_search.append([index, img.pos_prompt, img.exif])
-        index += 1
+        if img.pos_prompt not in unique_pos_prompts:
+            list_search.append([index, img.pos_prompt, img.exif])
+            unique_pos_prompts.add(img.pos_prompt)
+            index += 1
     return list_search
 
 ######### UI #########
