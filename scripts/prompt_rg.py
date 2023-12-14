@@ -164,7 +164,6 @@ def load_config_action():
 
 
 def get_prompts_from_folder(file_path):
-    print(f"Processing folder: {file_path}")
     try:
         DataBase._initing = True
         conn = DataBase.get_conn()

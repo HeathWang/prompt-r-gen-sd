@@ -20,7 +20,6 @@ def get_exif_data(file_path):
         with Image.open(file_path) as img:
             info = read_sd_webui_gen_info_from_image(img, file_path)
             params = parse_generation_parameters(info)
-            print("params", params)
     except Exception as e:
         if is_dev:
             print("get_exif_data error %s", e)
