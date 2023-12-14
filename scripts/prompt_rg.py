@@ -169,7 +169,7 @@ def get_prompts_from_folder(file_path):
         DataBase._initing = True
         conn = DataBase.get_conn()
         img_count = DbImg.count(conn)
-        update_image_data([file_path], is_rebuild=True)
+        update_image_data([file_path], is_rebuild=False)
     finally:
         DataBase._initing = False
         return f"成功更新{DbImg.count(conn) - img_count}张图片"

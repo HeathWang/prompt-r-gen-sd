@@ -361,7 +361,6 @@ def parse_generation_parameters(x: str):
         else:
             res[k] = v
     prompt_parse_res = parse_prompt(prompt)
-    print("pos prompt:", prompt)
     lora = prompt_parse_res["lora"]
     for k in res:
         k_s = str(k)
