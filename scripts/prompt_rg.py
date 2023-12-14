@@ -169,9 +169,27 @@ def get_prompts_from_folder(file_path):
         DataBase._initing = True
         conn = DataBase.get_conn()
         img_count = DbImg.count(conn)
-        update_image_data([file_path])
+        update_image_data([file_path], is_rebuild=True)
     finally:
         DataBase._initing = False
+        return f"成功更新{DbImg.count(conn) - img_count}张图片"
+
+def search_action(key_input):
+    conn = DataBase.get_conn()
+    imgs, next_cursor = DbImg.find_by_substring(
+        conn=conn,
+        substring=key_input,
+        cursor=None,
+        limit=500,
+        regexp=None,
+        folder_paths=[]
+    )
+    list_search = []
+    index = 0
+    for img in imgs:
+        list_search.append([index, img.pos_prompt, img.exif])
+        index += 1
+    return list_search
 
 ######### UI #########
 def on_ui_tabs():
@@ -350,11 +368,26 @@ def on_ui_tabs():
                 interactive=False,
             )
             review_btn.click(load_config_action, outputs=data_sheet)
+        with gr.Tab('🔍'):
+            with gr.Column():
+                key_input = gr.Textbox("", label=None, show_label=False, lines=1, show_copy_button=True, interactive=True)
+                search_button = gr.Button("搜索", variant='primary')
+                resuts_sheet = gr.DataFrame(
+                    headers=['序号', 'prompt', 'exif'],
+                    datatype=['number','str', "str"],
+                    col_count=3,
+                    interactive=False,
+                    wrap=True,
+                    type='array',
+                )
+
+                search_button.click(search_action, inputs=[key_input], outputs=resuts_sheet)
         with gr.Tab('提取prompt'):
             with gr.Column():
                 file_path = gr.Textbox("", label="文件路径", lines=1, show_copy_button=True, interactive=True)
                 extract_btn = gr.Button("提取prompt")
-                extract_btn.click(get_prompts_from_folder, inputs=[file_path])
+                text2 = gr.Textbox(label="状态")
+                extract_btn.click(get_prompts_from_folder, inputs=[file_path], outputs=text2)
 
         gen_button.click(gen_action,
                          inputs=[time_slider, widget_lora, widget_lyco, widget_embeddings, model_order,

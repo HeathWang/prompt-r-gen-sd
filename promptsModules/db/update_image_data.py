@@ -20,9 +20,10 @@ def get_exif_data(file_path):
         with Image.open(file_path) as img:
             info = read_sd_webui_gen_info_from_image(img, file_path)
             params = parse_generation_parameters(info)
+            print("params", params)
     except Exception as e:
         if is_dev:
-            print("get_exif_data %s", e)
+            print("get_exif_data error %s", e)
     return params, info
 
 
@@ -55,6 +56,7 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
                         img = DbImg(
                             file_path,
                             info,
+                            parsed_params["pos_all"],
                             os.path.getsize(file_path),
                             get_modified_date(file_path),
                         )
@@ -69,6 +71,7 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
                     img = DbImg(
                         file_path,
                         info,
+                        parsed_params["pos_all"],
                         os.path.getsize(file_path),
                         get_modified_date(file_path),
                     )

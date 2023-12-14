@@ -81,9 +81,10 @@ class DataBase:
 
 
 class Image:
-    def __init__(self, path, exif=None, size=0, date="", id=None):
+    def __init__(self, path, exif=None, pos_prompt="", size=0, date="", id=None):
         self.path = path
         self.exif = exif
+        self.pos_prompt = pos_prompt
         self.id = id
         self.size = size
         self.date = date
@@ -99,13 +100,14 @@ class Image:
             "bytes": self.size,
             "name": os.path.basename(self.path),
             "fullpath": self.path,
+            "posPrompt": self.pos_prompt,
         }
 
     def save(self, conn):
         with closing(conn.cursor()) as cur:
             cur.execute(
-                "INSERT OR REPLACE  INTO image (path, exif, size, date) VALUES (?, ?, ?, ?)",
-                (self.path, self.exif, self.size, self.date),
+                "INSERT OR REPLACE  INTO image (path, exif, pos_prompt, size, date) VALUES (?, ?, ?, ?, ?)",
+                (self.path, self.exif, self.pos_prompt, self.size, self.date),
             )
             self.id = cur.lastrowid
 
@@ -155,6 +157,7 @@ class Image:
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             path TEXT UNIQUE,
                             exif TEXT,
+                            pos_prompt TEXT,
                             size INTEGER,
                             date TEXT
                         )"""
@@ -170,7 +173,7 @@ class Image:
 
     @classmethod
     def from_row(cls, row: tuple):
-        image = cls(path=row[1], exif=row[2], size=row[3], date=row[4])
+        image = cls(path=row[1], exif=row[2], pos_prompt=row[3], size=row[4], date=row[5])
         image.id = row[0]
         return image
 

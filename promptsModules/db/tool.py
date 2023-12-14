@@ -279,9 +279,9 @@ def read_sd_webui_gen_info_from_image(image: Image, path="") -> str:
 re_param_code = r'\s*([\w ]+):\s*("(?:\\"[^,]|\\"|\\|[^\"])+"|[^,]*)(?:,|$)'
 re_param = re.compile(re_param_code)
 re_imagesize = re.compile(r"^(\d+)x(\d+)$")
-re_lora_prompt = re.compile("<lora:([\w_\s.]+):([\d.]+)>", re.IGNORECASE)
+re_lora_prompt = re.compile(r'<lora:(.*?):\d+(\.\d+)?>', re.IGNORECASE)
 re_lora_extract = re.compile(r"([\w_\s.]+)(?:\d+)?")
-re_lyco_prompt = re.compile("<lyco:([\w_\s.]+):([\d.]+)>", re.IGNORECASE)
+re_lyco_prompt = re.compile(r'<lyco:(.*?):\d+(\.\d+)?>', re.IGNORECASE)
 re_parens = re.compile(r"[\\/\[\](){}]+")
 
 
@@ -295,7 +295,7 @@ def lora_extract(lora: str):
 
 def parse_prompt(x: str):
     x = re.sub(
-        re_parens, "", x.replace("，", ",").replace("-", " ").replace("_", " ")
+        re_parens, "", x.replace("，", ",")
     )
     tag_list = [x.strip() for x in x.split(",")]
     res = []
@@ -361,6 +361,7 @@ def parse_generation_parameters(x: str):
         else:
             res[k] = v
     prompt_parse_res = parse_prompt(prompt)
+    print("pos prompt:", prompt)
     lora = prompt_parse_res["lora"]
     for k in res:
         k_s = str(k)
@@ -370,6 +371,7 @@ def parse_generation_parameters(x: str):
             lora.append({"name": lora_extract(model), "value": float(value)})
     return {
         "meta": res,
+        "pos_all": prompt,
         "pos_prompt": unique_by(prompt_parse_res["pos_prompt"]),
         "lora": unique_by(lora, lambda x: x["name"].lower()),
         "lyco": unique_by(prompt_parse_res["lyco"], lambda x: x["name"].lower()),
