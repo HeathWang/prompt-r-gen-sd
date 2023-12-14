@@ -22,7 +22,7 @@ from promptsModules.db.update_image_data import (update_image_data, rebuild_imag
 
 project_config = gen_config
 t2i_text_box = None
-IS_PLUGIN = False
+IS_PLUGIN = True
 
 
 def get_model_input(com_value):
