@@ -1,6 +1,6 @@
 from sqlite3 import Connection, connect
 from enum import Enum
-from typing import Dict, List, Optional, TypedDict
+from typing import Dict, List, Optional, TypedDict, Tuple
 from promptsModules.db.tool import (
     cwd,
     get_modified_date,
@@ -206,7 +206,7 @@ class Image:
     def find_by_substring(
         cls, conn: Connection, substring: str, limit: int = 500, cursor="", regexp="",
         folder_paths: List[str] = []
-    ) -> tuple[List["Image"], Cursor]:
+    ) -> Tuple[List["Image"], Cursor]:
         api_cur = Cursor()
         with closing(conn.cursor()) as cur:
             params = []
@@ -421,7 +421,7 @@ class ImageTag:
         limit: int = 500,
         cursor="",
         folder_paths: List[str] = None,
-    ) -> tuple[List[Image], Cursor]:
+    ) -> Tuple[List[Image], Cursor]:
         query = """
             SELECT image.id, image.path, image.size,image.date
             FROM image

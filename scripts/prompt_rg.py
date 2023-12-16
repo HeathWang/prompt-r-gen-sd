@@ -163,12 +163,12 @@ def load_config_action():
     return LoraConfigManager().export_to_data_frame()
 
 
-def get_prompts_from_folder(file_path):
+def get_prompts_from_folder(file_path, check_force):
     try:
         DataBase._initing = True
         conn = DataBase.get_conn()
         img_count = DbImg.count(conn)
-        update_image_data([file_path], is_rebuild=False)
+        update_image_data([file_path], is_rebuild=check_force)
     finally:
         DataBase._initing = False
         return f"成功更新{DbImg.count(conn) - img_count}张图片"
@@ -179,7 +179,7 @@ def search_action(key_input):
         conn=conn,
         substring=key_input,
         cursor=None,
-        limit=500,
+        limit=1024,
         regexp=None,
         folder_paths=[]
     )
@@ -203,7 +203,7 @@ def on_ui_tabs():
 
                     with gr.Box():
                         with gr.Row():
-                            time_slider = gr.Slider(1, 6, value=4, label="随机生成条数", step=1, interactive=True)
+                            time_slider = gr.Slider(1, 6, value=1, label="随机生成条数", step=1, interactive=True)
                     with gr.Accordion("视角、地点、动作", open=False):
                         with gr.Row():
                             angle = gr.Checkbox(False, label="视角", info="正面，侧面，背面...")
@@ -381,15 +381,18 @@ def on_ui_tabs():
                     interactive=False,
                     wrap=True,
                     type='array',
+                    max_rows=1024,
                 )
 
                 search_button.click(search_action, inputs=[key_input], outputs=resuts_sheet)
         with gr.Tab('提取prompt'):
             with gr.Column():
-                file_path = gr.Textbox("", label="文件路径", lines=1, show_copy_button=True, interactive=True)
+                with gr.Row():
+                    file_path = gr.Textbox("", label="文件路径", lines=1, show_copy_button=True, interactive=True)
+                    check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
                 extract_btn = gr.Button("提取prompt")
                 text2 = gr.Textbox(label="状态")
-                extract_btn.click(get_prompts_from_folder, inputs=[file_path], outputs=text2)
+                extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=text2)
 
         gen_button.click(gen_action,
                          inputs=[time_slider, widget_lora, widget_lyco, widget_embeddings, model_order,
