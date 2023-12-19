@@ -179,7 +179,7 @@ def search_action(key_input):
         conn=conn,
         substring=key_input,
         cursor=None,
-        limit=1024,
+        limit=5120,
         regexp=None,
         folder_paths=[]
     )
@@ -191,7 +191,9 @@ def search_action(key_input):
             list_search.append([index, img.pos_prompt, img.exif])
             unique_pos_prompts.add(img.pos_prompt)
             index += 1
-    return list_search
+    result_count = f"🔍{len(list_search)}条数据"
+    # 将结果格式化为适合Textbox的形式
+    return result_count, list_search
 
 ######### UI #########
 def on_ui_tabs():
@@ -361,19 +363,12 @@ def on_ui_tabs():
                     with gr.Row():
                         gen_button = gr.Button("生成prompt")
                         send_button = gr.Button("发送到文生图")
-        with gr.Tab("查看配置"):
-            review_btn = gr.Button("加载excel配置")
-            data_sheet = gr.DataFrame(
-                headers=["序列", "id", "类型", "模型名", "描述"],
-                datatype=['number', "str", "str", "str", "str"],
-                col_count=5,
-                interactive=False,
-            )
-            review_btn.click(load_config_action, outputs=data_sheet)
         with gr.Tab('🔍'):
             with gr.Column():
                 key_input = gr.Textbox("", label=None, show_label=False, lines=1, show_copy_button=True, interactive=True)
-                search_button = gr.Button("搜索", variant='primary')
+                with gr.Row():
+                    search_button = gr.Button("搜索", variant='primary')
+                    search_info = gr.Textbox("", show_label=False, interactive=False)
                 resuts_sheet = gr.DataFrame(
                     headers=['序号', 'prompt', 'exif'],
                     datatype=['number','str', "str"],
@@ -384,7 +379,7 @@ def on_ui_tabs():
                     max_rows=1024,
                 )
 
-                search_button.click(search_action, inputs=[key_input], outputs=resuts_sheet)
+                search_button.click(search_action, inputs=[key_input], outputs=[search_info, resuts_sheet])
         with gr.Tab('提取prompt'):
             with gr.Column():
                 with gr.Row():
@@ -393,6 +388,15 @@ def on_ui_tabs():
                 extract_btn = gr.Button("提取prompt")
                 text2 = gr.Textbox(label="状态")
                 extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=text2)
+        with gr.Tab("查看配置"):
+            review_btn = gr.Button("加载excel配置")
+            data_sheet = gr.DataFrame(
+                headers=["序列", "id", "类型", "模型名", "描述"],
+                datatype=['number', "str", "str", "str", "str"],
+                col_count=5,
+                interactive=False,
+            )
+            review_btn.click(load_config_action, outputs=data_sheet)
 
         gen_button.click(gen_action,
                          inputs=[time_slider, widget_lora, widget_lyco, widget_embeddings, model_order,
@@ -413,7 +417,7 @@ def on_ui_tabs():
                                  hair_length, people_cnt, body_skin], outputs=results)
         send_button.click(send_action, inputs=results, outputs=t2i_text_box)
         if IS_PLUGIN:
-            return [(ui_component, "随机提示词RP", "随机提示词RP")]
+            return [(ui_component, "RP", "RP")]
         else:
             return ui_component
 
