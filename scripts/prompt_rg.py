@@ -173,13 +173,13 @@ def get_prompts_from_folder(file_path, check_force):
         DataBase._initing = False
         return f"成功更新{DbImg.count(conn) - img_count}张图片"
 
-def search_action(key_input):
+def search_action(key_input, limit_slider):
     conn = DataBase.get_conn()
     imgs, next_cursor = DbImg.find_by_substring(
         conn=conn,
         substring=key_input,
         cursor=None,
-        limit=5120,
+        limit=limit_slider,
         regexp=None,
         folder_paths=[]
     )
@@ -193,7 +193,17 @@ def search_action(key_input):
             index += 1
     result_count = f"🔍{len(list_search)}条数据"
     # 将结果格式化为适合Textbox的形式
-    return result_count, list_search
+
+    table_html = "<table><tr><th>序列</th><th>prompt</th><th>exif</th></tr>"
+    for row in list_search:
+        table_html += (f"<tr>"
+                       f"<td>{row[0]}</td>"
+                       f"<td>{row[1].replace('<', '&lt;').replace('>', '&gt;')}</td>"
+                       f"<td style='font-size: 12px;'>{row[2].replace('<', '&lt;').replace('>', '&gt;')}</td>"
+                       f"</tr>")
+    table_html += "</table>"
+
+    return result_count, table_html
 
 ######### UI #########
 def on_ui_tabs():
@@ -365,21 +375,15 @@ def on_ui_tabs():
                         send_button = gr.Button("发送到文生图")
         with gr.Tab('🔍'):
             with gr.Column():
-                key_input = gr.Textbox("", label=None, show_label=False, lines=1, show_copy_button=True, interactive=True)
+                with gr.Row():
+                    key_input = gr.Textbox("", label=None, show_label=False, lines=1, show_copy_button=True, interactive=True)
+                    limit_slider = gr.Slider(128, 5120, value=1024, label="搜索limit", step=4, interactive=True)
                 with gr.Row():
                     search_button = gr.Button("搜索", variant='primary')
                     search_info = gr.Textbox("", show_label=False, interactive=False)
-                resuts_sheet = gr.DataFrame(
-                    headers=['序号', 'prompt', 'exif'],
-                    datatype=['number','str', "str"],
-                    col_count=3,
-                    interactive=False,
-                    wrap=True,
-                    type='array',
-                    max_rows=1024,
-                )
+                html_table = gr.HTML("", label=None, show_label=False, interactive=False)
 
-                search_button.click(search_action, inputs=[key_input], outputs=[search_info, resuts_sheet])
+                search_button.click(search_action, inputs=[key_input, limit_slider], outputs=[search_info, html_table])
         with gr.Tab('提取prompt'):
             with gr.Column():
                 with gr.Row():
