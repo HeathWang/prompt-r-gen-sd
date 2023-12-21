@@ -167,6 +167,17 @@ def get_prompts_from_folder(file_path, check_force):
         return f"成功更新{DbImg.count(conn) - img_count}张图片"
 
 
+def create_tag_html(tag, height, border_color="#25BDCDAD"):
+    tag_html = ""
+    height_style = ""
+    if height is not None:
+        height_style = f"height: {height}px;"
+    tag_html += (
+        f"<div style='display: flex; align-items: center; justify-content: center; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; border: 2px solid {border_color}; border-radius: 12px; {height_style} font-size: 18px;'>"
+        f"<div>{tag}</div>"
+        f"</div>")
+    return tag_html
+
 def search_action(key_input, limit_slider):
     conn = DataBase.get_conn()
     imgs, next_cursor = DbImg.find_by_substring(
@@ -188,12 +199,11 @@ def search_action(key_input, limit_slider):
     result_count = f"🔍{len(list_search)}条数据"
     # 将结果格式化为适合Textbox的形式
 
-    table_html = "<table><tr><th>序列</th><th>prompt</th><th>exif</th></tr>"
+    table_html = "<table><tr><th>序列</th><th>prompt</th></tr>"
     for row in list_search:
         table_html += (f"<tr>"
                        f"<td>{row[0]}</td>"
-                       f"<td>{row[1].replace('<', '&lt;').replace('>', '&gt;')}</td>"
-                       f"<td style='font-size: 12px;'>{row[2].replace('<', '&lt;').replace('>', '&gt;')}</td>"
+                       f"<td>{create_tag_html(row[1].replace('<', '&lt;').replace('>', '&gt;'), height=None)}</td>"
                        f"</tr>")
     table_html += "</table>"
 
@@ -205,22 +215,18 @@ def fetch_lora_action():
     lora_result = Tag.get_all_lora_tag(conn)
     lora_html = "<div style='display: flex; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap;'>"
     for lora in lora_result:
-        lora_html += (f"<div style='display: flex; align-items: center; justify-content: center; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; border: 2px solid #40D0BE; border-radius: 12px; height: 28px; font-size: 18px;'>"
-                      f"<div>{lora.name}</div>"
-                      f"</div>")
+        lora_html += create_tag_html(lora.name, height=28)
     lora_html += "</div>"
     return lora_html
 
 def fetch_lyco_action():
     conn = DataBase.get_conn()
     lora_result = Tag.get_all_lyco_tag(conn)
-    lora_html = "<div style='display: flex; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap;'>"
-    for lora in lora_result:
-        lora_html += (f"<div style='display: flex; align-items: center; justify-content: center; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; border: 2px solid #40D0BE; border-radius: 12px; height: 28px; font-size: 18px;'>"
-                      f"<div>{lora.name}</div>"
-                      f"</div>")
-    lora_html += "</div>"
-    return lora_html
+    lyco_html = "<div style='display: flex; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap;'>"
+    for lyco in lora_result:
+        lyco_html += create_tag_html(lyco.name, height=28)
+    lyco_html += "</div>"
+    return lyco_html
 
 
 ######### UI #########
