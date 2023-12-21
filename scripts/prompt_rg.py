@@ -3,22 +3,15 @@ import re
 
 import gradio as gr
 
+from promptsModules.db.datamodel import (
+    DataBase,
+    Image as DbImg,
+    Tag,
+)
+from promptsModules.db.update_image_data import (update_image_data)
 from promptsModules.model_manager import (LoraConfigManager)
 from promptsModules.sd_command_gen import project_config as gen_config
 from promptsModules.web_api import (create_prompts)
-from promptsModules.db.datamodel import (
-    DataBase,
-    ExtraPathType,
-    Image as DbImg,
-    Tag,
-    Folder,
-    ImageTag,
-    ExtraPath,
-    FileInfoDict,
-    Cursor
-)
-
-from promptsModules.db.update_image_data import (update_image_data, rebuild_image_index)
 
 project_config = gen_config
 t2i_text_box = None
@@ -173,6 +166,7 @@ def get_prompts_from_folder(file_path, check_force):
         DataBase._initing = False
         return f"成功更新{DbImg.count(conn) - img_count}张图片"
 
+
 def search_action(key_input, limit_slider):
     conn = DataBase.get_conn()
     imgs, next_cursor = DbImg.find_by_substring(
@@ -204,6 +198,30 @@ def search_action(key_input, limit_slider):
     table_html += "</table>"
 
     return result_count, table_html
+
+
+def fetch_lora_action():
+    conn = DataBase.get_conn()
+    lora_result = Tag.get_all_lora_tag(conn)
+    lora_html = "<div style='display: flex; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap;'>"
+    for lora in lora_result:
+        lora_html += (f"<div style='display: flex; align-items: center; justify-content: center; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; border: 2px solid #40D0BE; border-radius: 12px; height: 28px; font-size: 18px;'>"
+                      f"<div>{lora.name}</div>"
+                      f"</div>")
+    lora_html += "</div>"
+    return lora_html
+
+def fetch_lyco_action():
+    conn = DataBase.get_conn()
+    lora_result = Tag.get_all_lyco_tag(conn)
+    lora_html = "<div style='display: flex; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap;'>"
+    for lora in lora_result:
+        lora_html += (f"<div style='display: flex; align-items: center; justify-content: center; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; border: 2px solid #40D0BE; border-radius: 12px; height: 28px; font-size: 18px;'>"
+                      f"<div>{lora.name}</div>"
+                      f"</div>")
+    lora_html += "</div>"
+    return lora_html
+
 
 ######### UI #########
 def on_ui_tabs():
@@ -376,7 +394,8 @@ def on_ui_tabs():
         with gr.Tab('🔍'):
             with gr.Column():
                 with gr.Row():
-                    key_input = gr.Textbox("", label=None, show_label=False, lines=1, show_copy_button=True, interactive=True)
+                    key_input = gr.Textbox("", label=None, show_label=False, lines=1, show_copy_button=True,
+                                           interactive=True)
                     limit_slider = gr.Slider(128, 5120, value=1024, label="搜索limit", step=4, interactive=True)
                 with gr.Row():
                     search_button = gr.Button("搜索", variant='primary')
@@ -384,6 +403,14 @@ def on_ui_tabs():
                 html_table = gr.HTML("", label=None, show_label=False, interactive=False)
 
                 search_button.click(search_action, inputs=[key_input, limit_slider], outputs=[search_info, html_table])
+        with gr.Tab("lora"):
+            with gr.Column():
+                fetch_lora_btn = gr.Button("查询lora", variant='primary')
+                html_loras = gr.HTML("", label=None, show_label=False, interactive=False)
+                fetch_lyco_btn = gr.Button("查询lyco", variant='primary')
+                html_lyco = gr.HTML("", label=None, show_label=False, interactive=False)
+                fetch_lora_btn.click(fetch_lora_action, outputs=html_loras)
+                fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
         with gr.Tab('提取prompt'):
             with gr.Column():
                 with gr.Row():

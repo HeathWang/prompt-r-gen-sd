@@ -294,6 +294,26 @@ class Tag:
             return tags
 
     @classmethod
+    def get_all_lora_tag(cls, conn):
+        with closing(conn.cursor()) as cur:
+            cur.execute("SELECT * FROM tag where type = 'lora' ORDER BY count DESC")
+            rows = cur.fetchall()
+            tags: list[Tag] = []
+            for row in rows:
+                tags.append(cls.from_row(row))
+            return tags
+
+    @classmethod
+    def get_all_lyco_tag(cls, conn):
+        with closing(conn.cursor()) as cur:
+            cur.execute("SELECT * FROM tag where type = 'lyco' ORDER BY count DESC")
+            rows = cur.fetchall()
+            tags: list[Tag] = []
+            for row in rows:
+                tags.append(cls.from_row(row))
+            return tags
+
+    @classmethod
     def get_all(cls, conn):
         with closing(conn.cursor()) as cur:
             cur.execute("SELECT * FROM tag")
