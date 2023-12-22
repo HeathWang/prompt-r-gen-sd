@@ -162,12 +162,12 @@ def get_prompts_from_folder(file_path, check_force):
         conn = DataBase.get_conn()
         img_count = DbImg.count(conn)
         update_image_data([file_path], is_rebuild=check_force)
+        return f"成功更新{DbImg.count(conn) - img_count}张图片"
     finally:
         DataBase._initing = False
-        return f"成功更新{DbImg.count(conn) - img_count}张图片"
 
 
-def create_tag_html(tag, height, border_color="#25BDCDAD"):
+def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD"):
     tag_html = ""
     height_style = ""
     if height is not None:
@@ -175,8 +175,14 @@ def create_tag_html(tag, height, border_color="#25BDCDAD"):
     tag_html += (
         f"<div style='display: flex; align-items: center; justify-content: center; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; border: 2px solid {border_color}; border-radius: 12px; {height_style} font-size: 18px;'>"
         f"<div>{tag}</div>"
-        f"</div>")
+    )
+    if suffix is not None:
+        tag_html += (
+            f"<div style='padding-left: 12px;  font-style: italic; font-weight: bolder; color: burlywood;'>{suffix}</div>"
+        )
+    tag_html += "</div>"
     return tag_html
+
 
 def search_action(key_input, limit_slider):
     conn = DataBase.get_conn()
@@ -197,7 +203,6 @@ def search_action(key_input, limit_slider):
             unique_pos_prompts.add(img.pos_prompt)
             index += 1
     result_count = f"🔍{len(list_search)}条数据"
-    # 将结果格式化为适合Textbox的形式
 
     table_html = "<table><tr><th>序列</th><th>prompt</th></tr>"
     for row in list_search:
@@ -210,21 +215,36 @@ def search_action(key_input, limit_slider):
     return result_count, table_html
 
 
+def get_tag_info(tag: Tag):
+    cnt = f""
+    if tag.count is not None and tag.count > 0:
+        if tag.count < 1000:
+            cnt = f"\t<{tag.count}>"
+        elif tag.count < 10000:
+            cnt = f"\t<{tag.count // 1000}k>"
+        else:
+            cnt = f"\t<{tag.count // 10000}w>"
+    return tag.name, cnt.replace("<", "&lt;").replace(">", "&gt;")
+
+
 def fetch_lora_action():
     conn = DataBase.get_conn()
     lora_result = Tag.get_all_lora_tag(conn)
     lora_html = "<div style='display: flex; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap;'>"
     for lora in lora_result:
-        lora_html += create_tag_html(lora.name, height=28)
+        tag, cnt = get_tag_info(lora)
+        lora_html += create_tag_html(tag=tag, height=28, suffix=cnt)
     lora_html += "</div>"
     return lora_html
+
 
 def fetch_lyco_action():
     conn = DataBase.get_conn()
     lora_result = Tag.get_all_lyco_tag(conn)
     lyco_html = "<div style='display: flex; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap;'>"
     for lyco in lora_result:
-        lyco_html += create_tag_html(lyco.name, height=28)
+        tag, cnt = get_tag_info(lyco)
+        lyco_html += create_tag_html(tag, suffix=cnt, height=28)
     lyco_html += "</div>"
     return lyco_html
 
@@ -409,7 +429,7 @@ def on_ui_tabs():
                 html_table = gr.HTML("", label=None, show_label=False, interactive=False)
 
                 search_button.click(search_action, inputs=[key_input, limit_slider], outputs=[search_info, html_table])
-        with gr.Tab("lora"):
+        with gr.Tab("现有LORA"):
             with gr.Column():
                 fetch_lora_btn = gr.Button("查询lora", variant='primary')
                 html_loras = gr.HTML("", label=None, show_label=False, interactive=False)
