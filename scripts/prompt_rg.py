@@ -1,5 +1,6 @@
 import importlib
 import re
+from collections import defaultdict
 
 import gradio as gr
 
@@ -194,21 +195,27 @@ def search_action(key_input, limit_slider):
         regexp=None,
         folder_paths=[]
     )
+
+    pos_prompt_counts = defaultdict(int)
     list_search = []
-    unique_pos_prompts = set()
     index = 0
+
     for img in imgs:
-        if img.pos_prompt not in unique_pos_prompts:
-            list_search.append([index, img.pos_prompt, img.exif])
-            unique_pos_prompts.add(img.pos_prompt)
+        pos_prompt = img.pos_prompt
+        pos_prompt_counts[pos_prompt] += 1
+
+        if pos_prompt_counts[pos_prompt] == 1:
+            list_search.append([index, pos_prompt])
             index += 1
+
     result_count = f"🔍{len(list_search)}条数据"
 
-    table_html = "<table><tr><th>序列</th><th>prompt</th></tr>"
+    table_html = "<table><tr><th>序列</th><th>prompt</th><th>count</th></tr>"
     for row in list_search:
         table_html += (f"<tr>"
                        f"<td>{row[0]}</td>"
                        f"<td>{create_tag_html(row[1].replace('<', '&lt;').replace('>', '&gt;'), height=None)}</td>"
+                       f"<td style='font-style: italic; font-weight: bolder; color: burlywood;'>{pos_prompt_counts[row[1]]}</td>"
                        f"</tr>")
     table_html += "</table>"
 
