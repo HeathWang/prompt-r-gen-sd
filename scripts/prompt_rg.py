@@ -221,9 +221,9 @@ def get_tag_info(tag: Tag):
         if tag.count < 1000:
             cnt = f"\t<{tag.count}>"
         elif tag.count < 10000:
-            cnt = f"\t<{tag.count // 1000}k>"
+            cnt = f"\t<{tag.count / 1000:.2f}k>"
         else:
-            cnt = f"\t<{tag.count // 10000}w>"
+            cnt = f"\t<{tag.count / 10000:.2f}w>"
     return tag.name, cnt.replace("<", "&lt;").replace(">", "&gt;")
 
 
