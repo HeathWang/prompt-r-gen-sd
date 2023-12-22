@@ -162,7 +162,7 @@ def get_prompts_from_folder(file_path, check_force):
         conn = DataBase.get_conn()
         img_count = DbImg.count(conn)
         update_image_data([file_path], is_rebuild=check_force)
-        return f"成功更新{DbImg.count(conn) - img_count}张图片"
+        return f"新增{DbImg.count(conn) - img_count}条记录"
     finally:
         DataBase._initing = False
 
@@ -440,7 +440,7 @@ def on_ui_tabs():
         with gr.Tab('提取prompt'):
             with gr.Column():
                 with gr.Row():
-                    file_path = gr.Textbox("", label="文件路径", lines=1, show_copy_button=True, interactive=True)
+                    file_path = gr.Textbox("/notebooks/resource/outputs/20231225", label="文件路径", lines=1, show_copy_button=True, interactive=True)
                     check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
                 extract_btn = gr.Button("提取prompt")
                 text2 = gr.Textbox(label="状态")
