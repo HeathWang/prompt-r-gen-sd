@@ -220,12 +220,6 @@ class Image:
             if cursor:
                 where_clauses.append("(date < ?)")
                 params.append(cursor)
-            if folder_paths:
-                folder_clauses = []
-                for folder_path in folder_paths:
-                    folder_clauses.append("(image.path LIKE ?)")
-                    params.append(os.path.join(folder_path, "%"))
-                where_clauses.append("(" + " OR ".join(folder_clauses) + ")")
             sql = "SELECT * FROM image"
             if where_clauses:
                 sql += " WHERE "

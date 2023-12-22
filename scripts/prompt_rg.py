@@ -188,7 +188,7 @@ def search_action(key_input, limit_slider):
     conn = DataBase.get_conn()
     imgs, next_cursor = DbImg.find_by_substring(
         conn=conn,
-        substring=key_input,
+        substring=key_input.strip(),
         cursor=None,
         limit=limit_slider,
         regexp=None,

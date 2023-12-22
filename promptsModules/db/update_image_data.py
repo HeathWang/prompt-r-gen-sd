@@ -49,32 +49,20 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
 
             elif is_valid_image_path(file_path):
                 img = DbImg.get(conn, file_path)
-                if is_rebuild:
-                    parsed_params, info = get_exif_data(file_path)
-                    if not img:
-                        img = DbImg(
-                            file_path,
-                            info,
-                            parsed_params["pos_all"],
-                            os.path.getsize(file_path),
-                            get_modified_date(file_path),
-                        )
-                        img.save(conn)
-                else:
-                    if img:  # 已存在的跳过
-                        if img.date == get_modified_date(img.path):
-                            continue
-                        else:
-                            DbImg.safe_batch_remove(conn=conn, image_ids=[img.id])
-                    parsed_params, info = get_exif_data(file_path)
-                    img = DbImg(
-                        file_path,
-                        info,
-                        parsed_params["pos_all"],
-                        os.path.getsize(file_path),
-                        get_modified_date(file_path),
-                    )
-                    img.save(conn)
+                if img:  # 已存在的跳过
+                    if img.date == get_modified_date(img.path):
+                        continue
+                    else:
+                        DbImg.safe_batch_remove(conn=conn, image_ids=[img.id])
+                parsed_params, info = get_exif_data(file_path)
+                img = DbImg(
+                    file_path,
+                    info,
+                    parsed_params["pos_all"],
+                    os.path.getsize(file_path),
+                    get_modified_date(file_path),
+                )
+                img.save(conn)
 
                 if not parsed_params:
                     continue
