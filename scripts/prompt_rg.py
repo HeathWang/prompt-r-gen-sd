@@ -256,6 +256,26 @@ def fetch_lyco_action():
     return lyco_html
 
 
+def open_sd_image_broswer_html():
+    # 创建包含按钮的HTML
+    html_code = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+    
+    <h2>打开Infinite image browsing</h2>
+    
+    <button style='width:100%;' onclick="window.open('/infinite_image_browsing', '_blank')">点我</button>
+    
+    </body>
+    </html>
+    """
+    return html_code
+
+
 ######### UI #########
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as ui_component:
@@ -447,11 +467,15 @@ def on_ui_tabs():
         with gr.Tab('提取prompt'):
             with gr.Column():
                 with gr.Row():
-                    file_path = gr.Textbox("/notebooks/resource/outputs/20231225", label="文件路径", lines=1, show_copy_button=True, interactive=True)
+                    file_path = gr.Textbox("/notebooks/resource/outputs/20231225", label="文件路径", lines=1,
+                                           show_copy_button=True, interactive=True)
                     check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
                 extract_btn = gr.Button("提取prompt")
                 text2 = gr.Textbox(label="状态")
                 extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=text2)
+        with gr.Tab("其他"):
+            with gr.Column():
+                gr.HTML(open_sd_image_broswer_html(), label=None, show_label=False, interactive=True)
         with gr.Tab("查看配置"):
             review_btn = gr.Button("加载excel配置")
             data_sheet = gr.DataFrame(
