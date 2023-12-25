@@ -163,7 +163,7 @@ def get_prompts_from_folder(file_path, check_force):
         conn = DataBase.get_conn()
         img_count = DbImg.count(conn)
         update_image_data([file_path], is_rebuild=check_force)
-        return f"新增{DbImg.count(conn) - img_count}条记录"
+        return f"新增{DbImg.count(conn) - img_count}条记录", f"共{img_count}条记录"
     finally:
         DataBase._initing = False
 
@@ -471,8 +471,10 @@ def on_ui_tabs():
                                            show_copy_button=True, interactive=True)
                     check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
                 extract_btn = gr.Button("提取prompt")
-                text2 = gr.Textbox(label="状态")
-                extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=text2)
+                with gr.Row():
+                    text2 = gr.Textbox(label="状态")
+                    img_cnt = gr.Textbox(label="图片数量")
+                extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
         with gr.Tab("其他"):
             with gr.Column():
                 gr.HTML(open_sd_image_broswer_html(), label=None, show_label=False, interactive=True)
