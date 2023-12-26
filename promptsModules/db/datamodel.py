@@ -235,14 +235,9 @@ class Image:
 
         api_cur.has_next = len(rows) >= limit
         images = []
-        deleted_ids = []
         for row in rows:
             img = cls.from_row(row)
-            if os.path.exists(img.path):
-                images.append(img)
-            else:
-                deleted_ids.append(img.id)
-        cls.safe_batch_remove(conn, deleted_ids)
+            images.append(img)
         if images:
             api_cur.next = str(images[-1].date)
         return images, api_cur
@@ -506,14 +501,9 @@ class ImageTag:
             cur.execute(query, params)
             rows = cur.fetchall()
             images = []
-            deleted_ids = []
             for row in rows:
                 img = Image(id=row[0], path=row[1], size=row[2], date=row[3])
-                if os.path.exists(img.path):
-                    images.append(img)
-                else:
-                    deleted_ids.append(img.id)
-            Image.safe_batch_remove(conn, deleted_ids)
+                images.append(img)
             api_cur.has_next = len(rows) >= limit
             if images:
                 api_cur.next = str(images[-1].date)
@@ -675,8 +665,8 @@ class ExtraPath:
                 path = row[0]
                 if os.path.exists(path):
                     paths.append(ExtraPath(path, ExtraPathType(row[1])))
-                else:
-                    cls.remove(conn, path)
+                # else:
+                #     cls.remove(conn, path)
             return paths
 
     @classmethod
