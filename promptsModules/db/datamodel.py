@@ -52,6 +52,7 @@ class DataBase:
         else:
             conn = clz.init()
             clz.local.conn = conn
+            clz.reConnect = False
 
             return conn
 
