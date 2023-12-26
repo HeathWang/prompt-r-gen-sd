@@ -209,7 +209,7 @@ def search_action(key_input, limit_slider):
             list_search.append([index, pos_prompt])
             index += 1
 
-    result_count = f"🔍{len(list_search)}条数据"
+    result_count = f"🔍{len(imgs)}: {len(list_search)}"
 
     table_html = "<table><tr><th>序列</th><th>prompt</th><th>count</th></tr>"
     for row in list_search:
@@ -471,7 +471,7 @@ def on_ui_tabs():
                     file_path = gr.Textbox("/notebooks/resource/outputs/20231225", label="文件路径", lines=1,
                                            show_copy_button=True, interactive=True)
                     check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
-                extract_btn = gr.Button("提取prompt")
+                extract_btn = gr.Button("提取prompt", variant="primary")
                 with gr.Row():
                     text2 = gr.Textbox(label="状态")
                     img_cnt = gr.Textbox(label="图片数量")
