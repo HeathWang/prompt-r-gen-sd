@@ -37,14 +37,17 @@ class DataBase:
 
     _initing = False
 
+    reConnect = False
+
     num = 0
 
     path = "tags.db"
 
     @classmethod
     def get_conn(clz) -> Connection:
+        print("reConnect", clz.reConnect)
         # for : sqlite3.ProgrammingError: SQLite objects created in a thread can only be used in that same thread
-        if hasattr(clz.local, "conn"):
+        if hasattr(clz.local, "conn") and clz.reConnect is False:
             return clz.local.conn
         else:
             conn = clz.init()

@@ -160,10 +160,9 @@ def load_config_action():
 def get_prompts_from_folder(file_path, check_force):
     try:
         DataBase._initing = True
-        conn = DataBase.get_conn()
-        img_count = DbImg.count(conn)
+        img_count = DbImg.count(DataBase.get_conn())
         update_image_data([file_path], is_rebuild=check_force)
-        after_img_cnt = DbImg.count(conn)
+        after_img_cnt = DbImg.count(DataBase.get_conn())
         return f"新增{after_img_cnt - img_count}条记录", f"共{after_img_cnt}条记录"
     finally:
         DataBase._initing = False

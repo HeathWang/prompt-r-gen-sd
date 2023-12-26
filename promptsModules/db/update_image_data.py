@@ -111,6 +111,8 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
         tag.count += tag_incr_count_rec[tag_id]
         tag.save(conn)
     conn.commit()
+    conn.close()
+    DataBase.reConnect = True
 
 def rebuild_image_index(search_dirs: List[str]):
     conn = DataBase.get_conn()
