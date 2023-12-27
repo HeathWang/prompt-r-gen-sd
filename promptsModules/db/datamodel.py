@@ -182,6 +182,12 @@ class Image:
         return image
 
     @classmethod
+    def simple_from_row(cls, row: tuple):
+        image = cls(path="", pos_prompt=row[1])
+        image.id = row[0]
+        return image
+
+    @classmethod
     def remove(cls, conn: Connection, image_id: int) -> None:
         with closing(conn.cursor()) as cur:
             cur.execute("DELETE FROM image WHERE id = ?", (image_id,))
@@ -224,7 +230,7 @@ class Image:
             if cursor:
                 where_clauses.append("(date < ?)")
                 params.append(cursor)
-            sql = "SELECT * FROM image"
+            sql = "SELECT id, pos_prompt FROM image"
             if where_clauses:
                 sql += " WHERE "
                 sql += " AND ".join(where_clauses)
@@ -236,7 +242,7 @@ class Image:
         api_cur.has_next = len(rows) >= limit
         images = []
         for row in rows:
-            img = cls.from_row(row)
+            img = cls.simple_from_row(row)
             images.append(img)
         if images:
             api_cur.next = str(images[-1].date)
