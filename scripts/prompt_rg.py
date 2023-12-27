@@ -204,9 +204,11 @@ def search_action(key_input, limit_slider):
         pos_prompt = img.pos_prompt
         pos_prompt_counts[pos_prompt] += 1
 
-        if pos_prompt_counts[pos_prompt] == 1:
-            list_search.append([index, pos_prompt])
-            index += 1
+    sorted_pos_prompt_counts = sorted(pos_prompt_counts.items(), key=lambda x: x[1], reverse=True)
+
+    for pos_prompt, count in sorted_pos_prompt_counts:
+        list_search.append([index, pos_prompt, count])
+        index += 1
 
     result_count = f"🔍{len(imgs)}: {len(list_search)}"
 
@@ -215,7 +217,7 @@ def search_action(key_input, limit_slider):
         table_html += (f"<tr>"
                        f"<td>{row[0]}</td>"
                        f"<td>{create_tag_html(row[1].replace('<', '&lt;').replace('>', '&gt;'), height=None)}</td>"
-                       f"<td style='font-style: italic; font-weight: bolder; color: burlywood;'>{pos_prompt_counts[row[1]]}</td>"
+                       f"<td style='font-style: italic; font-weight: bolder; color: burlywood;'>{row[2]}</td>"
                        f"</tr>")
     table_html += "</table>"
 
