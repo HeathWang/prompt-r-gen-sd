@@ -55,6 +55,8 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
                     else:
                         DbImg.safe_batch_remove(conn=conn, image_ids=[img.id])
                 parsed_params, info = get_exif_data(file_path)
+                if parsed_params is None or info is None:
+                    continue
                 img = DbImg(
                     file_path,
                     info,

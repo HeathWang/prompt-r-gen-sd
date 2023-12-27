@@ -331,7 +331,7 @@ def parse_generation_parameters(x: str):
     negative_prompt = ""
     done_with_prompt = False
     if not x:
-        return {"meta": {}, "pos_prompt": [], "lora": [], "lyco": []}
+        return {"meta": {}, "pos_prompt": [], "pos_all": prompt, "lora": [], "lyco": []}
     *lines, lastline = x.strip().split("\n")
     if len(re_param.findall(lastline)) < 3:
         lines.append(lastline)
