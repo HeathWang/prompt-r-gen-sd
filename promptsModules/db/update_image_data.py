@@ -38,6 +38,9 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
 
     # 递归处理每个文件夹
     def process_folder(folder_path: str):
+        # check if folder_path exists
+        if not os.path.exists(folder_path):
+            return
         if not is_rebuild and not Folder.check_need_update(conn, folder_path):
             return
         print(f"Processing folder: {folder_path}")
