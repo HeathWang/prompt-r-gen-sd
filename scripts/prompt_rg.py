@@ -16,6 +16,7 @@ from promptsModules.web_api import (create_prompts)
 
 project_config = gen_config
 t2i_text_box = None
+query_cursor: str = None
 IS_PLUGIN = True
 
 
@@ -185,15 +186,24 @@ def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD"):
     return tag_html
 
 
-def search_action(key_input, limit_slider):
+def search_action(key_input, limit_slider, sort_drop):
+    return base_search_action(key_input, limit_slider, sort_drop)
+
+
+def next_search_action(key_input, limit_slider, sort_drop):
+    return base_search_action(key_input, limit_slider, sort_drop, is_next=True)
+
+
+def base_search_action(key_input, limit_slider, sort_drop, is_next=False):
+    global query_cursor
+
     conn = DataBase.get_conn()
     imgs, next_cursor = DbImg.find_by_substring(
         conn=conn,
         substring=key_input.strip(),
-        cursor=None,
+        cursor=is_next and query_cursor or None,
         limit=limit_slider,
         regexp=None,
-        folder_paths=[]
     )
 
     pos_prompt_counts = defaultdict(int)
@@ -204,10 +214,13 @@ def search_action(key_input, limit_slider):
         pos_prompt = img.pos_prompt
         pos_prompt_counts[pos_prompt] += 1
 
-    sorted_pos_prompt_counts = sorted(pos_prompt_counts.items(), key=lambda x: x[1], reverse=True)
+    target_prompt_counts = list(pos_prompt_counts.items())
+    if sort_drop == 0:
+        sorted_pos_prompt_counts = sorted(pos_prompt_counts.items(), key=lambda x: x[1], reverse=True)
+        target_prompt_counts = sorted_pos_prompt_counts
 
-    for pos_prompt, count in sorted_pos_prompt_counts:
-        list_search.append([index, pos_prompt, count])
+    for pos_prompt_t, count in target_prompt_counts:
+        list_search.append([index, pos_prompt_t, count])
         index += 1
 
     result_count = f"🔍{len(imgs)}: {len(list_search)}"
@@ -220,7 +233,7 @@ def search_action(key_input, limit_slider):
                        f"<td style='font-style: italic; font-weight: bolder; color: burlywood;'>{row[2]}</td>"
                        f"</tr>")
     table_html += "</table>"
-
+    query_cursor = next_cursor
     return result_count, table_html
 
 
@@ -281,6 +294,44 @@ def open_sd_image_broswer_html():
 ######### UI #########
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as ui_component:
+        with gr.Tab('🔍'):
+            with gr.Column():
+                with gr.Row(variant="panel"):
+                    key_input = gr.Textbox("", label="🔍", show_label=True, lines=1, show_copy_button=True,
+                                           min_width=200, interactive=True)
+                    sort_drop = gr.Dropdown(["数量", "时间"], value="数量", type="index", label="排序方式",
+                                            interactive=True)
+                    limit_slider = gr.Slider(128, 5120, value=1024, label="搜索limit", step=4, min_width=600,
+                                             interactive=True)
+                with gr.Row():
+                    search_button = gr.Button("搜索", variant='primary')
+                    next_query_button = gr.Button("下一页", size="sm", variant='secondary')
+                    search_info = gr.Textbox("", show_label=False, interactive=False)
+                html_table = gr.HTML("", label=None, show_label=False, interactive=False)
+
+                search_button.click(search_action, inputs=[key_input, limit_slider, sort_drop],
+                                    outputs=[search_info, html_table])
+                next_query_button.click(next_search_action, inputs=[key_input, limit_slider, sort_drop],
+                                        outputs=[search_info, html_table])
+        with gr.Tab("现有LORA"):
+            with gr.Column():
+                fetch_lora_btn = gr.Button("查询lora", variant='primary')
+                html_loras = gr.HTML("", label=None, show_label=False, interactive=False)
+                fetch_lyco_btn = gr.Button("查询lyco", variant='primary')
+                html_lyco = gr.HTML("", label=None, show_label=False, interactive=False)
+                fetch_lora_btn.click(fetch_lora_action, outputs=html_loras)
+                fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
+        with gr.Tab('提取prompt'):
+            with gr.Column():
+                with gr.Row():
+                    file_path = gr.Textbox("/notebooks/resource/outputs/20231225", label="文件路径", lines=1,
+                                           show_copy_button=True, interactive=True)
+                    check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
+                extract_btn = gr.Button("提取prompt", variant="primary")
+                with gr.Row():
+                    text2 = gr.Textbox(label="状态")
+                    img_cnt = gr.Textbox(label="图片数量")
+                extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
         with gr.Tab("生成prompt"):
             with gr.Row():
                 with gr.Column(scale=3):
@@ -446,37 +497,6 @@ def on_ui_tabs():
                     with gr.Row():
                         gen_button = gr.Button("生成prompt")
                         send_button = gr.Button("发送到文生图")
-        with gr.Tab('🔍'):
-            with gr.Column():
-                with gr.Row():
-                    key_input = gr.Textbox("", label=None, show_label=False, lines=1, show_copy_button=True,
-                                           interactive=True)
-                    limit_slider = gr.Slider(128, 5120, value=1024, label="搜索limit", step=4, interactive=True)
-                with gr.Row():
-                    search_button = gr.Button("搜索", variant='primary')
-                    search_info = gr.Textbox("", show_label=False, interactive=False)
-                html_table = gr.HTML("", label=None, show_label=False, interactive=False)
-
-                search_button.click(search_action, inputs=[key_input, limit_slider], outputs=[search_info, html_table])
-        with gr.Tab("现有LORA"):
-            with gr.Column():
-                fetch_lora_btn = gr.Button("查询lora", variant='primary')
-                html_loras = gr.HTML("", label=None, show_label=False, interactive=False)
-                fetch_lyco_btn = gr.Button("查询lyco", variant='primary')
-                html_lyco = gr.HTML("", label=None, show_label=False, interactive=False)
-                fetch_lora_btn.click(fetch_lora_action, outputs=html_loras)
-                fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
-        with gr.Tab('提取prompt'):
-            with gr.Column():
-                with gr.Row():
-                    file_path = gr.Textbox("/notebooks/resource/outputs/20231225", label="文件路径", lines=1,
-                                           show_copy_button=True, interactive=True)
-                    check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
-                extract_btn = gr.Button("提取prompt", variant="primary")
-                with gr.Row():
-                    text2 = gr.Textbox(label="状态")
-                    img_cnt = gr.Textbox(label="图片数量")
-                extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
         with gr.Tab("其他"):
             with gr.Column():
                 gr.HTML(open_sd_image_broswer_html(), label=None, show_label=False, interactive=True)

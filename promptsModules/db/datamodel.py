@@ -183,7 +183,7 @@ class Image:
 
     @classmethod
     def simple_from_row(cls, row: tuple):
-        image = cls(path="", pos_prompt=row[1])
+        image = cls(path="", pos_prompt=row[1], date=row[2])
         image.id = row[0]
         return image
 
@@ -214,9 +214,8 @@ class Image:
 
     @classmethod
     def find_by_substring(
-        cls, conn: Connection, substring: str, limit: int = 500, cursor="", regexp="",
-        folder_paths: List[str] = []
-    ) -> Tuple[List["Image"], Cursor]:
+        cls, conn: Connection, substring: str, limit: int = 500, cursor="", regexp=""
+    ) -> Tuple[List["Image"], str]:
         api_cur = Cursor()
         with closing(conn.cursor()) as cur:
             params = []
@@ -230,7 +229,7 @@ class Image:
             if cursor:
                 where_clauses.append("(date < ?)")
                 params.append(cursor)
-            sql = "SELECT id, pos_prompt FROM image"
+            sql = "SELECT id, pos_prompt, date FROM image"
             if where_clauses:
                 sql += " WHERE "
                 sql += " AND ".join(where_clauses)
@@ -244,9 +243,12 @@ class Image:
         for row in rows:
             img = cls.simple_from_row(row)
             images.append(img)
+
+        cursor_date = None
         if images:
             api_cur.next = str(images[-1].date)
-        return images, api_cur
+            cursor_date = str(images[-1].date)
+        return images, cursor_date
 
 
 class Tag:
