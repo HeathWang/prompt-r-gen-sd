@@ -312,7 +312,7 @@ def on_ui_tabs():
                                            min_width=200, interactive=True)
                     sort_drop = gr.Dropdown(["数量", "时间"], value="数量", type="index", label="排序方式",
                                             interactive=True)
-                    limit_slider = gr.Slider(128, 5120, value=1024, label="搜索limit", step=4, min_width=600,
+                    limit_slider = gr.Slider(64, 5120, value=1024, label="搜索limit", step=4, min_width=600,
                                              interactive=True)
                 with gr.Row():
                     search_button = gr.Button("搜索", variant='primary')
@@ -322,6 +322,7 @@ def on_ui_tabs():
 
                 search_button.click(search_action, inputs=[key_input, limit_slider, sort_drop],
                                     outputs=[search_info, html_table])
+                key_input.submit(search_action, inputs=[key_input, limit_slider, sort_drop], outputs=[search_info, html_table])
                 next_query_button.click(next_search_action, inputs=[key_input, limit_slider, sort_drop],
                                         outputs=[search_info, html_table])
         with gr.Tab("现有LORA"):
@@ -347,6 +348,7 @@ def on_ui_tabs():
                     text2 = gr.Textbox(label="状态")
                     img_cnt = gr.Textbox(label="图片数量")
                 extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
+                file_path.submit(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
         with gr.Tab("生成prompt"):
             with gr.Row():
                 with gr.Column(scale=3):
