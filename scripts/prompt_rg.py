@@ -249,8 +249,7 @@ def get_tag_info(tag: Tag):
     return tag.name, cnt.replace("<", "&lt;").replace(">", "&gt;")
 
 
-def fetch_lora_action():
-    conn = DataBase.get_conn()
+def inner_fetch_lora(conn):
     lora_result = Tag.get_all_lora_tag(conn)
     lora_html = "<div style='display: flex; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap;'>"
     for lora in lora_result:
@@ -258,6 +257,11 @@ def fetch_lora_action():
         lora_html += create_tag_html(tag=tag, height=28, suffix=cnt)
     lora_html += "</div>"
     return lora_html
+
+
+def fetch_lora_action():
+    conn = DataBase.get_conn()
+    return inner_fetch_lora(conn)
 
 
 def fetch_lyco_action():
@@ -270,6 +274,13 @@ def fetch_lyco_action():
     lyco_html += "</div>"
     return lyco_html
 
+def delete_lora_action(delete_lora_input):
+    conn = DataBase.get_conn()
+    Tag.remove_by_name(conn, delete_lora_input)
+    lora_html = inner_fetch_lora(conn)
+    conn.close()
+    DataBase.reConnect = True;
+    return lora_html
 
 def open_sd_image_broswer_html():
     # 创建包含按钮的HTML
@@ -315,12 +326,16 @@ def on_ui_tabs():
                                         outputs=[search_info, html_table])
         with gr.Tab("现有LORA"):
             with gr.Column():
-                fetch_lora_btn = gr.Button("查询lora", variant='primary')
+                with gr.Row(equal_height=False):
+                    fetch_lora_btn = gr.Button("查询lora", variant='primary')
+                    delete_lora_input = gr.Textbox("", show_label=False, lines=1)
+
                 html_loras = gr.HTML("", label=None, show_label=False, interactive=False)
                 fetch_lyco_btn = gr.Button("查询lyco", variant='primary')
                 html_lyco = gr.HTML("", label=None, show_label=False, interactive=False)
                 fetch_lora_btn.click(fetch_lora_action, outputs=html_loras)
                 fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
+                delete_lora_input.submit(delete_lora_action, inputs=[delete_lora_input], outputs=html_loras)
         with gr.Tab('提取prompt'):
             with gr.Column():
                 with gr.Row():

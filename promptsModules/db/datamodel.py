@@ -275,6 +275,12 @@ class Tag:
             conn.commit()
 
     @classmethod
+    def remove_by_name(cls, conn, tag_name):
+        with closing(conn.cursor()) as cur:
+            cur.execute("DELETE FROM tag WHERE name = ?", (tag_name,))
+            conn.commit()
+
+    @classmethod
     def get(cls, conn: Connection, id):
         with closing(conn.cursor()) as cur:
             cur.execute("SELECT * FROM tag WHERE id = ?", (id,))
