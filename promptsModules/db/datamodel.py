@@ -224,7 +224,7 @@ class Image:
                 where_clauses.append("(exif REGEXP ?)")
                 params.append(regexp)
             else:
-                where_clauses.append("(path LIKE ? OR exif LIKE ?)")
+                where_clauses.append("(path LIKE ? OR pos_prompt LIKE ?)")
                 params.extend((f"%{substring}%", f"%{substring}%"))
             if cursor:
                 where_clauses.append("(date < ?)")
