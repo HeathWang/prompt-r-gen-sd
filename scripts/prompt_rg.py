@@ -19,6 +19,7 @@ t2i_text_box = None
 query_cursor: str = None
 IS_PLUGIN = True
 
+cache_search = defaultdict(int)
 
 def get_model_input(com_value):
     arr = com_value.split(",")
@@ -196,6 +197,8 @@ def next_search_action(key_input, limit_slider, sort_drop):
 
 def base_search_action(key_input, limit_slider, sort_drop, is_next=False):
     global query_cursor
+    global cache_search
+    cache_search[key_input] += 1
 
     conn = DataBase.get_conn()
     imgs, next_cursor = DbImg.find_by_substring(
@@ -234,7 +237,11 @@ def base_search_action(key_input, limit_slider, sort_drop, is_next=False):
                        f"</tr>")
     table_html += "</table>"
     query_cursor = next_cursor
-    return result_count, table_html
+    # make cache_search to List[Tuple[str, float | str]]]
+    cache_search_list = cache_search_list = [(key, str(value)) for key, value in cache_search.items()]
+    print(cache_search_list)
+
+    return [result_count, table_html, cache_search_list]
 
 
 def get_tag_info(tag: Tag):
@@ -294,7 +301,7 @@ def open_sd_image_broswer_html():
     
     <h2>打开Infinite image browsing</h2>
     
-    <button style='width:100%;' onclick="window.open('/infinite_image_browsing', '_blank')">点我</button>
+    <button style='width:100%;' onclick="window.location.href='/infinite_image_browsing'">点我</button>
     
     </body>
     </html>
@@ -314,6 +321,7 @@ def on_ui_tabs():
                                             interactive=True)
                     limit_slider = gr.Slider(64, 5120, value=1024, label="搜索limit", step=4, min_width=600,
                                              interactive=True)
+                search_history = gr.HighlightedText(show_label=False)
                 with gr.Row():
                     search_button = gr.Button("搜索", variant='primary')
                     next_query_button = gr.Button("下一页", size="sm", variant='secondary')
@@ -321,10 +329,10 @@ def on_ui_tabs():
                 html_table = gr.HTML("", label=None, show_label=False, interactive=False)
 
                 search_button.click(search_action, inputs=[key_input, limit_slider, sort_drop],
-                                    outputs=[search_info, html_table])
-                key_input.submit(search_action, inputs=[key_input, limit_slider, sort_drop], outputs=[search_info, html_table])
+                                    outputs=[search_info, html_table, search_history])
+                key_input.submit(search_action, inputs=[key_input, limit_slider, sort_drop], outputs=[search_info, html_table, search_history])
                 next_query_button.click(next_search_action, inputs=[key_input, limit_slider, sort_drop],
-                                        outputs=[search_info, html_table])
+                                        outputs=[search_info, html_table, search_history])
         with gr.Tab("现有LORA"):
             with gr.Column():
                 with gr.Row(equal_height=False):
