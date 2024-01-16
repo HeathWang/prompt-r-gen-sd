@@ -189,7 +189,6 @@ def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD"):
 def create_img_info_html(exif, check_res_show, check_adetailer_show):
     if check_res_show is not True and check_adetailer_show is not True:
         return ""
-    # print(exif, check_res_show, check_adetailer_show)
     tag_html = ""
     res = ""
     adetailer = ""
@@ -203,7 +202,6 @@ def create_img_info_html(exif, check_res_show, check_adetailer_show):
         if adetailer_match:
             adetailer = adetailer_match.group(1)
             adetailer = adetailer.replace("<", "&lt;").replace(">", "&gt;")
-    print(res, adetailer)
     tag_html += (
         f"<div style='display: flex; align-items: center; justify-content: start; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; background: #3C2DFF60; font-size: 14px;'>"
         f"<div style='padding-right: 14px;'>{res}</div>"
