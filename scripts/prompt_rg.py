@@ -186,16 +186,42 @@ def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD"):
     tag_html += "</div>"
     return tag_html
 
+def create_img_info_html(exif, check_res_show, check_adetailer_show):
+    if check_res_show is not True and check_adetailer_show is not True:
+        return ""
+    # print(exif, check_res_show, check_adetailer_show)
+    tag_html = ""
+    res = ""
+    adetailer = ""
+    if exif is not None and exif != "" and check_res_show is True:
+        res_match = re.search(r'\bSize: (\d+x\d+)\b', exif)
+        if res_match:
+            res = res_match.group(1)
 
-def search_action(key_input, limit_slider, sort_drop):
-    return base_search_action(key_input, limit_slider, sort_drop)
+    if exif is not None and exif != "" and check_adetailer_show is True:
+        adetailer_match = re.search(r'ADetailer prompt: "([^"]+)"', exif)
+        if adetailer_match:
+            adetailer = adetailer_match.group(1)
+            adetailer = adetailer.replace("<", "&lt;").replace(">", "&gt;")
+    print(res, adetailer)
+    tag_html += (
+        f"<div style='display: flex; align-items: center; justify-content: start; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; background: #3C2DFF60; font-size: 14px;'>"
+        f"<div style='padding-right: 14px;'>{res}</div>"
+        f"<div>{adetailer}</div>"
+        "</div>"
+    )
+
+    return tag_html
+
+def search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show):
+    return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show)
 
 
-def next_search_action(key_input, limit_slider, sort_drop):
-    return base_search_action(key_input, limit_slider, sort_drop, is_next=True)
+def next_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show):
+    return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, is_next=True)
 
 
-def base_search_action(key_input, limit_slider, sort_drop, is_next=False):
+def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, is_next=False):
     global query_cursor
     global cache_search
     cache_search[key_input] += 1
@@ -210,12 +236,14 @@ def base_search_action(key_input, limit_slider, sort_drop, is_next=False):
     )
 
     pos_prompt_counts = defaultdict(int)
+    exif_dict = defaultdict(str)
     list_search = []
     index = 0
 
     for img in imgs:
         pos_prompt = img.pos_prompt
         pos_prompt_counts[pos_prompt] += 1
+        exif_dict[pos_prompt] = img.exif
 
     target_prompt_counts = list(pos_prompt_counts.items())
     if sort_drop == 0:
@@ -232,7 +260,7 @@ def base_search_action(key_input, limit_slider, sort_drop, is_next=False):
     for row in list_search:
         table_html += (f"<tr>"
                        f"<td>{row[0]}</td>"
-                       f"<td>{create_tag_html(row[1].replace('<', '&lt;').replace('>', '&gt;'), height=None)}</td>"
+                       f"<td>{create_tag_html(row[1].replace('<', '&lt;').replace('>', '&gt;'), height=None)}{create_img_info_html(exif_dict[row[1]], check_res_show, check_adetailer_show)}</td>"
                        f"<td style='font-style: italic; font-weight: bolder; color: burlywood;'>{row[2]}</td>"
                        f"</tr>")
     table_html += "</table>"
@@ -319,7 +347,9 @@ def on_ui_tabs():
                                            min_width=200, interactive=True)
                     sort_drop = gr.Dropdown(["数量", "时间"], value="数量", type="index", label="排序方式",
                                             interactive=True)
-                    limit_slider = gr.Slider(64, 5120, value=1024, label="搜索limit", step=4, min_width=600,
+                    check_res_show = gr.Checkbox(True, label="分辨率", info="是否显示分辨率", interactive=True)
+                    check_adetailer_show = gr.Checkbox(True, label="adetailer", info="显示adetailer提示词", interactive=True)
+                    limit_slider = gr.Slider(64, 5120, value=512, label="搜索limit", step=4, min_width=600,
                                              interactive=True)
                 search_history = gr.HighlightedText(show_label=False)
                 with gr.Row():
@@ -328,10 +358,10 @@ def on_ui_tabs():
                     search_info = gr.Textbox("", show_label=False, interactive=False)
                 html_table = gr.HTML("", label=None, show_label=False, interactive=False)
 
-                search_button.click(search_action, inputs=[key_input, limit_slider, sort_drop],
+                search_button.click(search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show],
                                     outputs=[search_info, html_table, search_history])
-                key_input.submit(search_action, inputs=[key_input, limit_slider, sort_drop], outputs=[search_info, html_table, search_history])
-                next_query_button.click(next_search_action, inputs=[key_input, limit_slider, sort_drop],
+                key_input.submit(search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show], outputs=[search_info, html_table, search_history])
+                next_query_button.click(next_search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show],
                                         outputs=[search_info, html_table, search_history])
         with gr.Tab("现有LORA"):
             with gr.Column():

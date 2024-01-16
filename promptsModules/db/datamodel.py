@@ -183,7 +183,7 @@ class Image:
 
     @classmethod
     def simple_from_row(cls, row: tuple):
-        image = cls(path="", pos_prompt=row[1], date=row[2])
+        image = cls(path="", pos_prompt=row[1], date=row[2], exif=row[3])
         image.id = row[0]
         return image
 
@@ -229,7 +229,7 @@ class Image:
             if cursor:
                 where_clauses.append("(date < ?)")
                 params.append(cursor)
-            sql = "SELECT id, pos_prompt, date FROM image"
+            sql = "SELECT id, pos_prompt, date, exif FROM image"
             if where_clauses:
                 sql += " WHERE "
                 sql += " AND ".join(where_clauses)
