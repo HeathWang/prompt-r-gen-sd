@@ -214,7 +214,7 @@ class Image:
 
     @classmethod
     def find_by_substring(
-        cls, conn: Connection, substring: str, limit: int = 500, cursor="", regexp=""
+        cls, conn: Connection, substring: str, limit: int = 500, cursor="", regexp="", from_exif=False,
     ) -> Tuple[List["Image"], str]:
         api_cur = Cursor()
         with closing(conn.cursor()) as cur:
@@ -223,6 +223,9 @@ class Image:
             if regexp:
                 where_clauses.append("(exif REGEXP ?)")
                 params.append(regexp)
+            if from_exif:
+                where_clauses.append("(exif LIKE ?)")
+                params.append(f"%{substring}%")
             else:
                 where_clauses.append("(path LIKE ? OR pos_prompt LIKE ?)")
                 params.extend((f"%{substring}%", f"%{substring}%"))

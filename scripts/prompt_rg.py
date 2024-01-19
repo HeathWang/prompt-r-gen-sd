@@ -211,15 +211,15 @@ def create_img_info_html(exif, check_res_show, check_adetailer_show):
 
     return tag_html
 
-def search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show):
-    return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show)
+def search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt=False):
+    return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt)
 
 
-def next_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show):
-    return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, is_next=True)
+def next_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt=False):
+    return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt, is_next=True)
 
 
-def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, is_next=False):
+def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt, is_next=False):
     global query_cursor
     global cache_search
     cache_search[key_input] += 1
@@ -230,7 +230,8 @@ def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check
         substring=key_input.strip(),
         cursor=is_next and query_cursor or None,
         limit=limit_slider,
-        regexp=None,
+        regexp=check_search_adetailer_prompt and r'ADetailer prompt: "([^"]+)"' or None,
+        from_exif=check_search_adetailer_prompt,
     )
 
     pos_prompt_counts = defaultdict(int)
@@ -347,6 +348,7 @@ def on_ui_tabs():
                                             interactive=True)
                     check_res_show = gr.Checkbox(True, label="分辨率", info="是否显示分辨率", interactive=True)
                     check_adetailer_show = gr.Checkbox(True, label="adetailer", info="显示adetailer提示词", interactive=True)
+                    check_search_adetailer_prompt = gr.Checkbox(False, label="adetailer prompt", info="搜索adetailer", interactive=True)
                     limit_slider = gr.Slider(64, 5120, value=512, label="搜索limit", step=4, min_width=600,
                                              interactive=True)
                 search_history = gr.HighlightedText(show_label=False)
@@ -356,10 +358,10 @@ def on_ui_tabs():
                     search_info = gr.Textbox("", show_label=False, interactive=False)
                 html_table = gr.HTML("", label=None, show_label=False, interactive=False)
 
-                search_button.click(search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show],
+                search_button.click(search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt],
                                     outputs=[search_info, html_table, search_history])
-                key_input.submit(search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show], outputs=[search_info, html_table, search_history])
-                next_query_button.click(next_search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show],
+                key_input.submit(search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt], outputs=[search_info, html_table, search_history])
+                next_query_button.click(next_search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt],
                                         outputs=[search_info, html_table, search_history])
         with gr.Tab("现有LORA"):
             with gr.Column():
