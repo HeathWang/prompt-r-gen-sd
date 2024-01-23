@@ -76,6 +76,7 @@ class DataBase:
             Tag.create_table(conn)
             Image.create_table(conn)
             ExtraPath.create_table(conn)
+            TrainTag.create_table(conn)
         finally:
             conn.commit()
         clz.num += 1
@@ -253,6 +254,56 @@ class Image:
             cursor_date = str(images[-1].date)
         return images, cursor_date
 
+class TrainTag:
+    def __init__(self, model_name: str, tags_info: int):
+        self.model_name = model_name
+        self.tags_info = tags_info
+        self.id = None
+
+    @classmethod
+    def create_table(cls, conn):
+        with closing(conn.cursor()) as cur:
+            cur.execute(
+                """CREATE TABLE IF NOT EXISTS train_tag (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            model_name TEXT UNIQUE,
+                            tags_info TEXT
+                        )"""
+            )
+            cur.execute("CREATE INDEX IF NOT EXISTS train_tag_idx_model_name ON train_tag(model_name)")
+
+    def save(self, conn):
+        with closing(conn.cursor()) as cur:
+            cur.execute(
+                "INSERT OR REPLACE  INTO train_tag (model_name, tags_info) VALUES (?, ?)",
+                (self.model_name, self.tags_info),
+            )
+            conn.commit()
+            self.id = cur.lastrowid
+
+    @classmethod
+    def get(cls, conn: Connection, model_name):
+        with closing(conn.cursor()) as cur:
+            cur.execute(
+                "SELECT * FROM train_tag WHERE model_name = ?", (model_name,)
+            )
+            row = cur.fetchone()
+            if row is None:
+                return None
+            else:
+                return cls.from_row(row)
+
+    @classmethod
+    def from_row(cls, row: tuple):
+        train_tag = cls(model_name=row[1], tags_info=row[2])
+        train_tag.id = row[0]
+        return train_tag
+
+    @classmethod
+    def remove(cls, conn: Connection, model_name):
+        with closing(conn.cursor()) as cur:
+            cur.execute("DELETE FROM train_tag WHERE model_name = ?", (model_name,))
+            conn.commit()
 
 class Tag:
     def __init__(self, name: str, score: int, type: str, count=0):

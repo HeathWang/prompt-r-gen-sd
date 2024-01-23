@@ -8,11 +8,13 @@ from promptsModules.db.datamodel import (
     DataBase,
     Image as DbImg,
     Tag,
+    TrainTag,
 )
 from promptsModules.db.update_image_data import (update_image_data)
 from promptsModules.model_manager import (LoraConfigManager)
 from promptsModules.sd_command_gen import project_config as gen_config
 from promptsModules.web_api import (create_prompts)
+from promptsModules.train_tags import (handle_train_tag)
 
 project_config = gen_config
 t2i_text_box = None
@@ -313,7 +315,7 @@ def delete_lora_action(delete_lora_input):
     Tag.remove_by_name(conn, delete_lora_input)
     lora_html = inner_fetch_lora(conn)
     conn.close()
-    DataBase.reConnect = True;
+    DataBase.reConnect = True
     return lora_html
 
 def open_sd_image_broswer_html():
@@ -335,6 +337,14 @@ def open_sd_image_broswer_html():
     """
     return html_code
 
+def save_train_tag_action(train_source_path, train_alias):
+    json_str, alias_name = handle_train_tag(train_source_path, train_alias)
+    conn = DataBase.get_conn()
+    train = TrainTag(alias_name, json_str)
+    train.save(conn)
+    conn.close()
+    DataBase.reConnect = True
+    return "DONE"
 
 ######### UI #########
 def on_ui_tabs():
@@ -387,6 +397,13 @@ def on_ui_tabs():
                     img_cnt = gr.Textbox(label="图片数量")
                 extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
                 file_path.submit(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
+            with gr.Column():
+                with gr.Row():
+                    train_source_path = gr.Textbox("/notebooks/", label="训练的tag文件路径", lines=1, show_copy_button=True, interactive=True)
+                    train_alias = gr.Textbox(None, label="别名", lines=1, show_copy_button=True, interactive=True)
+                with gr.Row():
+                    train_tag_btn = gr.Button("汇总tag", variant="primary")
+                train_tag_btn.click(save_train_tag_action, inputs=[train_source_path, train_alias], outputs=[train_tag_btn])
         with gr.Tab("生成prompt"):
             with gr.Row():
                 with gr.Column(scale=3):
