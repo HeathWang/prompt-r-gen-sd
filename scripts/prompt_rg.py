@@ -1,6 +1,7 @@
 import importlib
 import re
 from collections import defaultdict
+import json
 
 import gradio as gr
 
@@ -346,6 +347,15 @@ def save_train_tag_action(train_source_path, train_alias):
     DataBase.reConnect = True
     return "DONE"
 
+def get_train_model_tags(train_input_model):
+    conn = DataBase.get_conn()
+    train = TrainTag.get(conn, train_input_model.strip())
+    if train is None:
+        return []
+    tags = json.loads(train.tags_info)
+    results = [(key, str(value)) for key, value in tags.items()]
+    return results
+
 ######### UI #########
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as ui_component:
@@ -385,6 +395,13 @@ def on_ui_tabs():
                 fetch_lora_btn.click(fetch_lora_action, outputs=html_loras)
                 fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
                 delete_lora_input.submit(delete_lora_action, inputs=[delete_lora_input], outputs=html_loras)
+
+                with gr.Row():
+                    train_input_model = gr.Textbox("", show_label=False, lines=1)
+                    fetch_train_info_btn = gr.Button("查询train tags", variant='primary')
+                tags_highlighted = gr.HighlightedText(show_label=False)
+                train_input_model.submit(get_train_model_tags, inputs=[train_input_model], outputs=[tags_highlighted])
+                fetch_train_info_btn.click(get_train_model_tags, inputs=[train_input_model], outputs=[tags_highlighted])
         with gr.Tab('提取prompt'):
             with gr.Column():
                 with gr.Row():
