@@ -1,7 +1,7 @@
 import importlib
+import json
 import re
 from collections import defaultdict
-import json
 
 import gradio as gr
 
@@ -14,8 +14,8 @@ from promptsModules.db.datamodel import (
 from promptsModules.db.update_image_data import (update_image_data)
 from promptsModules.model_manager import (LoraConfigManager)
 from promptsModules.sd_command_gen import project_config as gen_config
-from promptsModules.web_api import (create_prompts)
 from promptsModules.train_tags import (handle_train_tag)
+from promptsModules.web_api import (create_prompts)
 
 project_config = gen_config
 t2i_text_box = None
@@ -23,6 +23,7 @@ query_cursor: str = None
 IS_PLUGIN = True
 
 cache_search = defaultdict(int)
+
 
 def get_model_input(com_value):
     arr = com_value.split(",")
@@ -189,6 +190,7 @@ def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD"):
     tag_html += "</div>"
     return tag_html
 
+
 def create_img_info_html(exif, check_res_show, check_adetailer_show):
     if check_res_show is not True and check_adetailer_show is not True:
         return ""
@@ -214,15 +216,21 @@ def create_img_info_html(exif, check_res_show, check_adetailer_show):
 
     return tag_html
 
-def search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt=False):
-    return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt)
+
+def search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
+                  check_search_adetailer_prompt=False):
+    return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
+                              check_search_adetailer_prompt)
 
 
-def next_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt=False):
-    return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt, is_next=True)
+def next_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
+                       check_search_adetailer_prompt=False):
+    return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
+                              check_search_adetailer_prompt, is_next=True)
 
 
-def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt, is_next=False):
+def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
+                       check_search_adetailer_prompt, is_next=False):
     global query_cursor
     global cache_search
     cache_search[key_input] += 1
@@ -311,6 +319,7 @@ def fetch_lyco_action():
     lyco_html += "</div>"
     return lyco_html
 
+
 def delete_lora_action(delete_lora_input):
     conn = DataBase.get_conn()
     Tag.remove_by_name(conn, delete_lora_input)
@@ -318,6 +327,7 @@ def delete_lora_action(delete_lora_input):
     conn.close()
     DataBase.reConnect = True
     return lora_html
+
 
 def open_sd_image_broswer_html():
     # 创建包含按钮的HTML
@@ -338,6 +348,7 @@ def open_sd_image_broswer_html():
     """
     return html_code
 
+
 def save_train_tag_action(train_source_path, train_alias, train_comments):
     json_str, alias_name = handle_train_tag(train_source_path, train_alias)
     conn = DataBase.get_conn()
@@ -346,6 +357,7 @@ def save_train_tag_action(train_source_path, train_alias, train_comments):
     conn.close()
     DataBase.reConnect = True
     return json_str
+
 
 def get_train_model_tags(train_input_model):
     conn = DataBase.get_conn()
@@ -360,6 +372,7 @@ def get_train_model_tags(train_input_model):
     results = [(key, str(value)) for key, value in sorted_tags]
     return results, train.comments
 
+
 ######### UI #########
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as ui_component:
@@ -371,8 +384,10 @@ def on_ui_tabs():
                     sort_drop = gr.Dropdown(["数量", "时间"], value="数量", type="index", label="排序方式",
                                             interactive=True)
                     check_res_show = gr.Checkbox(True, label="分辨率", info="是否显示分辨率", interactive=True)
-                    check_adetailer_show = gr.Checkbox(True, label="adetailer", info="显示adetailer提示词", interactive=True)
-                    check_search_adetailer_prompt = gr.Checkbox(False, label="adetailer prompt", info="搜索adetailer", interactive=True)
+                    check_adetailer_show = gr.Checkbox(True, label="adetailer", info="显示adetailer提示词",
+                                                       interactive=True)
+                    check_search_adetailer_prompt = gr.Checkbox(False, label="adetailer prompt", info="搜索adetailer",
+                                                                interactive=True)
                     limit_slider = gr.Slider(64, 5120, value=512, label="搜索limit", step=4, min_width=600,
                                              interactive=True)
                 search_history = gr.HighlightedText(show_label=False)
@@ -382,31 +397,41 @@ def on_ui_tabs():
                     search_info = gr.Textbox("", show_label=False, interactive=False)
                 html_table = gr.HTML("", label=None, show_label=False, interactive=False)
 
-                search_button.click(search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt],
+                search_button.click(search_action,
+                                    inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
+                                            check_search_adetailer_prompt],
                                     outputs=[search_info, html_table, search_history])
-                key_input.submit(search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt], outputs=[search_info, html_table, search_history])
-                next_query_button.click(next_search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show, check_search_adetailer_prompt],
+                key_input.submit(search_action,
+                                 inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
+                                         check_search_adetailer_prompt],
+                                 outputs=[search_info, html_table, search_history])
+                next_query_button.click(next_search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show,
+                                                                    check_adetailer_show,
+                                                                    check_search_adetailer_prompt],
                                         outputs=[search_info, html_table, search_history])
-        with gr.Tab("现有LORA"):
-            with gr.Column():
-                with gr.Row(equal_height=False):
-                    fetch_lora_btn = gr.Button("查询lora", variant='primary')
-                    delete_lora_input = gr.Textbox("", show_label=False, lines=1)
-
-                html_loras = gr.HTML("", label=None, show_label=False, interactive=False)
+        with gr.Tab("MODEL"):
+            with gr.Tab("lora"):
+                with gr.Column():
+                    with gr.Row(equal_height=False):
+                        fetch_lora_btn = gr.Button("查询lora", variant='primary')
+                        delete_lora_input = gr.Textbox("", show_label=False, lines=1)
+                    html_loras = gr.HTML("", label=None, show_label=False, interactive=False)
+                    fetch_lora_btn.click(fetch_lora_action, outputs=html_loras)
+                    delete_lora_input.submit(delete_lora_action, inputs=[delete_lora_input], outputs=html_loras)
+            with gr.Tab("lyco"):
                 fetch_lyco_btn = gr.Button("查询lyco", variant='primary')
                 html_lyco = gr.HTML("", label=None, show_label=False, interactive=False)
-                fetch_lora_btn.click(fetch_lora_action, outputs=html_loras)
                 fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
-                delete_lora_input.submit(delete_lora_action, inputs=[delete_lora_input], outputs=html_loras)
-
+            with gr.Tab("tags"):
                 with gr.Row():
                     train_input_model = gr.Textbox("", show_label=False, lines=1)
                     fetch_train_info_btn = gr.Button("查询train tags", variant='primary')
                 train_tags_comments = gr.Label("", show_label=True, label="备注")
                 tags_highlighted = gr.HighlightedText(show_label=False)
-                train_input_model.submit(get_train_model_tags, inputs=[train_input_model], outputs=[tags_highlighted, train_tags_comments])
-                fetch_train_info_btn.click(get_train_model_tags, inputs=[train_input_model], outputs=[tags_highlighted, train_tags_comments])
+                train_input_model.submit(get_train_model_tags, inputs=[train_input_model],
+                                         outputs=[tags_highlighted, train_tags_comments])
+                fetch_train_info_btn.click(get_train_model_tags, inputs=[train_input_model],
+                                           outputs=[tags_highlighted, train_tags_comments])
         with gr.Tab('提取prompt'):
             with gr.Column():
                 with gr.Row():
@@ -421,14 +446,17 @@ def on_ui_tabs():
                 file_path.submit(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
             with gr.Column():
                 with gr.Row():
-                    train_source_path = gr.Textbox("/notebooks/", label="训练的tag文件路径", lines=1, show_copy_button=True, interactive=True)
+                    train_source_path = gr.Textbox("/notebooks/", label="训练的tag文件路径", lines=1,
+                                                   show_copy_button=True, interactive=True)
                     train_alias = gr.Textbox(None, label="别名", lines=1, interactive=True)
                     train_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
                 train_result = gr.Textbox("", label="汇总结果", lines=1, show_copy_button=True, interactive=False)
                 with gr.Row():
                     train_tag_btn = gr.Button("汇总tag", variant="primary")
-                train_tag_btn.click(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments], outputs=[train_result])
-                train_source_path.submit(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments], outputs=[train_result])
+                train_tag_btn.click(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments],
+                                    outputs=[train_result])
+                train_source_path.submit(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments],
+                                         outputs=[train_result])
         with gr.Tab("生成prompt"):
             with gr.Row():
                 with gr.Column(scale=3):
