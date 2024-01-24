@@ -255,9 +255,10 @@ class Image:
         return images, cursor_date
 
 class TrainTag:
-    def __init__(self, model_name: str, tags_info: int):
+    def __init__(self, model_name: str, tags_info: int, comments: str = ""):
         self.model_name = model_name
         self.tags_info = tags_info
+        self.comments = comments
         self.id = None
 
     @classmethod
@@ -271,12 +272,17 @@ class TrainTag:
                         )"""
             )
             cur.execute("CREATE INDEX IF NOT EXISTS train_tag_idx_model_name ON train_tag(model_name)")
+            cur.execute("PRAGMA table_info(train_tag)")
+            columns = [column[1] for column in cur.fetchall()]
+
+            if "comments" not in columns:
+                cur.execute("ALTER TABLE train_tag ADD COLUMN comments TEXT DEFAULT ''")
 
     def save(self, conn):
         with closing(conn.cursor()) as cur:
             cur.execute(
-                "INSERT OR REPLACE  INTO train_tag (model_name, tags_info) VALUES (?, ?)",
-                (self.model_name, self.tags_info),
+                "INSERT OR REPLACE  INTO train_tag (model_name, tags_info, comments) VALUES (?, ?, ?)",
+                (self.model_name, self.tags_info, self.comments),
             )
             conn.commit()
             self.id = cur.lastrowid
@@ -285,7 +291,8 @@ class TrainTag:
     def get(cls, conn: Connection, model_name):
         with closing(conn.cursor()) as cur:
             cur.execute(
-                "SELECT * FROM train_tag WHERE model_name = ?", (model_name,)
+
+                "SELECT * FROM train_tag WHERE model_name LIKE ? ", (f"%{model_name}%",)
             )
             row = cur.fetchone()
             if row is None:
@@ -297,6 +304,7 @@ class TrainTag:
     def from_row(cls, row: tuple):
         train_tag = cls(model_name=row[1], tags_info=row[2])
         train_tag.id = row[0]
+        train_tag.comments = row[3]
         return train_tag
 
     @classmethod

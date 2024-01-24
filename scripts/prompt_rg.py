@@ -338,23 +338,27 @@ def open_sd_image_broswer_html():
     """
     return html_code
 
-def save_train_tag_action(train_source_path, train_alias):
+def save_train_tag_action(train_source_path, train_alias, train_comments):
     json_str, alias_name = handle_train_tag(train_source_path, train_alias)
     conn = DataBase.get_conn()
-    train = TrainTag(alias_name, json_str)
+    train = TrainTag(alias_name, json_str, comments=train_comments)
     train.save(conn)
     conn.close()
     DataBase.reConnect = True
-    return "DONE"
+    return json_str
 
 def get_train_model_tags(train_input_model):
     conn = DataBase.get_conn()
     train = TrainTag.get(conn, train_input_model.strip())
     if train is None:
-        return []
+        return [], ""
     tags = json.loads(train.tags_info)
-    results = [(key, str(value)) for key, value in tags.items()]
-    return results
+    # 将字典按照值的数值降序排序
+    sorted_tags = sorted(tags.items(), key=lambda x: int(x[1]), reverse=True)
+
+    # 将排序后的结果转换为列表
+    results = [(key, str(value)) for key, value in sorted_tags]
+    return results, train.comments
 
 ######### UI #########
 def on_ui_tabs():
@@ -399,9 +403,10 @@ def on_ui_tabs():
                 with gr.Row():
                     train_input_model = gr.Textbox("", show_label=False, lines=1)
                     fetch_train_info_btn = gr.Button("查询train tags", variant='primary')
+                train_tags_comments = gr.Label("", show_label=True, label="备注")
                 tags_highlighted = gr.HighlightedText(show_label=False)
-                train_input_model.submit(get_train_model_tags, inputs=[train_input_model], outputs=[tags_highlighted])
-                fetch_train_info_btn.click(get_train_model_tags, inputs=[train_input_model], outputs=[tags_highlighted])
+                train_input_model.submit(get_train_model_tags, inputs=[train_input_model], outputs=[tags_highlighted, train_tags_comments])
+                fetch_train_info_btn.click(get_train_model_tags, inputs=[train_input_model], outputs=[tags_highlighted, train_tags_comments])
         with gr.Tab('提取prompt'):
             with gr.Column():
                 with gr.Row():
@@ -417,10 +422,13 @@ def on_ui_tabs():
             with gr.Column():
                 with gr.Row():
                     train_source_path = gr.Textbox("/notebooks/", label="训练的tag文件路径", lines=1, show_copy_button=True, interactive=True)
-                    train_alias = gr.Textbox(None, label="别名", lines=1, show_copy_button=True, interactive=True)
+                    train_alias = gr.Textbox(None, label="别名", lines=1, interactive=True)
+                    train_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
+                train_result = gr.Textbox("", label="汇总结果", lines=1, show_copy_button=True, interactive=False)
                 with gr.Row():
                     train_tag_btn = gr.Button("汇总tag", variant="primary")
-                train_tag_btn.click(save_train_tag_action, inputs=[train_source_path, train_alias], outputs=[train_tag_btn])
+                train_tag_btn.click(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments], outputs=[train_result])
+                train_source_path.submit(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments], outputs=[train_result])
         with gr.Tab("生成prompt"):
             with gr.Row():
                 with gr.Column(scale=3):
