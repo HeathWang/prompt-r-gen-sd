@@ -184,8 +184,9 @@ def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD"):
         f"<div>{tag}</div>"
     )
     if suffix is not None:
+        text, color = suffix
         tag_html += (
-            f"<div style='padding-left: 12px;  font-style: italic; font-weight: bolder; color: burlywood;'>{suffix}</div>"
+            f"<div style='padding-left: 12px;  font-style: italic; font-weight: bolder; color: {color};'>{text}</div>"
         )
     tag_html += "</div>"
     return tag_html
@@ -284,6 +285,7 @@ def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check
 
 def get_tag_info(tag: Tag):
     cnt = f""
+    suffix_color = "burlywood"
     if tag.count is not None and tag.count > 0:
         if tag.count < 1000:
             cnt = f"\t<{tag.count}>"
@@ -291,7 +293,23 @@ def get_tag_info(tag: Tag):
             cnt = f"\t<{tag.count / 1000:.2f}k>"
         else:
             cnt = f"\t<{tag.count / 10000:.2f}w>"
-    return tag.name, cnt.replace("<", "&lt;").replace(">", "&gt;")
+
+        if tag.count < 16:
+            suffix_color = "#63FFA2"  # 绿色
+        elif tag.count < 128:
+            suffix_color = "#559BFF"  # 黄色
+        elif tag.count < 256:
+            suffix_color = "#3553FF"  # 浅蓝
+        elif tag.count < 512:
+            suffix_color = "#7214FF"  # 浅紫
+        elif tag.count < 1024:
+            suffix_color = "#00EAFB"  # 青色
+        elif tag.count < 5210:
+            suffix_color = "#FF2700"  # 浅红
+        else:
+            suffix_color = "#FF0035"  # 红色
+
+    return tag.name, (cnt.replace("<", "&lt;").replace(">", "&gt;"), suffix_color)
 
 
 def inner_fetch_lora(conn):
