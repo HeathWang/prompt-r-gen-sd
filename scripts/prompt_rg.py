@@ -389,7 +389,9 @@ def get_train_model_tags(train_input_model):
     # 将排序后的结果转换为列表
     results = [(key, str(value)) for key, value in sorted_tags]
 
-    html_comments = f"<div style='color: aqua; font-size: 14px; font-weight: lighter; text-decoration: underline;'>{train.comments}</div>"
+    html_comments = (f"<div style='display: flex; color: aqua; font-size: 14px; font-weight: lighter; text-decoration: underline;'>"
+                     f"<div style='padding-right: 10px;'>{train.model_name}</div><div>{train.comments}</div>"
+                     f"</div>")
     return results, html_comments
 
 
