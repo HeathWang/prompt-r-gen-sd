@@ -370,7 +370,9 @@ def get_train_model_tags(train_input_model):
 
     # 将排序后的结果转换为列表
     results = [(key, str(value)) for key, value in sorted_tags]
-    return results, train.comments
+
+    html_comments = f"<div style='color: aqua; font-size: 14px; font-weight: lighter; text-decoration: underline;'>{train.comments}</div>"
+    return results, html_comments
 
 
 ######### UI #########
@@ -426,7 +428,7 @@ def on_ui_tabs():
                 with gr.Row():
                     train_input_model = gr.Textbox("", show_label=False, lines=1)
                     fetch_train_info_btn = gr.Button("查询train tags", variant='primary')
-                train_tags_comments = gr.Label("", show_label=True, label="备注")
+                train_tags_comments = gr.HTML("", label=None, show_label=False, interactive=False)
                 tags_highlighted = gr.HighlightedText(show_label=False)
                 train_input_model.submit(get_train_model_tags, inputs=[train_input_model],
                                          outputs=[tags_highlighted, train_tags_comments])
