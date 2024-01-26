@@ -2,6 +2,7 @@ import importlib
 import json
 import re
 from collections import defaultdict
+import os
 
 import gradio as gr
 
@@ -367,14 +368,41 @@ def open_sd_image_broswer_html():
     return html_code
 
 
-def save_train_tag_action(train_source_path, train_alias, train_comments):
-    json_str, alias_name = handle_train_tag(train_source_path, train_alias)
+def save_train_tag_action(train_source_path, train_alias, train_comments, check_handle_train_folder:bool):
+    if check_handle_train_folder:
+        # check if folder
+        if not os.path.isdir(train_source_path):
+            return f"{train_source_path}不是文件夹"
+        # get all sub folder
+        conn = DataBase.get_conn()
+        count = 0
+
+        for file_name in os.listdir(train_source_path):
+            file_path = os.path.join(train_source_path, file_name)
+            if os.path.isdir(file_path):
+                json_str, alias_name = handle_train_tag(file_path, "")
+
+                train = TrainTag(alias_name, json_str, comments=train_comments)
+                train.save(conn)
+                count += 1
+
+        conn.close()
+        DataBase.reConnect = True
+        return f"处理完成，共{count}个文件夹"
+    else:
+        json_str, alias_name = handle_train_tag(train_source_path, train_alias)
+        conn = DataBase.get_conn()
+        train = TrainTag(alias_name, json_str, comments=train_comments)
+        train.save(conn)
+        conn.close()
+        DataBase.reConnect = True
+        return json_str
+
+def update_train_tag_comments(train_model_dropdown, train_update_comments):
     conn = DataBase.get_conn()
-    train = TrainTag(alias_name, json_str, comments=train_comments)
-    train.save(conn)
-    conn.close()
-    DataBase.reConnect = True
-    return json_str
+    train = TrainTag(train_model_dropdown, tags_info="", comments=train_update_comments)
+    train.update_comments(conn)
+    gr.Info(f"更新{train_model_dropdown}完成")
 
 
 def get_train_model_tags(train_input_model):
@@ -394,6 +422,13 @@ def get_train_model_tags(train_input_model):
                      f"</div>")
     return results, html_comments
 
+def load_train_models():
+    conn = DataBase.get_conn()
+    train_models = TrainTag.get_all(conn)
+    names = []
+    for train in train_models:
+        names.append(train.model_name)
+    return names
 
 ######### UI #########
 def on_ui_tabs():
@@ -431,8 +466,8 @@ def on_ui_tabs():
                                                                     check_adetailer_show,
                                                                     check_search_adetailer_prompt],
                                         outputs=[search_info, html_table, search_history])
-        with gr.Tab("MODEL"):
-            with gr.Tab("lora"):
+        with gr.Tab("Model"):
+            with gr.Tab("Lora"):
                 with gr.Column():
                     with gr.Row(equal_height=False):
                         fetch_lora_btn = gr.Button("查询lora", variant='primary')
@@ -440,46 +475,59 @@ def on_ui_tabs():
                     html_loras = gr.HTML("", label=None, show_label=False, interactive=False)
                     fetch_lora_btn.click(fetch_lora_action, outputs=html_loras)
                     delete_lora_input.submit(delete_lora_action, inputs=[delete_lora_input], outputs=html_loras)
-            with gr.Tab("lyco"):
+            with gr.Tab("Lyco"):
                 fetch_lyco_btn = gr.Button("查询lyco", variant='primary')
                 html_lyco = gr.HTML("", label=None, show_label=False, interactive=False)
                 fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
-            with gr.Tab("tags"):
+            with gr.Tab("Tags"):
                 with gr.Row():
-                    train_input_model = gr.Textbox("", show_label=False, lines=1)
+                    train_input_model = gr.Dropdown(choices=load_train_models(), interactive=True, type="value")
                     fetch_train_info_btn = gr.Button("查询train tags", variant='primary')
                 train_tags_comments = gr.HTML("", label=None, show_label=False, interactive=False)
                 tags_highlighted = gr.HighlightedText(show_label=False)
-                train_input_model.submit(get_train_model_tags, inputs=[train_input_model],
+                train_input_model.select(get_train_model_tags, inputs=[train_input_model],
                                          outputs=[tags_highlighted, train_tags_comments])
                 fetch_train_info_btn.click(get_train_model_tags, inputs=[train_input_model],
                                            outputs=[tags_highlighted, train_tags_comments])
-        with gr.Tab('提取prompt'):
-            with gr.Column():
-                with gr.Row():
-                    file_path = gr.Textbox("/notebooks/resource/outputs/20231225", label="文件路径", lines=1,
-                                           show_copy_button=True, interactive=True)
-                    check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
-                extract_btn = gr.Button("提取prompt", variant="primary")
-                with gr.Row():
-                    text2 = gr.Textbox(label="状态")
-                    img_cnt = gr.Textbox(label="图片数量")
-                extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
-                file_path.submit(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
-            with gr.Column():
-                with gr.Row():
-                    train_source_path = gr.Textbox("/notebooks/", label="训练的tag文件路径", lines=1,
-                                                   show_copy_button=True, interactive=True)
-                    train_alias = gr.Textbox(None, label="别名", lines=1, interactive=True)
-                    train_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
-                train_result = gr.Textbox("", label="汇总结果", lines=1, show_copy_button=True, interactive=False)
-                with gr.Row():
-                    train_tag_btn = gr.Button("汇总tag", variant="primary")
-                train_tag_btn.click(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments],
-                                    outputs=[train_result])
-                train_source_path.submit(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments],
-                                         outputs=[train_result])
-        with gr.Tab("生成prompt"):
+        with gr.Tab('提取Prompt'):
+            with gr.Tab("Images"):
+                with gr.Column():
+                    with gr.Row():
+                        file_path = gr.Textbox("/notebooks/resource/outputs/20231225", label="文件路径", lines=1,
+                                               show_copy_button=True, interactive=True)
+                        check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
+                    extract_btn = gr.Button("提取prompt", variant="primary")
+                    with gr.Row():
+                        text2 = gr.Textbox(label="状态")
+                        img_cnt = gr.Textbox(label="图片数量")
+                    extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
+                    file_path.submit(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
+            with gr.Tab("Train Source"):
+                with gr.Column():
+                    with gr.Row():
+                        train_source_path = gr.Textbox("/notebooks/", label="训练的tag文件路径", lines=1,
+                                                       show_copy_button=True, interactive=True)
+                        train_alias = gr.Textbox(None, label="别名", lines=1, interactive=True)
+                        train_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
+                        check_handle_train_folder = gr.Checkbox(False, label="是否处理文件夹",
+                                                                info="勾选则处理文件夹下所有子目录", interactive=True)
+                    train_result = gr.Textbox("", label="汇总结果", lines=1, show_copy_button=True, interactive=False)
+                    with gr.Row():
+                        train_tag_btn = gr.Button("汇总tag", variant="primary")
+                    train_tag_btn.click(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments, check_handle_train_folder],
+                                        outputs=[train_result])
+                    train_source_path.submit(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments, check_handle_train_folder],
+                                             outputs=[train_result])
+
+                with gr.Column():
+                    with gr.Row():
+                        train_model_dropdown = gr.Dropdown(choices=load_train_models(), interactive=True)
+                        train_update_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
+                    train_update_btn = gr.Button("更新备注", variant="primary")
+                    train_update_btn.click(update_train_tag_comments, inputs=[train_model_dropdown, train_update_comments])
+
+
+        with gr.Tab("生成Prompt"):
             with gr.Row():
                 with gr.Column(scale=3):
                     gr.Markdown("请修改以下配置")

@@ -255,7 +255,7 @@ class Image:
         return images, cursor_date
 
 class TrainTag:
-    def __init__(self, model_name: str, tags_info: int, comments: str = ""):
+    def __init__(self, model_name: str, tags_info: str, comments: str = ""):
         self.model_name = model_name
         self.tags_info = tags_info
         self.comments = comments
@@ -287,6 +287,14 @@ class TrainTag:
             conn.commit()
             self.id = cur.lastrowid
 
+    def update_comments(self, conn):
+        with closing(conn.cursor()) as cur:
+            cur.execute(
+                "UPDATE train_tag SET comments = ? WHERE model_name = ?",
+                (self.comments, self.model_name),
+            )
+            conn.commit()
+
     @classmethod
     def get(cls, conn: Connection, model_name):
         with closing(conn.cursor()) as cur:
@@ -299,6 +307,16 @@ class TrainTag:
                 return None
             else:
                 return cls.from_row(row)
+
+    @classmethod
+    def get_all(cls, conn: Connection):
+        with closing(conn.cursor()) as cur:
+            cur.execute("SELECT * FROM train_tag")
+            rows = cur.fetchall()
+            train_tags: list[TrainTag] = []
+            for row in rows:
+                train_tags.append(cls.from_row(row))
+            return train_tags
 
     @classmethod
     def from_row(cls, row: tuple):
