@@ -401,6 +401,30 @@ class Tag:
             return tags
 
     @classmethod
+    def get_all_model_tags(cls, conn):
+        with closing(conn.cursor()) as cur:
+            cur.execute("SELECT * FROM tag where (type = 'lora' OR type = 'lyco') ORDER BY count DESC")
+            rows = cur.fetchall()
+            tags: list[Tag] = []
+            for row in rows:
+                tags.append(cls.from_row(row))
+
+            cur.execute(
+                """
+                SELECT * FROM tag
+                WHERE type = 'pos'
+                    AND name NOT IN ('best quality', 'absurdres', 'ultra detailed', 'masterpiece')
+                ORDER BY count DESC
+                LIMIT 256
+                """
+            )
+            second_query_rows = cur.fetchall()
+            for row in second_query_rows:
+                tags.append(cls.from_row(row))
+
+            return tags
+
+    @classmethod
     def get_all(cls, conn):
         with closing(conn.cursor()) as cur:
             cur.execute("SELECT * FROM tag")

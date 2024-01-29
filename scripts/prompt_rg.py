@@ -430,14 +430,22 @@ def load_train_models():
         names.append(train.model_name)
     return names
 
+def load_query_tips():
+    tags = Tag.get_all_model_tags(DataBase.get_conn())
+    tips = []
+    for tag in tags:
+        tips.append(tag.name)
+    return tips
+
 ######### UI #########
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as ui_component:
         with gr.Tab('🔍'):
             with gr.Column():
                 with gr.Row(variant="panel"):
-                    key_input = gr.Textbox("", label="🔍", show_label=True, lines=1, show_copy_button=True,
-                                           min_width=200, interactive=True)
+                    # key_input = gr.Textbox("", label="🔍", show_label=True, lines=1, show_copy_button=True,
+                    #                        min_width=200, interactive=True)
+                    key_dropdown = gr.Dropdown(choices=load_query_tips(),allow_custom_value=True, interactive=True, type="value", label="🔍", show_label=True)
                     sort_drop = gr.Dropdown(["数量", "时间"], value="数量", type="index", label="排序方式",
                                             interactive=True)
                     check_res_show = gr.Checkbox(True, label="分辨率", info="是否显示分辨率", interactive=True)
@@ -455,14 +463,14 @@ def on_ui_tabs():
                 html_table = gr.HTML("", label=None, show_label=False, interactive=False)
 
                 search_button.click(search_action,
-                                    inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
+                                    inputs=[key_dropdown, limit_slider, sort_drop, check_res_show, check_adetailer_show,
                                             check_search_adetailer_prompt],
                                     outputs=[search_info, html_table, search_history])
-                key_input.submit(search_action,
-                                 inputs=[key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
+                key_dropdown.select(search_action,
+                                 inputs=[key_dropdown, limit_slider, sort_drop, check_res_show, check_adetailer_show,
                                          check_search_adetailer_prompt],
                                  outputs=[search_info, html_table, search_history])
-                next_query_button.click(next_search_action, inputs=[key_input, limit_slider, sort_drop, check_res_show,
+                next_query_button.click(next_search_action, inputs=[key_dropdown, limit_slider, sort_drop, check_res_show,
                                                                     check_adetailer_show,
                                                                     check_search_adetailer_prompt],
                                         outputs=[search_info, html_table, search_history])
