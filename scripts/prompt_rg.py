@@ -175,7 +175,7 @@ def get_prompts_from_folder(file_path, check_force):
         DataBase._initing = False
 
 
-def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD"):
+def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD", score=None):
     tag_html = ""
     height_style = ""
     if height is not None:
@@ -186,8 +186,11 @@ def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD"):
     )
     if suffix is not None:
         text, color = suffix
+        suffix_v = text
+        if score is not None and score != "" and score != 0:
+            suffix_v += f"({score})"
         tag_html += (
-            f"<div style='padding-left: 12px;  font-style: italic; font-weight: bolder; color: {color};'>{text}</div>"
+            f"<div style='padding-left: 12px;  font-style: italic; font-weight: bolder; color: {color};'>{suffix_v}</div>"
         )
     tag_html += "</div>"
     return tag_html
@@ -318,7 +321,7 @@ def inner_fetch_lora(conn):
     lora_html = "<div style='display: flex; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap;'>"
     for lora in lora_result:
         tag, cnt = get_tag_info(lora)
-        lora_html += create_tag_html(tag=tag, height=28, suffix=cnt)
+        lora_html += create_tag_html(tag=tag, height=28, suffix=cnt, score=lora.score)
     lora_html += "</div>"
     return lora_html
 
@@ -348,6 +351,14 @@ def delete_lora_action(delete_lora_input):
     conn.close()
     DataBase.reConnect = True
     return lora_html
+
+def load_lora_list():
+    lora_result = Tag.get_all_lora_tag(DataBase.get_conn())
+
+    lora_list = []
+    for lora in lora_result:
+        lora_list.append(lora.name)
+    return lora_list
 
 
 def open_sd_image_broswer_html():
@@ -439,6 +450,10 @@ def load_query_tips():
         tips.append(tag.name)
     return tips
 
+def update_lora_score_action(lora_list_dropdown, score_slider):
+    Tag.update_tag_score(DataBase.get_conn(), lora_list_dropdown, score_slider)
+    return inner_fetch_lora(DataBase.get_conn())
+
 ######### UI #########
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as ui_component:
@@ -481,17 +496,22 @@ def on_ui_tabs():
                         fetch_lora_btn = gr.Button("查询lora", variant='primary')
                         delete_lora_input = gr.Textbox("", show_label=False)
                         delete_lora_btn = gr.Button("删除lora", variant='secondary')
+                    with gr.Row(equal_height=False):
+                        lora_list_dropdown = gr.Dropdown(choices=load_lora_list(), allow_custom_value=True, interactive=True, type="value", show_label=False)
+                        score_slider = gr.Slider(0, 1, value=0, label="分数", step=0.05, interactive=True)
+                        score_btn = gr.Button("更新", variant='primary')
                     html_loras = gr.HTML("", label=None, show_label=False, interactive=False)
                     fetch_lora_btn.click(fetch_lora_action, outputs=html_loras)
                     delete_lora_btn.click(delete_lora_action, inputs=[delete_lora_input], outputs=html_loras)
                     delete_lora_input.submit(delete_lora_action, inputs=[delete_lora_input], outputs=html_loras)
+                    score_btn.click(update_lora_score_action, inputs=[lora_list_dropdown, score_slider], outputs=html_loras)
             with gr.Tab("Lyco"):
                 fetch_lyco_btn = gr.Button("查询lyco", variant='primary')
                 html_lyco = gr.HTML("", label=None, show_label=False, interactive=False)
                 fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
             with gr.Tab("Tags"):
-                with gr.Row():
-                    train_input_model = gr.Dropdown(choices=load_train_models(), allow_custom_value=True, interactive=True, type="value")
+                with gr.Row(equal_height=False):
+                    train_input_model = gr.Dropdown(choices=load_train_models(), allow_custom_value=True, interactive=True, type="value", show_label=False)
                     fetch_train_info_btn = gr.Button("查询train tags", variant='primary')
                 train_tags_comments = gr.HTML("", label=None, show_label=False, interactive=False)
                 tags_highlighted = gr.HighlightedText(show_label=False)
@@ -530,8 +550,8 @@ def on_ui_tabs():
                                              outputs=[train_result])
 
                 with gr.Column():
-                    with gr.Row():
-                        train_model_dropdown = gr.Dropdown(choices=load_train_models(), interactive=True, allow_custom_value=True)
+                    with gr.Row(equal_height=False):
+                        train_model_dropdown = gr.Dropdown(choices=load_train_models(), interactive=True, allow_custom_value=True, show_label=False)
                         train_update_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
                     train_update_btn = gr.Button("更新备注", variant="primary")
                     train_update_btn.click(update_train_tag_comments, inputs=[train_model_dropdown, train_update_comments])

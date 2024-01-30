@@ -383,7 +383,7 @@ class Tag:
     @classmethod
     def get_all_lora_tag(cls, conn):
         with closing(conn.cursor()) as cur:
-            cur.execute("SELECT * FROM tag where type = 'lora' ORDER BY count DESC")
+            cur.execute("SELECT * FROM tag where type = 'lora' ORDER BY count DESC, score DESC")
             rows = cur.fetchall()
             tags: list[Tag] = []
             for row in rows:
@@ -399,6 +399,12 @@ class Tag:
             for row in rows:
                 tags.append(cls.from_row(row))
             return tags
+
+    @classmethod
+    def update_tag_score(cls, conn, tag, score):
+        with closing(conn.cursor()) as cur:
+            cur.execute("UPDATE tag SET score = ? WHERE name = ?", (score, tag))
+            conn.commit()
 
     @classmethod
     def get_all_model_tags(cls, conn):
