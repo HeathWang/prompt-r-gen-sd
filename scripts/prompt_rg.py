@@ -340,6 +340,8 @@ def fetch_lyco_action():
 
 
 def delete_lora_action(delete_lora_input):
+    if delete_lora_input is None or delete_lora_input == "":
+        raise gr.Error("请输入要删除的lora")
     conn = DataBase.get_conn()
     Tag.remove_by_name(conn, delete_lora_input)
     lora_html = inner_fetch_lora(conn)
@@ -443,9 +445,7 @@ def on_ui_tabs():
         with gr.Tab('🔍'):
             with gr.Column():
                 with gr.Row(variant="panel"):
-                    # key_input = gr.Textbox("", label="🔍", show_label=True, lines=1, show_copy_button=True,
-                    #                        min_width=200, interactive=True)
-                    key_dropdown = gr.Dropdown(choices=load_query_tips(),allow_custom_value=True, interactive=True, type="value", label="🔍", show_label=True)
+                    key_dropdown = gr.Dropdown(choices=load_query_tips(), allow_custom_value=True, interactive=True, type="value", label="🔍", show_label=True)
                     sort_drop = gr.Dropdown(["数量", "时间"], value="数量", type="index", label="排序方式",
                                             interactive=True)
                     check_res_show = gr.Checkbox(True, label="分辨率", info="是否显示分辨率", interactive=True)
@@ -477,11 +477,13 @@ def on_ui_tabs():
         with gr.Tab("Model"):
             with gr.Tab("Lora"):
                 with gr.Column():
-                    with gr.Row(equal_height=False):
+                    with gr.Row(equal_height=False, variant="panel"):
                         fetch_lora_btn = gr.Button("查询lora", variant='primary')
-                        delete_lora_input = gr.Textbox("", show_label=False, lines=1)
+                        delete_lora_input = gr.Textbox("", show_label=False)
+                        delete_lora_btn = gr.Button("删除lora", variant='secondary')
                     html_loras = gr.HTML("", label=None, show_label=False, interactive=False)
                     fetch_lora_btn.click(fetch_lora_action, outputs=html_loras)
+                    delete_lora_btn.click(delete_lora_action, inputs=[delete_lora_input], outputs=html_loras)
                     delete_lora_input.submit(delete_lora_action, inputs=[delete_lora_input], outputs=html_loras)
             with gr.Tab("Lyco"):
                 fetch_lyco_btn = gr.Button("查询lyco", variant='primary')
@@ -489,7 +491,7 @@ def on_ui_tabs():
                 fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
             with gr.Tab("Tags"):
                 with gr.Row():
-                    train_input_model = gr.Dropdown(choices=load_train_models(), interactive=True, type="value")
+                    train_input_model = gr.Dropdown(choices=load_train_models(), allow_custom_value=True, interactive=True, type="value")
                     fetch_train_info_btn = gr.Button("查询train tags", variant='primary')
                 train_tags_comments = gr.HTML("", label=None, show_label=False, interactive=False)
                 tags_highlighted = gr.HighlightedText(show_label=False)
@@ -529,7 +531,7 @@ def on_ui_tabs():
 
                 with gr.Column():
                     with gr.Row():
-                        train_model_dropdown = gr.Dropdown(choices=load_train_models(), interactive=True)
+                        train_model_dropdown = gr.Dropdown(choices=load_train_models(), interactive=True, allow_custom_value=True)
                         train_update_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
                     train_update_btn = gr.Button("更新备注", variant="primary")
                     train_update_btn.click(update_train_tag_comments, inputs=[train_model_dropdown, train_update_comments])
