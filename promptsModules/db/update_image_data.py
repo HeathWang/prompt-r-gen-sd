@@ -53,10 +53,7 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
             elif is_valid_image_path(file_path):
                 img = DbImg.get(conn, file_path)
                 if img:  # 已存在的跳过
-                    if img.date == get_modified_date(img.path):
-                        continue
-                    else:
-                        DbImg.safe_batch_remove(conn=conn, image_ids=[img.id])
+                    continue
                 parsed_params, info = get_exif_data(file_path)
                 if parsed_params is None or info is None:
                     continue
@@ -80,7 +77,6 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
                     str(meta.get("Size-1", 0)) + " * " + str(meta.get("Size-2", 0)),
                     type="size",
                 )
-                safe_save_img_tag(ImageTag(img.id, size_tag.id))
 
                 for k in [
                     "Model",
@@ -91,17 +87,13 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
                     v = meta.get(k)
                     if not v:
                         continue
-                    tag = Tag.get_or_create(conn, str(v), k)
-                    safe_save_img_tag(ImageTag(img.id, tag.id))
+                    Tag.get_or_create(conn, str(v), k)
                 for i in lora:
-                    tag = Tag.get_or_create(conn, i["name"], "lora")
-                    safe_save_img_tag(ImageTag(img.id, tag.id))
+                    Tag.get_or_create(conn, i["name"], "lora")
                 for i in lyco:
-                    tag = Tag.get_or_create(conn, i["name"], "lyco")
-                    safe_save_img_tag(ImageTag(img.id, tag.id))
+                    Tag.get_or_create(conn, i["name"], "lyco")
                 for k in pos:
-                    tag = Tag.get_or_create(conn, k, "pos")
-                    safe_save_img_tag(ImageTag(img.id, tag.id))
+                    Tag.get_or_create(conn, k, "pos")
                 # neg暂时跳过感觉个没人会搜索这个
 
         # 提交对数据库的更改
