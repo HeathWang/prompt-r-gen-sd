@@ -34,7 +34,7 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
         tag_incr_count_rec[img_tag.tag_id] = (
             tag_incr_count_rec.get(img_tag.tag_id, 0) + 1
         )
-        img_tag.save_or_ignore(conn)  # 原先用来处理一些意外，但是写的正确完全没问题,去掉了try catch
+        # img_tag.save_or_ignore(conn)  # 原先用来处理一些意外，但是写的正确完全没问题,去掉了try catch
 
     # 递归处理每个文件夹
     def process_folder(folder_path: str):
@@ -87,13 +87,17 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
                     v = meta.get(k)
                     if not v:
                         continue
-                    Tag.get_or_create(conn, str(v), k)
+                    tag = Tag.get_or_create(conn, str(v), k)
+                    safe_save_img_tag(ImageTag(img.id, tag.id))
                 for i in lora:
-                    Tag.get_or_create(conn, i["name"], "lora")
+                    tag = Tag.get_or_create(conn, i["name"], "lora")
+                    safe_save_img_tag(ImageTag(img.id, tag.id))
                 for i in lyco:
-                    Tag.get_or_create(conn, i["name"], "lyco")
+                    tag = Tag.get_or_create(conn, i["name"], "lyco")
+                    safe_save_img_tag(ImageTag(img.id, tag.id))
                 for k in pos:
-                    Tag.get_or_create(conn, k, "pos")
+                    tag = Tag.get_or_create(conn, k, "pos")
+                    safe_save_img_tag(ImageTag(img.id, tag.id))
                 # neg暂时跳过感觉个没人会搜索这个
 
         # 提交对数据库的更改
