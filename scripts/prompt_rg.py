@@ -196,7 +196,7 @@ def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD", score=No
     return tag_html
 
 
-def create_img_info_html(exif, check_res_show, check_adetailer_show):
+def create_img_info_html(exif, check_res_show, check_adetailer_show, date_info=""):
     if check_res_show is not True and check_adetailer_show is not True:
         return ""
     tag_html = ""
@@ -215,7 +215,8 @@ def create_img_info_html(exif, check_res_show, check_adetailer_show):
     tag_html += (
         f"<div style='display: flex; align-items: center; justify-content: start; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; background: #3C2DFF60; font-size: 14px;'>"
         f"<div style='padding-right: 14px;'>{res}</div>"
-        f"<div>{adetailer}</div>"
+        f"<div style='padding-right: 14px;'>{adetailer}</div>"
+        f"<div>{date_info}</div>"
         "</div>"
     )
 
@@ -252,6 +253,7 @@ def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check
 
     pos_prompt_counts = defaultdict(int)
     exif_dict = defaultdict(str)
+    date_dict = defaultdict(str)
     list_search = []
     index = 0
 
@@ -259,6 +261,7 @@ def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check
         pos_prompt = img.pos_prompt
         pos_prompt_counts[pos_prompt] += 1
         exif_dict[pos_prompt] = img.exif
+        date_dict[pos_prompt] = img.date
 
     target_prompt_counts = list(pos_prompt_counts.items())
     if sort_drop == 0:
@@ -275,7 +278,7 @@ def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check
     for row in list_search:
         table_html += (f"<tr>"
                        f"<td>{row[0]}</td>"
-                       f"<td>{create_tag_html(row[1].replace('<', '&lt;').replace('>', '&gt;'), height=None)}{create_img_info_html(exif_dict[row[1]], check_res_show, check_adetailer_show)}</td>"
+                       f"<td>{create_tag_html(row[1].replace('<', '&lt;').replace('>', '&gt;'), height=None)}{create_img_info_html(exif_dict[row[1]], check_res_show, check_adetailer_show, date_dict[row[1]])}</td>"
                        f"<td style='font-style: italic; font-weight: bolder; color: burlywood;'>{row[2]}</td>"
                        f"</tr>")
     table_html += "</table>"
