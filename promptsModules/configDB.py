@@ -5,34 +5,34 @@ from enum import IntEnum
 
 
 def convert_enum_to_int(data):
-    # 遍历字典中的键值对
+    # The key value pair in the dictionary
     for key, value in data.items():
-        # 检查值是否为IntEnum类型
+        # Check whether the value is intenum type
         if isinstance(value, IntEnum):
-            # 将IntEnum值转换为整数
+            # Convert the Intenum value to an integer
             data[key] = value.value
 
     return data
 
 
 def dict_to_string(data):
-    # 将字典数据转换为JSON字符串
+    # Convert the dictionary data to JSON string
     json_string = json.dumps(data)
     return json_string
 
 
 def string_to_dict(json_string):
-    # 将JSON字符串转换为字典数据
+    # Convert json string to dictionary data
     data = json.loads(json_string)
     return data
 
 
 def store_data_in_database(data, alias_name):
-    # 将数据转换为字符串
+    # Convert data to string
     convert_data = convert_enum_to_int(data)
     json_string = dict_to_string(convert_data)
 
-    # 存储字符串到数据库
+    # Storage string to database
     conn = sqlite3.connect('prompt.db')
     cursor = conn.cursor()
     cursor.execute('''
@@ -48,30 +48,30 @@ def store_data_in_database(data, alias_name):
     cursor.execute("SELECT id FROM t_config WHERE alias = ? LIMIT 1", (alias_name,))
     result = cursor.fetchone()
     if result is not None:
-        print("{}配置已存在，是否要更新配置？".format(alias_name))
-        user_input = input("请输入 'yes/y/Y' 确认更新配置：")
+        print("{}The configuration already exists, do you want to update the configuration?".format(alias_name))
+        user_input = input("please enter 'yes/y/Y' Confirm the update configuration:")
 
         if user_input.lower() == 'yes' or user_input.lower() == 'y':
-            # 更新现有配置
+            # Update the existing configuration
             cursor.execute("UPDATE t_config SET config = ?, update_time = datetime('now') WHERE alias = ?",
                            (json_string, alias_name,))
             conn.commit()
             conn.close()
-            print("{}配置已更新。".format(alias_name))
+            print("{}The configuration has been updated.".format(alias_name))
         else:
             conn.close()
-            print("取消更新配置。")
+            print("Cancel the update configuration.")
             return
     else:
         cursor.execute("INSERT INTO t_config (config, alias, update_time) VALUES (?, ?, datetime('now'))",
                        (json_string, alias_name,))
         conn.commit()
         conn.close()
-        print("配置已存储完成.")
+        print("Configuration has been stored.")
 
 
 def retrieve_data_from_database(query_key):
-    # 从数据库查询数据
+    # Check data from the database
     conn = sqlite3.connect('prompt.db')
     cursor = conn.cursor()
 
@@ -84,7 +84,7 @@ def retrieve_data_from_database(query_key):
 
     if result is not None:
         json_string = result[0]
-        # 将字符串转换为字典数据
+        # Convert the string to dictionary data
         data = string_to_dict(json_string)
         return data
     else:
@@ -92,7 +92,7 @@ def retrieve_data_from_database(query_key):
 
 
 def list_alias(limit=100):
-    # 从数据库查询数据
+    # Check data from the database
     conn = sqlite3.connect('prompt.db')
     cursor = conn.cursor()
     cursor.execute("SELECT id, alias,update_time  FROM t_config ORDER BY update_time DESC LIMIT ?", (limit,))
@@ -113,6 +113,6 @@ def delete_data_from_database(arg_alias):
         cursor.execute("DELETE FROM t_config WHERE id = ?", (arg_alias,))
         conn.commit()
         conn.close()
-        print("配置已删除.")
+        print("The configuration has been deleted.")
     else:
-        print("只能根据id删除配置.")
+        print("Can only delete configuration according to ID.")

@@ -2,23 +2,23 @@
 import random
 from enum import IntEnum
 
-angle = ["view from above", "view from behind", "view from below", "view from side", "straight-on", "pov", "sideways"]
+angle = ["view from above", "view from behind", "view from below", "view from side", "straight-on", "pov", "dutch angle"]
 
-depth = ["atmospheric perspective", "fisheye", "panorama", "perspective", "vanishing point", "wide shot"]
+depth = ["atmospheric perspective", "wide angle", "panorama", "perspective", "vanishing point", "wide shot"]
 
 body_framing = ["face", "portrait", "upper body", "lower body", "cowboy shot", "close-up", "half body",
-                "head out of frame", "feet out of frame", "profile"]
+                "3/4 shot", "feet out of frame", "profile"]
 
-focus = ["ass focus", "back focus", "breast focus", "eye focus", "foot focus", "hip focus", "navel focus",
+focus = ["ass focus", "back focus", "breast focus", "eye focus", "face focus", "hip focus", "navel focus",
          "pectoral focus", "thigh focus"]
 
-beautifier = ["young", "cute", "monster", "japanese", "school", "fox", "demon", "cat", "magical", "20yo", "tall",
+beautifier = ["young", "cute", "monster", "japanese", "school", "fox", "demon", "cat", "magical", "18yo", "short",
               "extremely detailed beautiful", "dragon", "young cute beautiful 18-year-old", "little", "pure innocent",
-              "slime", "slim", "portrait of stunningly beautiful", "mature", "slender", "chinese",
-              "21years old pretty korean", "pretty", "teenage", "sexy", "colorful beautiful", "asian", "elf", "kawaii",
-              "fitness", "vampire", "blonde", "a beautiful young", "mature", "fashion"]
+              "irresistable", "slim", "portrait of stunning beauty", "mature", "slender", "german",
+              "21years old pretty hungarian", "pretty", "teenage", "sexy", "colorful beautiful", "european", "elf", "kawaii",
+              "fitness", "vampire", "blonde", "a beautiful young", "MILF", "fashion"]
 
-legwear_main = ["thighhighs", "pantyhose", "kneehighs", "over-kneehighs"]
+legwear_main = ["thighhighs", "fishnets", "kneehighs", "over-kneehighs"]
 
 legwear_style = ["aran", "bow", "cross-laced", "fishnet", "fluffy", "frilled", "knit", "lace", "lace-up",
                  "latex", "bell", "o-ring", "pleated", "ribbed", "ribbon", "seamed", "back-seamed",
@@ -26,7 +26,7 @@ legwear_style = ["aran", "bow", "cross-laced", "fishnet", "fluffy", "frilled", "
                  "bridal", "stirrup", "trimmed", "fur-trimmed", "lace-trimmed", "ribbon-trimmed", "zipper",
                  "animal ear", "torn", "mismatched", "naked"]
 
-legwear_color = ["beige", "black", "brown", "grey", "white", "gradient", "multicolored", "two-tone", "flesh-colored", "nude"]
+legwear_color = ["red", "black", "blue", "grey", "white", "gradient", "multicolored", "two-tone", "flesh-colored", "nude"]
 
 dress_color = ["black", "blue", "pink", "purple", "white", "multicolored", "two-tone", "red"]
 
@@ -105,27 +105,27 @@ expression_smile = ["smile", "light smile", "seductive smile", "evil smile", "sl
 
 expression_smug = ['doyagao', 'smirk', 'smug', 'troll face']
 
-hairColor = ["white hair", "black hair", "purple hair", "pink hair", "aqua hair", "blonde hair", "blue hair",
-             "red hair", "brown hair", "green hair", "grey hair", "multicolored hair", "silver hair", "gradient hair",
+hairColor = ["platinum hair", "raven black hair", "purple hair", "pink hair", "aqua hair", "blonde hair", "blue hair",
+             "red hair", "brown hair", "green hair", "grey hair", "multicolored hair", "bleached hair", "gradient hair",
              "two-tone hair"]
 
-hair_style = ["colored inner hair", "crystal hair", "expressive hair", "floating hair", "messy_hair",
+hair_style = ["colored inner hair", "pixiecut hairstyle", "expressive hair", "floating hair", "messy_hair",
               "shiny_hair", "wet hair", "hair strand", "crystals texture hair", "wavy hair", "ponytail"]
 
-hairLength = ["long", "very long", "absurdly long", "short", "medium"]
+hairLength = ["long", "shaved", "buzzcut", "short", "medium"]
 
 hair_others = ["bangs", "hair between eyes", "blunt bangs", "side blunt bangs"]
 
-eye_wear = ["glasses", "goggles", "sunglasses"]
+eye_wear = ["bookish glasses", "steampunk goggles", "sunglasses"]
 
 eyeColor = ["hazel", "green", "brown", "black", "grey", "purple", "pink",
-            "red", "silver", "yellow", "sapphire", "turquoise", "amethyst", "aquamarine", "ruby", "coral",
+            "red", "ice", "white", "sapphire", "turquoise", "amethyst", "aquamarine", "ruby", "coral",
             "peach", "gold", "dark brown", "jade", "teal", "ice blue", "light blue", "blue", "grey-blue",
             "amber"]
 
-eye_others = ["eyelashes", "big eyes", "eyeliner", "bright eyes", "red eyeshadow", "beautiful detailed eyes"]
+eye_others = ["eyelashes", "big eyes", "dark eyeliner", "bright eyes", "red eyeshadow", "beautiful detailed eyes"]
 
-# 除了头饰，耳饰，颈饰，其他的饰物（手饰，腰饰，脚饰，胸饰，臀饰，脚饰）随机组合
+# Except for headwear, earrings, neck ornaments, other ornaments (hand ornaments, waist, foot ornaments, chest ornaments, hip, foot) random combination
 hair_accessories = ["hair ornament", "hair tie", "hairband", "hair ribbon", "flower hair ornament",
                     "star hair ornament", "bell hair ornament", "butterfly hair ornament", "feather hair ornament",
                     "leaf hair ornament"]
@@ -136,7 +136,7 @@ neck_accessories = [
 earrings = ["hoop earrings", "stud earrings", "earclip", "earrings", "ear piercing"]
 
 other_accessories = [
-    # 头
+    # head
     ["crown", "forehead jewel", "circlet", "head chain", "chain headband", "headpiece", "tiara"],
     # hand
     ["bracelet", "ring", "wedding ring", "red and gold bracelets"],
@@ -147,25 +147,24 @@ other_accessories = [
      "leg ornament"],
     # foot
     ["anklet", "ankle band", "ankle ring", "ankle buckle", "ankle nail", "ankle bracelet"],
-    # waist 腰, navel piercing表现优秀，其他几个效果差不多
+    # Waist waist, navel piercing is excellent, and several other effects are almost the same    
     ["waist ribbon", "waist jewelry", "waist chain", "waist rope", "navel piercing", "sash", "narrow waist"],
-    # 躯干Torso和其他
+    # torso and others
     ["boutonniere", "brooch", "corsage", "suspenders", "tassel", ],
 ]
 
-shoes_boots = ['boots', 'ankle boots', 'armored boots', 'knee boots', 'high heel boots', 'lace-up boots',
-               'rubber boots', 'thigh boots', 'cowboy boots', 'spurs']
+shoes_boots = ['boots', 'ankle boots', 'platform boots', 'knee boots', 'high heel boots', 'lace-up boots',
+               'rubber boots', 'thigh boots', 'cowboy boots', 'jackboots']
 
-shoes_high_heels = ["high heels"]
+shoes_high_heels = ["stilletto heels"]
 
 shoes_sandals = ['sandals', 'clog sandals', 'cross-laced sandals', 'flip-flops', 'gladiator sandals', 'geta', 'okobo',
                  'waraji', 'zouri']
 
 shoes_slippers = ['slippers', 'animal slippers', 'ballet slippers', 'crocs', 'uwabaki']
 
-background_view = ["cityscapes", "landscape", "architecture", "buildings", "nature", "ruins", "outdoors", "indoors",
-                   "messy room", "seascape", "shrine", "pagoda", "temple", "far out space", "east asian architecture",
-                   "chinese garden"]
+background_view = ["cityscapes", "landscape", "architecture", "barg kalifa dubai", "nature", "machu pichu", "outdoors", 
+                   "indoors", "messy room", "seascape", "shrine", "pagoda", "temple", "far out space", "east asian architecture", "japanese garden"]
 
 place = ["ancient greece", "alien planet", "spaceship", "american farm", "hell",
          "high school", "locker room", "bedroom", "dungeon", "castle", "classroom", "bathroom",
@@ -177,7 +176,7 @@ place = ["ancient greece", "alien planet", "spaceship", "american farm", "hell",
          "mountain", "forest", "countryside", "desert", "jungle", "ocean", "river", "lake", "waterfall",
          "island"]
 
-#### pose 种类比较多
+#### pose There are many types
 
 pose_base = ["kneeling", "lying", "sitting", "standing"]
 pose_base_child = {
@@ -199,8 +198,8 @@ pose_hands = ["hand on own ear", "hand on headwear", "hand on own chest", "hands
 pose_touching_clothes = ['adjusting clothes', 'clothes grab', 'apron grab', 'collar grab', 'necktie grab', 'skirt grab',
                          'collar tug', 'dress tug', 'shirt tug', 'skirt tug', 'wringing clothes']
 
-jobs = ["catgirl", "young innocent", "slut", "princess", "succubus", "medusa",
-        "librarian", "schoolgirl", "milf", "prostitute", "kitsune", "kyuubi", "magic girl",
+jobs = ["catgirl", "young innocent", "slut", "princess", "succubus", "mother superior",
+        "librarian", "schoolgirl", "cheerleader", "prostitute", "kitsune", "kyuubi", "magic girl",
         "mage", "demon", "angel", "student", "elf", "fairy", "fox girl", "goddess", 'alchemist',
         'bartender', 'butler', 'croupier', 'dentist', 'dj', 'doctor', 'dominatrix', 'flight attendant',
         'florist', 'geisha', 'maid', 'miko', 'nun', 'nurse', 'school nurse', 'office lady',
@@ -222,10 +221,10 @@ objects_list = [
      "bubble", "foam", "ash", "mercury"],
     # chain
     ["chain jewelry", "chain collar", "chain leash", "chainlink fence", "pinheadchains", "chain piercing"],
-    # 奇幻和元素
+    # Fantasy and elements
     ["arcane", "celestial", "aether", "crystalline", "aurora", "ember", "sylph", "obsidian", "radiance", "verdant",
      "ecliptic", "nebula"],
-    # 混乱
+    # confusion
     ["chaos", "disorderly", "pandemonium", "tumultuous", "havoc", "entropy", "disarray"],
     # hell
     ["hell", "abyssal", "infernal", "damnation", "purgatorial", "tartarean", "hades", "sheol", "perdition",
@@ -298,28 +297,21 @@ sex_act_stimulation = ["footjob", "feet", "armpit", "grinding", "kneepit", "paiz
 sex_act_group = ["love train", "cooperative fellatio", "cooperative footjob", "cooperative breast smother", "orgy",
                  "reverse spitroast", "spitroast", "teamwork", "MMF threesome", "FFM threesome"]
 
-sex_act_tentacles = ["consensual tentacles", "tentacle gagged", "tentaclejob", "tentacle sex",
-                     "tentacles in thighhighs", "tentacles under clothes", "too many tentacles"]
+sex_act_tentacles = []
 
 sex_category = [
-    ["footjob", "feet", "frottage", "groping", "handjob", "masturbation", "tail", "oral", "hug and suck",
-     "licking testicle",
-     "sitting on face", "sitting on face"],
-    ["group sex", "bisexual", "bisexual female", "bisexual male", "daisy chain", "gangbang", "double penetration",
+    ["groping", "handjob", "masturbation", "tail", "oral", "hug and suck",
+     "licking testicle", "sitting on face", "sitting on face"],
+    ["group sex", "bisexual", "bisexual female", "daisy chain", "gangbang", "double penetration",
      "triple penetration" "love train", "cooperative fellatio", "cooperative footjob", "multiple breast smother",
-     "orgy",
-     "reverse spitroast", "spitroast", "teamwork", "threesome"],
-    ["after sex", "after anal", "after buttjob", "after fellatio", "after fingering", "after frottage",
+     "orgy", "reverse spitroast", "spitroast", "teamwork", "threesome"],
+    ["after sex", "after anal", "after buttjob", "after fellatio", "after fingering",
      "after insertion", "after masturbation", "after oral", "after paizuri", "after rape", "after urethral",
      "after vaginal", "afterglow", "clothed after sex", "anal", "double anal", "imminent anal", "pegging",
-     "triple anal", "clothed sex", "guided penetration", "happy sex", "imminent penetration", "implied sex",
-     "navel sex", "sex from behind", "skull fucking", "ear sex", "penis in eye", "tentacle sex", "underwater sex",
-     "vaginal", "after vaginal", "double vaginal", "imminent vaginal", "triple vaginal"],
-    ["cum", "bukkake", "cumdump", "cum bath", "cumdrip", "cum pool", "cum inflation", "cum in ass", "cum in clothes",
-     "cum in cup", "cum in mouth", "cum in throat", "cum on tongue", "cum in pussy", "cum in urethra", "cum on body",
-     "cum on hair", "cum on ass", "cum on pussy", "cum on breasts", "cum on fingers", "cum on clothes",
-     "cum on eyewear", "cum on food", "ejaculation", "ejaculating while penetrated", "pull out", "facial", "autofacial",
-     "felching", "gokkun"]
+     "clothed sex", "guided penetration", "happy sex", "imminent penetration", "implied sex",
+     "sex from behind", "skull fucking", "penis in eye", "underwater sex",
+     "vaginal", "after vaginal", "double vaginal", "imminent vaginal"],
+    ["cum", "cum on body", "cum on breasts", "cum on clothes", "cum on eyewear", "cum on food", "ejaculation", "ejaculating while penetrated", "pull out", "facial", "autofacial"]
 ]
 
 sex_positions_reload = [
@@ -336,10 +328,9 @@ sex_positions_reload = [
     "guided breast grab, pov, guiding hand, breast grab, holding another's wrist",
 ]
 
-sex_place = ["hotel", "bathtub", "bedroom", "classroom", "bathroom", "living room", "office"]
+sex_place = ["mountain", "bathtub", "bedroom", "classroom", "bathroom", "public park", "office"]
 
-sex_man_type = ["1boy", "a tentacle monster", "a group of aliens", "a slime monster", "a water elemental",
-                "a black hole with tentacles"]
+sex_man_type = ["1boy", "a water elemental"]
 
 nude_list = [
     # Any clothes
@@ -1190,7 +1181,7 @@ def check_chance(threshold=0.5):
     probability = random.random()
     # print(probability)
 
-    # 如果随机数大于或者阈值，执行操作A
+    # If the random number is greater than or the threshold, execute operation A
     if probability < threshold:
         return False
     else:
@@ -1305,17 +1296,17 @@ class NSFWType(IntEnum):
 make_prompt_strong_scale = 1.331
 
 project_config = {
-    # 视角&地点
-    "angle": "",  # null则禁用
+    # Perspective & Location
+    "angle": "",  # null is disabled
     "body_framing": "",
-    "assign_focus_on": "",  # null则禁用
+    "assign_focus_on": "",  # null is disabled
     "add_focus": False,
     "face_expression": FaceExpression.SMILE,
     "pose_type": PoseType.BASE,
     "place": "",
-    "dynamic_mode": False,  # 是否开启动态模式，动态模式下angle，pose， view使用动态
-    # 身体穿着
-    "breasts_size": "",  # null则禁用
+    "dynamic_mode": False,  # Whether to turn on the dynamic mode, use Agle, Pose, View in dynamic mode
+    # Body wearing
+    "breasts_size": "",  # null is disabled
     "body_wear": BodyWearType.DRESS,
     "top_wear": TopWearType.SHIRTS,
     "bottom_wear": BottomWearType.SKIRT,
@@ -1328,27 +1319,27 @@ project_config = {
     "body_skin": False,
     "cloth_trim": True,
 
-    # 颜色，只用给颜色即可
+    # Color, just give color
     "leg_wear_color": "",
     "shoes_color": "",
     "hair_color": False,
     "enable_eye_color": True,
     "disable_all_color": True,
-    # 直接指定prompt，这会直接跳过其他配置，并且自动加深prompt权重
-    "assign_pose": "",  # null则禁用
-    "assign_profession": "",  # null则禁用
+    # Specify Prompt directly, this will directly skip other configuration, and automatically deepen the weight of Prompt
+    "assign_pose": "",  # null is disabled
+    "assign_profession": "",  # null is disabled
     "assign_expression": "",
     "assign_shoes": "",
     "assign_leg_wear": "",
     "assign_body_clothes": "",
     "assign_panties": "",
     "assign_girl_description": "",
-    "assign_hair_color": "",  # 指定头发颜色
+    "assign_hair_color": "",  # Specify hair color
 
-    # 装饰、物品、形容词
-    "accessories_random_tims": 3,  # max:6 NOTE：对于某些model，如何这些prompt出现，可能会影响视角效果
+    # Decoration, items, adjectives
+    "accessories_random_tims": 3,  # max:6 NOTE：For some models, how to appear these prOMPTs may affect the perspective effect
     "object_random_times": 0,  # max: 6
-    "suffix_words_random_times": 0,  # 形容词缀随机次数
+    "suffix_words_random_times": 0,  # Sabbage dotted random number
 
     # nsfw/sexual/nude
     "nsfw_type": NSFWType.NUDE,
@@ -1357,32 +1348,32 @@ project_config = {
     "is_nsfw": False,
     "is_uncensored": False,
     "is_simple_nude": False,
-    "nude_strong": False,  # 是否加强nude，添加了nipple和pussy
+    "nude_strong": False,  # Whether to strengthen NUDE, add nipple and pussy
 
     # sex
     "sex_mode": False,
     "sex_type": SexActType.SEX,
     "man_random": False,
 
-    # 人物描述
-    "girl_cnt": 1,  # 人物数量
-    "has_girl_desc": False,  # 是否加入超长的girl描述，目前看来大部分不需要
-    "add_girl_beautyful": True,  # girl前缀描述
-    "add_hair_length": True,  # 是否加入发长描述
-    "add_hair_style": False,  # 是否加入发型描述
-    "add_hair_accessories": False,  # 是否加入发饰描述
-    "add_neck_accessories": False,  # 是否加入颈饰描述
-    "add_earrings": False,  # 是否加入耳饰描述
+    # Character description
+    "girl_cnt": 1,  # Number of characters
+    "has_girl_desc": False,  # Whether to add ultra -long girl descriptions, it seems that most of them do not need
+    "add_girl_beautyful": True,  # Girl prefix description
+    "add_hair_length": True,  # Whether to add a long description
+    "add_hair_style": False,  # Whether to add hairstyle description
+    "add_hair_accessories": False,  # Whether to add hair accessories description
+    "add_neck_accessories": False,  # Whether to add neck decoration description
+    "add_earrings": False,  # Whether to add earrings description
 
-    # 其他配置
+    # Other configuration
     "is_realistic": True,
-    "use_starting": True,  # 是否使用咒语起手式
-    "add_detail_suffix": False,  # 是否加入细节描述
+    "use_starting": True,  # Do you use a spell to start?
+    "add_detail_suffix": False,  # Whether to add detail description
     "add_colors": False,
     "additional_prompt": "",
-    "enable_day_weather": False,  # 是否启用天气
-    "enable_light_effect": True,  # 灯光效果
-    "enable_image_tech": False,  # 图像技术
+    "enable_day_weather": False,  # Whether to enable the weather
+    "enable_light_effect": True,  # Light effect
+    "enable_image_tech": False,  # Image technology
 
     # lora & embeddings
     "lora": [],  # x
