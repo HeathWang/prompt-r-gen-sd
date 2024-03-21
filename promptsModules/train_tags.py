@@ -7,6 +7,7 @@ import json
 
 def handle_train_tag(folder_path, alias_name:str):
     folder_path = os.path.normpath(folder_path)
+    file_text_lsit = []
     # 检查文件夹路径是否存在
     if not os.path.exists(folder_path) or not os.path.isdir(folder_path):
         print(f"文件夹路径 '{folder_path}' 不存在或不是文件夹。")
@@ -29,6 +30,7 @@ def handle_train_tag(folder_path, alias_name:str):
             # 读取文件中的文本
             with open(filepath, 'r', encoding='utf-8') as file:
                 file_content = file.read()
+                file_text_lsit.append(file_content)
 
                 # 使用正则表达式提取文本中的标签
                 tags = re.findall(r'\b([^\s,]+)\b', file_content)
@@ -37,6 +39,6 @@ def handle_train_tag(folder_path, alias_name:str):
                 tag_counter.update(tags)
     json_str = json.dumps(tag_counter, ensure_ascii=False)
     print(json_str)
-    return json_str, alias_name
+    return json_str, alias_name, file_text_lsit
 
 

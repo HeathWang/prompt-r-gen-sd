@@ -77,6 +77,7 @@ class DataBase:
             Image.create_table(conn)
             ExtraPath.create_table(conn)
             TrainTag.create_table(conn)
+            TrainImageTags.create_table(conn)
         finally:
             conn.commit()
         clz.num += 1
@@ -253,6 +254,59 @@ class Image:
             api_cur.next = str(images[-1].date)
             cursor_date = str(images[-1].date)
         return images, cursor_date
+
+class TrainImageTags:
+    def __init__(self, tain_tag_id: str, tags_info: str):
+        self.tain_tag_id = tain_tag_id
+        self.tags_info = tags_info
+        self.id = None
+
+    @classmethod
+    def create_table(cls, conn):
+        with closing(conn.cursor()) as cur:
+            cur.execute(
+                """CREATE TABLE IF NOT EXISTS train_image_tags (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            tain_tag_id TEXT,
+                            tags_info TEXT
+                        )"""
+            )
+            cur.execute("CREATE INDEX IF NOT EXISTS train_image_tags_idx_tain_tag_id ON train_image_tags(tain_tag_id)")
+            cur.execute("PRAGMA table_info(train_image_tags)")
+
+    @classmethod
+    def saveTags(cls, conn, tain_tag_id, tags_info: List[str]):
+        with closing(conn.cursor()) as cur:
+            # find if tain_tag_id has relate data, if have, delete all
+            cur.execute(
+                "SELECT * FROM train_image_tags WHERE tain_tag_id = ?", (tain_tag_id,)
+            )
+            rows = cur.fetchall()
+            if rows:
+                cur.execute(
+                    "DELETE FROM train_image_tags WHERE tain_tag_id = ?", (tain_tag_id,)
+                )
+                conn.commit()
+
+            # loop and insert all
+            for tag in tags_info:
+                cur.execute(
+                    "INSERT INTO train_image_tags (tain_tag_id, tags_info) VALUES (?, ?)",
+                    (tain_tag_id, tag),
+                )
+            conn.commit()
+
+    @classmethod
+    def getAllTags(cls, conn, tain_tag_id):
+        with closing(conn.cursor()) as cur:
+            cur.execute(
+                "SELECT * FROM train_image_tags WHERE tain_tag_id = ?", (tain_tag_id,)
+            )
+            rows = cur.fetchall()
+            tags: list[str] = []
+            for row in rows:
+                tags.append(row[2])
+            return tags
 
 class TrainTag:
     def __init__(self, model_name: str, tags_info: str, comments: str = ""):

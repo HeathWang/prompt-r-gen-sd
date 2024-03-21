@@ -11,6 +11,7 @@ from promptsModules.db.datamodel import (
     Image as DbImg,
     Tag,
     TrainTag,
+    TrainImageTags,
 )
 from promptsModules.db.update_image_data import (update_image_data)
 from promptsModules.model_manager import (LoraConfigManager)
@@ -181,7 +182,7 @@ def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD", score=No
     if height is not None:
         height_style = f"height: {height}px;"
     tag_html += (
-        f"<div style='display: flex; align-items: center; justify-content: center; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; border: 2px solid {border_color}; border-radius: 12px; {height_style} font-size: 18px;'>"
+        f"<div style='display: flex; align-items: center; justify-content: flex-start; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; border: 2px solid {border_color}; border-radius: 12px; {height_style} font-size: 18px;'>"
         f"<div>{tag}</div>"
     )
     if suffix is not None:
@@ -396,20 +397,22 @@ def save_train_tag_action(train_source_path, train_alias, train_comments, check_
         for file_name in os.listdir(train_source_path):
             file_path = os.path.join(train_source_path, file_name)
             if os.path.isdir(file_path):
-                json_str, alias_name = handle_train_tag(file_path, "")
+                json_str, alias_name, files_list = handle_train_tag(file_path, "")
 
                 train = TrainTag(alias_name, json_str, comments=train_comments)
                 train.save(conn)
+                TrainImageTags.saveTags(conn, train.id, files_list)
                 count += 1
 
         conn.close()
         DataBase.reConnect = True
         return f"处理完成，共{count}个文件夹"
     else:
-        json_str, alias_name = handle_train_tag(train_source_path, train_alias)
+        json_str, alias_name, files_list = handle_train_tag(train_source_path, train_alias)
         conn = DataBase.get_conn()
         train = TrainTag(alias_name, json_str, comments=train_comments)
         train.save(conn)
+        TrainImageTags.saveTags(conn, train.id, files_list)
         conn.close()
         DataBase.reConnect = True
         return json_str
@@ -424,6 +427,8 @@ def update_train_tag_comments(train_model_dropdown, train_update_comments):
 def get_train_model_tags(train_input_model):
     conn = DataBase.get_conn()
     train = TrainTag.get(conn, train_input_model.strip())
+
+    source_tag = TrainImageTags.getAllTags(conn, train.id)
     if train is None:
         return [], ""
     tags = json.loads(train.tags_info)
@@ -436,7 +441,16 @@ def get_train_model_tags(train_input_model):
     html_comments = (f"<div style='display: flex; color: aqua; font-size: 14px; font-weight: lighter; text-decoration: underline;'>"
                      f"<div style='padding-right: 10px;'>{train.model_name}</div><div>{train.comments}</div>"
                      f"</div>")
-    return results, html_comments
+
+
+    table_html = "<table>"
+    for image_file_tag in source_tag:
+        table_html += (f"<tr>"
+                       f"<td>{create_tag_html(image_file_tag.replace('<', '&lt;').replace('>', '&gt;'), height=None)}</td>"
+                       f"</tr>")
+    table_html += "</table>"
+
+    return results, html_comments, table_html
 
 def load_train_models():
     conn = DataBase.get_conn()
@@ -518,10 +532,11 @@ def on_ui_tabs():
                     fetch_train_info_btn = gr.Button("查询train tags", variant='primary')
                 train_tags_comments = gr.HTML("", label=None, show_label=False, interactive=False)
                 tags_highlighted = gr.HighlightedText(show_label=False)
+                tag_source_list = gr.HTML("", label=None, show_label=False, interactive=False)
                 train_input_model.select(get_train_model_tags, inputs=[train_input_model],
-                                         outputs=[tags_highlighted, train_tags_comments])
+                                         outputs=[tags_highlighted, train_tags_comments, tag_source_list])
                 fetch_train_info_btn.click(get_train_model_tags, inputs=[train_input_model],
-                                           outputs=[tags_highlighted, train_tags_comments])
+                                           outputs=[tags_highlighted, train_tags_comments, tag_source_list])
         with gr.Tab('提取Prompt'):
             with gr.Tab("Images"):
                 with gr.Column():
