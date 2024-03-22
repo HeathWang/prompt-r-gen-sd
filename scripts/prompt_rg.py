@@ -443,8 +443,7 @@ def get_train_model_tags(train_input_model):
                      f"</div>")
 
     table_html = "<table><tr><th>序列</th><th>prompt</th></tr>"
-    for image_file_tag in source_tag:
-        index = source_tag.index(image_file_tag)
+    for index, image_file_tag in enumerate(source_tag):
         table_html += (f"<tr>"
                        f"<td>{index}</td>"
                        f"<td>{create_tag_html(image_file_tag.replace('<', '&lt;').replace('>', '&gt;'), height=None)}</td>"
