@@ -6,69 +6,64 @@ sdk_version: 3.40.1
 ---
 # prompt-r-gen-sd
 
-## 介绍
-这是一个[stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) 插件(extension)，主要用来生成随机的文生图提示词。
-做这个的初衷是自己懒得写提示词，但是又想提示词可以一键生成且具有一定的随机性，所以有了这个插件。
+## Introduction 
+This is a [stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) plug-in (extension), which is mainly used to generate random text prompt words. The original intention of doing this is that I am too lazy to write prompt words, but I also want the prompt words to be generated with one click and have a certain degree of randomness, so I have this plug-in.
 
-~~目前仅支持画女孩提示词~~，其他待开发。
+ ~~Currently, only prompt words for drawing girls are supported~~, others are to be developed.
+ 
+Feature preview：[https://huggingface.co/spaces/heath1989/prompt-rp](https://huggingface.co/spaces/heath1989/prompt-r-gen-sd)
 
-功能预览：[https://huggingface.co/spaces/heath1989/prompt-rp](https://huggingface.co/spaces/heath1989/prompt-r-gen-sd)
-
-## 功能
+## Function
 
 <img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/snap_Shot.png" alt="ui" width="100%">
 
-1. 可配置一次生成的提示词数量，最小1，最大6
-2. 可随机视角、地点、人物动作
-3. 可随机人物衣着：衣服，鞋子，袜子，内裤等
-4. 可随机人物描述：职业，发型，发色，眼睛，眼睛颜色，面部表情(无负面表情)
-5. 可配置NSFW，~~自行尝试~~
-6. 可配置其他增强项：是否是真实照片，多彩，天气，灯光效果，摄影技术, 物品，饰品等
-7. 可配置本地安装的lora/loha/embedding，实现简单输入即可生成提示词
-8. 可输入额外提示词
-9. 可精细手动输入，精细控制人物，视角等。
-10. 可将生成内容一键发送到文生图
+1. The number of prompt words generated at one time can be configured, with a minimum of 1 and a maximum of 6
+2. Can randomize perspective, location, character actions
+3. Can randomize character clothing: clothes, shoes, socks, underwear, etc.
+4. Can randomize character description: occupation, hairstyle, hair color, eyes, eye color, facial expression (no negative expressions) )
+5. NSFW can be configured,~~try it yourself~~
+6. Other enhancements can be configured: whether it is a real photo, colorful, weather, lighting effects, photography technology, items, accessories, etc.
+7. Locally installed lora/loha/embedding can be configured to generate prompt words by simple input
+8. Additional prompt words can be input
+9. Fine manual input is possible, and characters, perspective, etc. can be precisely controlled.
+10. The generated content can be sent to Wenshengtu with one click
 
-## Lora/Loha/embedding控制说明
+## Lora/Loha/eembedding control instructions
 
-### 配置修改
-该功能可实现输入个人自定义的文字来生成本地Lora/Loha/embedding提示词。
-安装本extension成功后，可以在extensions/prompt-r-gen-sd/scripts 文件中找到`modelsConfig.xlsx`，打开该excel，直接进行编辑。
+### Configuring and modifying this function allows you to enter personal customized text to generate local Lora/Loha/embedding prompt words.
+ After successfully installing this extension, you can find `modelsConfig.xlsx` in the extensions/prompt-r-gen-sd/scripts file, open the excel, and edit it directly.
 
-你也可以通过下面的地址下载：https://huggingface.co/spaces/heath1989/prompt-rp/resolve/main/modelsConfig.xlsx
+You can also download it at the following address: https://huggingface.co/spaces/heath1989/prompt-rp/resolve/main/modelsConfig.xlsx
 
-参照下面的图示添加你本地的lora等模型配置：
+Refer to the diagram below to add your local lora and other model configurations:
 
 <img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/model_guide.png" alt="guide" width="100%">
-修改excel保存后，配置可实时生效。
-对于云端部署的，需要云端覆盖`modelsConfig.xlsx`方可生效。
+After the excel modification is saved, the configuration can take effect in real time. For cloud deployment, the cloud needs to cover `modelsConfig.xlsx` to take effect.
 
-### 使用说明
-<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/ui_lora.png" alt="lora" width="100%">
-点开“Lora Loha embedding控制”下拉菜单，以本地下载的`st louis epoch5.safetensors`为例，
-在lora框输入：
+### Instructions for use <img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/ui_lora.png" alt="lora" width="100%">
 
-1. "圣姨"，则表示“lora模型按照指定权重随机”
-2. "圣姨:0.6"，则说明"lora模型固定0.6权重"
+ Click on the "Lora Loha embedding control" drop-down menu, taking the locally downloaded `st louis epoch5.safetensors` as an example,
 
-对于使用多个模型，中间以“,”分割即可
-如：
-1. "圣姨,666:0.8,xyz"，则表示"生成这3个配置lora的提示词"
+ Enter in the lora box:
 
-### Lora/Loha/embedding输出顺序
-默认情况下，按照Lora/Loha/embedding顺序输出，你可以在顺序更改输入框更改它们的输出顺序。
+1. "Shengyi" means "the lora model is random according to the specified weight"
+ 2. "Saint Aunt: 0.6" means "the lora model has a fixed weight of 0.6"
+
+ For using multiple models, separate them with "," as follows:
+ 1. "Shengyi,666:0.8,xyz" means "generate these three prompt words for configuring lora"
+
+### Lora/Loha/embedding
+Lora/Loha/embedding output order By default, output is in the order of Lora/Loha/embedding. You can change their output order in the order change input box.
 1. xyz：Lora/Loha/embedding
 2. yxz：Loha/Lora/embedding
 3. zxy：embedding/Lora/loha
 
 ......
 
+## Follow-up functions
 
-
-## 后续功能
-
-1. ~~添加精细控制模块，可自定义输入覆盖随机配置 [DONE]~~
-2. 存储默认配置项，下次启动自动载入
-3. 可查看历史生成记录📝。
+1. ~~Add fine control module, customizable input overrides random configuration [DONE]~~
+ 2. Store the default configuration items and load them automatically next time.
+ 3. You can view the historical generation records📝.
 
 

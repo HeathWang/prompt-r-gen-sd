@@ -18,11 +18,11 @@ from promptsModules.lora import (
 
 class DefaultConfig(IntEnum):
     DEFAULT = 1
-    WALLPAPER = 2  # 壁纸
+    WALLPAPER = 2  # wallpaper
     CROSSLEGS = 3
-    NUDESIMPLE1 = 4  # nude, 精简模式，较多饰物，无nude其他prompt
-    NUDEDEFAULT = 5  # nude, 非精简模式，较多饰物，少量nude prompt
-    NUDEDEFAULT_BACK = 6  # nude, 背部
+    NUDESIMPLE1 = 4  # Nude, streamlined mode, more ornaments, no other Prompt
+    NUDEDEFAULT = 5  # Nude, non -streamlined mode, more accessories, a small number of Nude Prompt
+    NUDEDEFAULT_BACK = 6  # nude, back
     NORMAL_DRESS = 7
     SEXAULDEFAULT = 8
 
@@ -63,11 +63,11 @@ def gen_lora_prompt():
     else:
         for_lora_config = {
 
-            # 颜色，只用给颜色即可
+            # Color, just give color
             "disable_all_color": True,
 
-            # 直接指定prompt，这会直接跳过其他配置，并且自动加深prompt权重
-            "assign_focus_on": "null",  # null则禁用
+            # Specify Prompt directly, this will directly skip other configuration, and automatically deepen the weight of Prompt
+            "assign_focus_on": "null",  # null is disabled
             "assign_profession": "null",
 
             # "body_with": False,
@@ -75,14 +75,14 @@ def gen_lora_prompt():
 
             "is_simple_nude": True,
 
-            # "accessories_random_tims": 0,  # max:6 NOTE：对于某些model，如何这些prompt出现，可能会影响视角效果
+            # "accessories_random_tims": 0,  # max:6 Note: For some models, how to appear these prOMPTs may affect the viewing angle effect
             # "object_random_times": 0,  # max: 6
             # "sexual_list_random_index_times": 0,  # max:5
             # "nude_list_random_index_times": 0,  # max:9
 
-            # 其他配置
+            # Other configuration
             # "is_realistic": True,
-            # "use_starting": False,  # 是否使用咒语起手式
+            # "use_starting": False,  # Do you use a spell to start?
 
         }
         for key in for_lora_config:

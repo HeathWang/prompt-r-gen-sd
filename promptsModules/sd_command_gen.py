@@ -29,25 +29,25 @@ project_config = {
     "lora": [101],  # x
     "lyco": [],  # y
     "embeddings": [],  # z
-    "models_order": 'xyz',  # lora, lyco, embeddings 输出顺序xyz
+    "models_order": 'xyz',  # lora, lyco, embeddings Output order xyz
     "lora_weights_random": True,
     "additional_prompt": "",
 
-    # 视角动作
-    "angle": "null",  # null则禁用
+    # Perspective
+    "angle": "null",  # null is disabled
     "body_framing": "null",
     "dynamic_mode": False,
     "pose_type": 1,  # base = 1 whole = 2
 
-    # 颜色，只用给颜色即可
+    # Color, just give color
     "leg_wear_color": "",
     "shoes_color": "",
     "hair_color": "null",
     "enable_eye_color": True,
     "disable_all_color": True,
 
-    # 身体穿着
-    "breasts_size": "large",  # null则禁用
+    # Body wearing
+    "breasts_size": "large",  # null is disabled
     # DRESS = 1 UNIFORM = 2 BODYSUIT = 3 TRADITIONAL = 4 CUSTOM = 5 RANDOM = 6 ASNULL = 7
     "body_wear": 7,
     # "top_wear": TopWearType.SHIRTS,
@@ -58,9 +58,8 @@ project_config = {
     # BOOTS, HIGHHEELS, SANDALS, SLIPPERS, BARE, ASNULL = 1, 2, 3, 4, 5, 6
     "shoes_type": 6,
 
-    # 直接指定prompt，这会直接跳过其他配置，并且自动加深prompt权重
-    "assign_focus_on": "null",  # null则禁用
-    "assign_pose": "null",  # null则禁用
+# Directly specify Prompt, which will skip other configurations directly, and automatically deepen the weight of Prompt "assign_focus_on": "null",  # null is disabled
+    "assign_pose": "null",  # null is disabled
     "assign_profession": "null",
     "assign_expression": "",
     "assign_shoes": "",
@@ -70,7 +69,7 @@ project_config = {
     "assign_girl_description": "",
     "place": "null",
 
-    # 身体相关
+    # Body -related
     "body_with": False,
     "body_status": False,
     "body_description": False,
@@ -79,25 +78,25 @@ project_config = {
 
     "nsfw_type": 3,  # 1 nude 2 sexual 3 normal
 
-    "accessories_random_tims": 0,  # max:6 NOTE：对于某些model，如何这些prompt出现，可能会影响视角效果
-    "suffix_words_random_times": 0,  # 形容词缀随机次数
-    "object_random_times": 0,  # max: 6
-    "sexual_list_random_index_times": 0,  # max:5
+    "accessories_random_tims": 1,  # max:6 NOTE：For some models, how to appear these prOMPTs may affect the perspective effect
+    "suffix_words_random_times": 0,  # Sabbage dotted random number
+    "object_random_times": 1,  # max: 6
+    "sexual_list_random_index_times": 1,  # max:5
     "nude_list_random_index_times": 0,  # max:9
     "is_simple_nude": True,
 
-    # 人物描述
-    "has_girl_desc": False,  # 是否加入超长的girl描述，目前看来大部分不需要
-    "add_girl_beautyful": False,  # girl前缀描述
-    "add_hair_style": False,  # 是否加入发型描述
+    # Character description
+    "has_girl_desc": False,  # Whether to add ultra -long girl descriptions, it seems that most of them do not need
+    "add_girl_beautyful": False,  # Girl prefix description
+    "add_hair_style": False,  # Whether to add hairstyle description
 
-    # 其他配置
-    "is_realistic": False,
-    "use_starting": True,  # 是否使用咒语起手式
+    # Other configuration
+    "is_realistic": True,
+    "use_starting": True,  # Do you use a spell to start?
     "add_colors": False,
-    "enable_day_weather": False,  # 是否启用天气
-    "enable_light_effect": True,  # 灯光效果
-    "enable_image_tech": False,  # 图像技术
+    "enable_day_weather": False,  # Whether to enable the weather
+    "enable_light_effect": True,  # Light effect
+    "enable_image_tech": False,  # Image technology
 
 }
 
@@ -122,39 +121,38 @@ def create_prompts(prompt_count):
 
 
 def convert_enum_to_int(data):
-    # 遍历字典中的键值对
+    # The key value pair in the dictionary
     for key, value in data.items():
-        # 检查值是否为IntEnum类型
+        # Check whether the value is intenum type
         if isinstance(value, IntEnum):
-            # 将IntEnum值转换为整数
+            # Convert the Intenum value to an integer
             data[key] = value.value
 
     return data
 
 
 def main():
-    # 创建参数解析器
+    # Create a parameter parser
     parser = argparse.ArgumentParser()
 
-    # 添加命令行参数
+    # Add command line parameters
     parser.add_argument("--m", default='1', help="""
-    运行模式：
-    m = 1 表示简单模式，只生成prompt，不保存该次配置
-    m = 2 表示生成prompt，并保存该次配置
-    m = 3 根据alias读取配置，并使用该配置生成prompt
-    m = 4 列出保存的alias
-    m = 5 删除保存的alias，根据id删除
+    Run mode:
+    m = 1 means a simple mode, only prompt, and the configuration is not saved
+    m = 2 means generating prompt and saving the configuration 
+    m = 3 read the configuration according to alias, and use this configuration to generate Prompt 
+    m = 4 List the saved alias 
+    m = 5 Delete saved alias, delete it according to ID
     """)
     parser.add_argument("--s", default='', required=False, help="""
-    保存配置的alias，仅在m = 2/3时有效
-    """)
-    parser.add_argument("--n", default='4', required=False, help="生成prompt数量，默认为6")
-    parser.add_argument("--ls", default='100', required=False, help="查询alias数量，默认为100")
+    Save the configuration Alias, only effective at m = 2/3    """)
+    parser.add_argument("--n", default='4', required=False, help="Generate the quantity of Prompt, default")
+    parser.add_argument("--ls", default='100', required=False, help="Query alias quantity, default")
 
-    # 解析命令行参数
+    # Analyze command line parameters
     args = parser.parse_args()
 
-    # 获取参数值
+    # Get parameter value
     arg_mode = args.m
     arg_alias = args.s
     arg_gen_number = args.n
@@ -166,7 +164,7 @@ def main():
     elif arg_mode == '3':
         query_result = retrieve_data_from_database(arg_alias)
         if query_result is None:
-            print("未找到该配置的alias或id，请检查输入是否正确")
+            print("Alias or ID that is not found in this configuration, please check whether the input is correct")
         else:
             global project_config
             project_config = query_result
@@ -177,7 +175,7 @@ def main():
             print(results[i], end=" ")
             if i + 1 < len(results):
                 print(results[i + 1], end=" ")
-            # 换行打印下一行
+            # Change the line to print the next line
             print()
     elif arg_mode == '5':
         delete_data_from_database(arg_alias)

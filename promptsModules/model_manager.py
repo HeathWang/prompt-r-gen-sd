@@ -49,14 +49,14 @@ class LoraConfigManager(object):
     def loadData(self):
         target_file_path = self.get_excel_file_path()
 
-        # 检查文件是否存在
+        # Check whether the file exists
         if os.path.exists(target_file_path):
             print(f"loading prompt-r-gen-sd excel file：{target_file_path}")
             self._lastModifyTime = os.path.getmtime(target_file_path)
             workbook = pyxl.load_workbook(target_file_path)
             sheet = workbook.active
             real_index = 0
-            for row in sheet.iter_rows(min_row=2, values_only=True):  # 从第2行开始遍历
+            for row in sheet.iter_rows(min_row=2, values_only=True):  # Starting from line 2
                 id_model = row[0]
                 type_model = row[1]
                 name_model = row[2]

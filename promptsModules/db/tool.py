@@ -68,19 +68,19 @@ def get_valid_img_dirs(
     conf,
     keys=sd_img_dirs,
 ):
-    # 获取配置项
+    # Get the configuration item
     paths = [conf.get(key) for key in keys]
 
-    # 判断路径是否有效并转为绝对路径
+    # Determine whether the path is valid and converted to the absolute path
     abs_paths = []
     for path in paths:
         if not path or len(path.strip()) == 0:
             continue
-        if os.path.isabs(path):  # 已经是绝对路径
+        if os.path.isabs(path):  # Already absolute path
             abs_path = path
-        else:  # 转为绝对路径
+        else:  # Turn to absolute path
             abs_path = os.path.join(os.getcwd(), path)
-        if os.path.exists(abs_path):  # 判断路径是否存在
+        if os.path.exists(abs_path):  # Determine whether the path exists
             abs_paths.append(os.path.normpath(abs_path))
 
     return abs_paths
@@ -137,14 +137,14 @@ def convert_to_bytes(file_size_str):
 
 def is_valid_image_path(path):
     """
-    判断给定的路径是否是图像文件
+    Determine whether the given path is an image file
     """
-    abs_path = os.path.abspath(path)  # 转为绝对路径
-    if not os.path.exists(abs_path):  # 判断路径是否存在
+    abs_path = os.path.abspath(path)  # Turn to absolute path
+    if not os.path.exists(abs_path):  # Determine whether the path exists
         return False
-    if not os.path.isfile(abs_path):  # 判断是否是文件
+    if not os.path.isfile(abs_path):  # Determine whether it is a file
         return False
-    if not imghdr.what(abs_path):  # 判断是否是图像文件
+    if not imghdr.what(abs_path):  # Determine whether it is image file
         return False
     return True
 
@@ -152,14 +152,14 @@ def is_valid_image_path(path):
 
 def create_zip_file(file_paths: List[str], zip_file_name: str):
     """
-    将文件打包成一个压缩包
+    Packing the file into a compressed package
 
     Args:
-        file_paths: 文件路径的列表
-        zip_file_name: 压缩包的文件名
+        file_paths: List of file path
+        zip_file_name: The file name of the compressed package
 
     Returns:
-        无返回值
+        No return value
     """
     with zipfile.ZipFile(zip_file_name, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         for file_path in file_paths:
@@ -172,29 +172,28 @@ def create_zip_file(file_paths: List[str], zip_file_name: str):
                         zip_file.write(full_path, os.path.relpath(full_path, file_path))
 
 def get_temp_path():
-    """获取跨平台的临时文件目录路径"""
+    """Get cross -platform temporary file directory path"""
     temp_path = None
     try:
-        # 尝试获取系统环境变量中的临时文件目录路径
+        # Try to obtain temporary file directory path in the system environment variable
         temp_path = (
             os.environ.get("TMPDIR") or os.environ.get("TMP") or os.environ.get("TEMP")
         )
     except Exception as e:
-        print("获取系统环境变量临时文件目录路径失败，错误信息：", e)
+        print("Get the system environment variable temporary file directory path of the directory path, error message:", e)
 
-    # 如果系统环境变量中没有设置临时文件目录路径，则使用 Python 的 tempfile 模块创建临时文件目录
+    # If there is no temporary file directory path in the system environment variables, use it Python of tempfile Module Create temporary file directory
     if not temp_path:
         try:
             temp_path = tempfile.gettempdir()
         except Exception as e:
-            print("使用 Python 的 tempfile 模块创建临时文件目录失败，错误信息：", e)
-
-    # 确保临时文件目录存在
+            Print ("" Use Python's TEMPFILE module to create a temporary file directory failed, error information: ", e)
+    # Make sure that the temporary file directory exists
     if not os.path.exists(temp_path):
         try:
             os.makedirs(temp_path)
         except Exception as e:
-            print("创建临时文件目录失败，错误信息：", e)
+            print("Failure to create a temporary file directory, error message:", e)
 
     return temp_path
 
@@ -287,7 +286,7 @@ re_parens = re.compile(r"[\\/\[\](){}]+")
 
 def lora_extract(lora: str):
     """
-    提取yoshino yoshino(2a79aa5adc4a)
+    Proposal Yoshino yoshino(2a79aa5adc4a)
     """
     res = re_lora_extract.match(lora)
     return res.group(1) if res else lora
@@ -336,10 +335,10 @@ def parse_generation_parameters(x: str):
     if len(re_param.findall(lastline)) < 3:
         lines.append(lastline)
         lastline = ""
-    if len(lines) == 1 and lines[0].startswith("Postprocess"):  # 把上面改成<2应该也可以，当时不敢动
+    if len(lines) == 1 and lines[0].startswith("Postprocess"):  # Change the above to <2 should be okay, I dare not move at that time
         lastline = lines[
             0
-        ]  # 把Postprocess upscale by: 4, Postprocess upscaler: R-ESRGAN 4x+ Anime6B 推到res解析
+        ]  # Push PostProcess Upscale by: 4, PostProcess UPSCALER: R-ESRGAN 4X+ Anime6b
         lines = []
     for i, line in enumerate(lines):
         line = line.strip()

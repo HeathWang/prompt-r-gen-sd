@@ -58,7 +58,7 @@ class DataBase:
 
     @classmethod
     def init(clz):
-        # 创建连接并打开数据库
+        # Create a connection and open the database
         conn = connect(
             clz.path if os.path.isabs(clz.path) else os.path.join(cwd, clz.path)
         )
@@ -82,7 +82,7 @@ class DataBase:
             conn.commit()
         clz.num += 1
         if is_dev:
-            print(f"当前连接数{clz.num}")
+            print(f"Current connection number{clz.num}")
         return conn
 
 
@@ -758,7 +758,7 @@ class Folder:
             if not os.path.exists(folder_path):
                 return False
             cur.execute("SELECT * FROM folders WHERE path=?", (folder_path,))
-            folder_record = cur.fetchone()  # 如果这个文件夹没有记录，或者修改时间与数据库不同，则需要修改
+            folder_record = cur.fetchone()  # If this folder is not recorded, or the modification time is different from the database, you need to modify
             return not folder_record or (
                 folder_record[2] != get_modified_date(folder_path)
             )
