@@ -7,6 +7,8 @@ import json
 
 def handle_train_tag(folder_path, alias_name:str):
     folder_path = os.path.normpath(folder_path)
+    file_text_lsit = []
+
     # Check whether the path path of the folder exists
     if not os.path.exists(folder_path) or not os.path.isdir(folder_path):
         print(f"Folder path '{folder_path}' No or not a folder.")
@@ -24,10 +26,11 @@ def handle_train_tag(folder_path, alias_name:str):
     for filename in os.listdir(folder_path):
         filepath = os.path.join(folder_path, filename)
 
-    # Check whether the file ended with ".txt" if filename.ends with(".txt") and os.path.isfile(filepath):
-    # Read the text in the file
-    with open(filepath, 'r', encoding='utf-8') as file:
-        file_content = file.read()
+    if filename.endswith(".txt") and os.path.isfile(filepath):
+        # Read text from file
+        with open(filepath, 'r', encoding='utf-8') as file:
+            file_content = file.read()
+            file_text_lsit.append(file_content)
 
     # Use the regular expression to extract the label in the text
     tags = re.findall(r'\b([^\s,]+)\b', file_content)
@@ -36,6 +39,6 @@ def handle_train_tag(folder_path, alias_name:str):
     tag_counter.update(tags)
     json_str = json.dumps(tag_counter, ensure_ascii=False)
     print(json_str)
-    return json_str, alias_name
+    return json_str, alias_name, file_text_lsit
 
 
