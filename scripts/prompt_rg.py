@@ -238,14 +238,15 @@ def next_search_action(key_input, limit_slider, sort_drop, check_res_show, check
 
 def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
                        check_search_adetailer_prompt, is_next=False):
+    query_name = extract_tag_name(key_input)
     global query_cursor
     global cache_search
-    cache_search[key_input] += 1
+    cache_search[query_name] += 1
 
     conn = DataBase.get_conn()
     imgs, next_cursor = DbImg.find_by_substring(
         conn=conn,
-        substring=key_input.strip(),
+        substring=query_name.strip(),
         cursor=is_next and query_cursor or None,
         limit=limit_slider,
         regexp=check_search_adetailer_prompt and r'ADetailer prompt: "([^"]+)"' or None,
@@ -290,6 +291,9 @@ def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check
 
     return [result_count, table_html, cache_search_list]
 
+def extract_tag_name(tip):
+    match = re.match(r"^(.*) \[✨", tip)
+    return match.group(1) if match else tip
 
 def get_tag_info(tag: Tag):
     cnt = f""
@@ -467,8 +471,19 @@ def load_query_tips():
     tags = Tag.get_all_model_tags(DataBase.get_conn())
     tips = []
     for tag in tags:
-        tips.append(tag.name)
+        tips.append(f"{tag.name} [✨{tag_count_to_short_str(tag.count)}]")
     return tips
+
+def tag_count_to_short_str(count):
+    cnt = ""
+    if count < 1000:
+        cnt = f"{count}"
+    elif count < 10000:
+        cnt = f"{count / 1000:.2f}k"
+    else:
+        cnt = f"{count / 10000:.2f}w"
+    return cnt
+
 
 def reload_query_tips():
     return gr.update(choices=load_query_tips())
