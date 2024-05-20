@@ -460,12 +460,18 @@ def load_train_models():
         names.append(train.model_name)
     return names
 
+def reload_train_models():
+    return gr.update(choices=load_train_models())
+
 def load_query_tips():
     tags = Tag.get_all_model_tags(DataBase.get_conn())
     tips = []
     for tag in tags:
         tips.append(tag.name)
     return tips
+
+def reload_query_tips():
+    return gr.update(choices=load_query_tips())
 
 def update_lora_score_action(lora_list_dropdown, score_slider):
     Tag.update_tag_score(DataBase.get_conn(), lora_list_dropdown, score_slider)
@@ -491,6 +497,7 @@ def on_ui_tabs():
                 with gr.Row():
                     search_button = gr.Button("搜索", variant='primary')
                     next_query_button = gr.Button("下一页", size="sm", variant='secondary')
+                    refresh_dp_button = gr.Button("刷新下拉数据", variant="secondary")
                     search_info = gr.Textbox("", show_label=False, interactive=False)
                 html_table = gr.HTML("", label=None, show_label=False, interactive=False)
 
@@ -506,6 +513,7 @@ def on_ui_tabs():
                                                                     check_adetailer_show,
                                                                     check_search_adetailer_prompt],
                                         outputs=[search_info, html_table, search_history])
+                refresh_dp_button.click(reload_query_tips, inputs=None, outputs=key_dropdown)
         with gr.Tab("Model"):
             with gr.Tab("Lora"):
                 with gr.Column():
@@ -530,6 +538,7 @@ def on_ui_tabs():
                 with gr.Row(equal_height=False):
                     train_input_model = gr.Dropdown(choices=load_train_models(), allow_custom_value=True, interactive=True, type="value", show_label=False)
                     fetch_train_info_btn = gr.Button("查询train tags", variant='primary')
+                    refresh_train_models_btn = gr.Button("刷新下拉数据", variant="secondary")
                 train_tags_comments = gr.HTML("", label=None, show_label=False, interactive=False)
                 tags_highlighted = gr.HighlightedText(show_label=False)
                 tag_source_list = gr.HTML("", label=None, show_label=False, interactive=False)
@@ -537,6 +546,7 @@ def on_ui_tabs():
                                          outputs=[tags_highlighted, train_tags_comments, tag_source_list])
                 fetch_train_info_btn.click(get_train_model_tags, inputs=[train_input_model],
                                            outputs=[tags_highlighted, train_tags_comments, tag_source_list])
+                refresh_train_models_btn.click(reload_train_models, inputs=None, outputs=train_input_model)
         with gr.Tab('提取Prompt'):
             with gr.Tab("Images"):
                 with gr.Column():
