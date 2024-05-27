@@ -59,7 +59,7 @@ sdk_version: 3.40.1
 对于云端部署的，需要云端覆盖`modelsConfig.xlsx`方可生效。
 
 #### 使用说明
-<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/ui_lora.png" alt="lora" width="100%">
+<img src="https://github.com/HeathWang/prompt-r-gen-sd/blob/master/preview/ui_lora.png" alt="lora" width="100%">
 点开“Lora Loha embedding控制”下拉菜单，以本地下载的`st louis epoch5.safetensors`为例，
 在lora框输入：
 
