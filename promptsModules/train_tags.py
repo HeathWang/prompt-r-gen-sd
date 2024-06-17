@@ -33,7 +33,7 @@ def handle_train_tag(folder_path, alias_name:str):
                 file_text_lsit.append(file_content)
 
                 # 使用正则表达式提取文本中的标签
-                tags = re.findall(r'\b([^\s,]+)\b', file_content)
+                tags = re.findall(r'\s*([^,]+?)\s*(?=,|$)', file_content)
 
                 # 更新标签计数
                 tag_counter.update(tags)
