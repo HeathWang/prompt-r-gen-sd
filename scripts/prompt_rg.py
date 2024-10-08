@@ -389,7 +389,7 @@ def open_sd_image_broswer_html():
     return html_code
 
 
-def save_train_tag_action(train_source_path, train_alias, train_comments, check_handle_train_folder:bool):
+def save_train_tag_action(train_source_path, train_alias, train_comments, check_handle_train_folder:bool, check_is_flux_model:bool):
     if check_handle_train_folder:
         # check if folder
         if not os.path.isdir(train_source_path):
@@ -414,12 +414,17 @@ def save_train_tag_action(train_source_path, train_alias, train_comments, check_
     else:
         json_str, alias_name, files_list = handle_train_tag(train_source_path, train_alias)
         conn = DataBase.get_conn()
-        train = TrainTag(alias_name, json_str, comments=train_comments)
+        resp = json_str
+        if not check_is_flux_model:
+            train = TrainTag(alias_name, json_str, comments=train_comments, is_flux=0)
+        else:
+            resp = "success"
+            train = TrainTag(alias_name, '{}', comments=train_comments, is_flux=1)
         train.save(conn)
         TrainImageTags.saveTags(conn, train.id, files_list)
         conn.close()
         DataBase.reConnect = True
-        return json_str
+        return resp
 
 def update_train_tag_comments(train_model_dropdown, train_update_comments):
     conn = DataBase.get_conn()
@@ -456,16 +461,16 @@ def get_train_model_tags(train_input_model):
 
     return results, html_comments, table_html
 
-def load_train_models():
+def load_train_models(is_flux=False):
     conn = DataBase.get_conn()
-    train_models = TrainTag.get_all(conn)
+    train_models = TrainTag.get_all(conn, is_flux=is_flux)
     names = []
     for train in train_models:
         names.append(train.model_name)
     return names
 
-def reload_train_models():
-    return gr.update(choices=load_train_models())
+def reload_train_models(check_flux_flag:bool):
+    return gr.update(choices=load_train_models(is_flux=check_flux_flag))
 
 def load_query_tips():
     tags = Tag.get_all_model_tags(DataBase.get_conn())
@@ -550,6 +555,8 @@ def on_ui_tabs():
                 html_lyco = gr.HTML("", label=None, show_label=False, interactive=False)
                 fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
             with gr.Tab("Tags"):
+                with gr.Row():
+                    check_flux_flag = gr.Checkbox(False, label="flux模型", info="是否是flux模型", interactive=True)
                 with gr.Row(equal_height=False):
                     train_input_model = gr.Dropdown(choices=load_train_models(), allow_custom_value=True, interactive=True, type="value", show_label=False)
                     fetch_train_info_btn = gr.Button("查询train tags", variant='primary')
@@ -561,7 +568,7 @@ def on_ui_tabs():
                                          outputs=[tags_highlighted, train_tags_comments, tag_source_list])
                 fetch_train_info_btn.click(get_train_model_tags, inputs=[train_input_model],
                                            outputs=[tags_highlighted, train_tags_comments, tag_source_list])
-                refresh_train_models_btn.click(reload_train_models, inputs=None, outputs=train_input_model)
+                refresh_train_models_btn.click(reload_train_models, inputs=[check_flux_flag], outputs=train_input_model)
         with gr.Tab('提取Prompt'):
             with gr.Tab("Images"):
                 with gr.Column():
@@ -584,12 +591,13 @@ def on_ui_tabs():
                         train_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
                         check_handle_train_folder = gr.Checkbox(False, label="是否处理文件夹",
                                                                 info="勾选则处理文件夹下所有子目录", interactive=True)
+                        check_is_flux_model = gr.Checkbox(False, label="是否flux模型", info="是否是flux模型，不处理tag分组", interactive=True)
                     train_result = gr.Textbox("", label="汇总结果", lines=1, show_copy_button=True, interactive=False)
                     with gr.Row():
                         train_tag_btn = gr.Button("汇总tag", variant="primary")
-                    train_tag_btn.click(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments, check_handle_train_folder],
+                    train_tag_btn.click(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments, check_handle_train_folder, check_is_flux_model],
                                         outputs=[train_result])
-                    train_source_path.submit(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments, check_handle_train_folder],
+                    train_source_path.submit(save_train_tag_action, inputs=[train_source_path, train_alias, train_comments, check_handle_train_folder, check_is_flux_model],
                                              outputs=[train_result])
 
                 with gr.Column():

@@ -309,11 +309,12 @@ class TrainImageTags:
             return tags
 
 class TrainTag:
-    def __init__(self, model_name: str, tags_info: str, comments: str = ""):
+    def __init__(self, model_name: str, tags_info: str, comments: str = "", is_flux: int = 0):
         self.model_name = model_name
         self.tags_info = tags_info
         self.comments = comments
         self.id = None
+        self.is_flux = is_flux
 
     @classmethod
     def create_table(cls, conn):
@@ -331,12 +332,14 @@ class TrainTag:
 
             if "comments" not in columns:
                 cur.execute("ALTER TABLE train_tag ADD COLUMN comments TEXT DEFAULT ''")
+            if "is_flux" not in columns:
+                cur.execute("ALTER TABLE train_tag ADD COLUMN is_flux INTEGER DEFAULT 0")
 
     def save(self, conn):
         with closing(conn.cursor()) as cur:
             cur.execute(
-                "INSERT OR REPLACE  INTO train_tag (model_name, tags_info, comments) VALUES (?, ?, ?)",
-                (self.model_name, self.tags_info, self.comments),
+                "INSERT OR REPLACE  INTO train_tag (model_name, tags_info, comments, is_flux) VALUES (?, ?, ?, ?)",
+                (self.model_name, self.tags_info, self.comments, self.is_flux),
             )
             conn.commit()
             self.id = cur.lastrowid
@@ -363,9 +366,9 @@ class TrainTag:
                 return cls.from_row(row)
 
     @classmethod
-    def get_all(cls, conn: Connection):
+    def get_all(cls, conn: Connection, is_flux: int = 0):
         with closing(conn.cursor()) as cur:
-            cur.execute("SELECT * FROM train_tag")
+            cur.execute("SELECT * FROM train_tag WHERE is_flux = ?", (is_flux,))
             rows = cur.fetchall()
             train_tags: list[TrainTag] = []
             for row in rows:
