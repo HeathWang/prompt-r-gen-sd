@@ -221,7 +221,7 @@ class Image:
 
     @classmethod
     def find_by_substring(
-        cls, conn: Connection, substring: str, limit: int = 500, cursor="", regexp="", from_exif=False,
+        cls, conn: Connection, substring: str, limit: int = 500, cursor="", regexp="", from_exif=False, is_flux=False
     ) -> Tuple[List["Image"], str]:
         api_cur = Cursor()
         with closing(conn.cursor()) as cur:
@@ -239,6 +239,8 @@ class Image:
             if cursor:
                 where_clauses.append("(date < ?)")
                 params.append(cursor)
+            where_clauses.append("(is_flux = ?)")
+            params.append(is_flux)
             sql = "SELECT id, pos_prompt, date, exif FROM image"
             if where_clauses:
                 sql += " WHERE "

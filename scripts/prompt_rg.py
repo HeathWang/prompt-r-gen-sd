@@ -225,19 +225,19 @@ def create_img_info_html(exif, check_res_show, check_adetailer_show, date_info="
 
 
 def search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
-                  check_search_adetailer_prompt=False):
+                  check_search_adetailer_prompt=False, check_search_flux=False):
     return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
-                              check_search_adetailer_prompt)
+                              check_search_adetailer_prompt, check_search_flux)
 
 
 def next_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
-                       check_search_adetailer_prompt=False):
+                       check_search_adetailer_prompt=False, check_search_flux=False):
     return base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
-                              check_search_adetailer_prompt, is_next=True)
+                              check_search_adetailer_prompt, check_search_flux, is_next=True)
 
 
 def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check_adetailer_show,
-                       check_search_adetailer_prompt, is_next=False):
+                       check_search_adetailer_prompt, check_search_flux:bool, is_next=False):
     query_name = extract_tag_name(key_input)
     global query_cursor
     global cache_search
@@ -251,6 +251,7 @@ def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check
         limit=limit_slider,
         regexp=check_search_adetailer_prompt and r'ADetailer prompt: "([^"]+)"' or None,
         from_exif=check_search_adetailer_prompt,
+        is_flux=check_search_flux
     )
 
     pos_prompt_counts = defaultdict(int)
@@ -504,6 +505,7 @@ def on_ui_tabs():
             with gr.Column():
                 with gr.Row(variant="panel"):
                     key_dropdown = gr.Dropdown(choices=load_query_tips(), allow_custom_value=True, interactive=True, type="value", label="🔍", show_label=True)
+                with gr.Row():
                     sort_drop = gr.Dropdown(["数量", "时间"], value="数量", type="index", label="排序方式",
                                             interactive=True)
                     check_res_show = gr.Checkbox(True, label="分辨率", info="是否显示分辨率", interactive=True)
@@ -511,6 +513,7 @@ def on_ui_tabs():
                                                        interactive=True)
                     check_search_adetailer_prompt = gr.Checkbox(False, label="adetailer prompt", info="搜索adetailer",
                                                                 interactive=True)
+                    check_search_flux = gr.Checkbox(False, label="flux模型", info="是否是flux模型", interactive=True)
                     limit_slider = gr.Slider(64, 5120, value=512, label="搜索limit", step=4, min_width=600,
                                              interactive=True)
                 search_history = gr.HighlightedText(show_label=False)
@@ -523,15 +526,15 @@ def on_ui_tabs():
 
                 search_button.click(search_action,
                                     inputs=[key_dropdown, limit_slider, sort_drop, check_res_show, check_adetailer_show,
-                                            check_search_adetailer_prompt],
+                                            check_search_adetailer_prompt, check_search_flux],
                                     outputs=[search_info, html_table, search_history])
                 key_dropdown.select(search_action,
                                  inputs=[key_dropdown, limit_slider, sort_drop, check_res_show, check_adetailer_show,
-                                         check_search_adetailer_prompt],
+                                         check_search_adetailer_prompt, check_search_flux],
                                  outputs=[search_info, html_table, search_history])
                 next_query_button.click(next_search_action, inputs=[key_dropdown, limit_slider, sort_drop, check_res_show,
                                                                     check_adetailer_show,
-                                                                    check_search_adetailer_prompt],
+                                                                    check_search_adetailer_prompt, check_search_flux],
                                         outputs=[search_info, html_table, search_history])
                 refresh_dp_button.click(reload_query_tips, inputs=None, outputs=key_dropdown)
         with gr.Tab("Model"):
