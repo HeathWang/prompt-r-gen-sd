@@ -353,7 +353,7 @@ def parse_generation_parameters(x: str):
             prompt += ("" if prompt == "" else "\n") + line
 
     for k, v in re_param.findall(lastline):
-        v = v[1:-1] if v[0] == '"' and v[-1] == '"' else v
+        v = v[1:-1] if len(v) > 1 and v[0] == '"' and v[-1] == '"' else v
         m = re_imagesize.match(v)
         if m is not None:
             res[k + "-1"] = m.group(1)

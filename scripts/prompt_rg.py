@@ -165,11 +165,11 @@ def load_config_action():
     return LoraConfigManager().export_to_data_frame()
 
 
-def get_prompts_from_folder(file_path, check_force):
+def get_prompts_from_folder(file_path, check_force, check_flux_flag_2=False):
     try:
         DataBase._initing = True
         img_count = DbImg.count(DataBase.get_conn())
-        update_image_data([file_path], is_rebuild=check_force)
+        update_image_data([file_path], is_rebuild=check_force, is_flux=check_flux_flag_2)
         after_img_cnt = DbImg.count(DataBase.get_conn())
         return f"新增{after_img_cnt - img_count}条记录", f"共{after_img_cnt}条记录"
     finally:
@@ -576,12 +576,13 @@ def on_ui_tabs():
                         file_path = gr.Textbox("/notebooks/resource/outputs/20231225", label="文件路径", lines=1,
                                                show_copy_button=True, interactive=True)
                         check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
+                        check_flux_flag_2 = gr.Checkbox(False, label="flux模型", info="是否是flux模型", interactive=True)
                     extract_btn = gr.Button("提取prompt", variant="primary")
                     with gr.Row():
                         text2 = gr.Textbox(label="状态")
                         img_cnt = gr.Textbox(label="图片数量")
-                    extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
-                    file_path.submit(get_prompts_from_folder, inputs=[file_path, check_force], outputs=[text2, img_cnt])
+                    extract_btn.click(get_prompts_from_folder, inputs=[file_path, check_force, check_flux_flag_2], outputs=[text2, img_cnt])
+                    file_path.submit(get_prompts_from_folder, inputs=[file_path, check_force, check_flux_flag_2], outputs=[text2, img_cnt])
             with gr.Tab("Train Source"):
                 with gr.Column():
                     with gr.Row():

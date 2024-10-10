@@ -87,13 +87,14 @@ class DataBase:
 
 
 class Image:
-    def __init__(self, path, exif=None, pos_prompt="", size=0, date="", id=None):
+    def __init__(self, path, exif=None, pos_prompt="", size=0, date="", id=None, is_flux=0):
         self.path = path
         self.exif = exif
         self.pos_prompt = pos_prompt
         self.id = id
         self.size = size
         self.date = date
+        self.is_flux = is_flux
 
     def to_file_info(self) -> FileInfoDict:
         return {
@@ -112,8 +113,8 @@ class Image:
     def save(self, conn):
         with closing(conn.cursor()) as cur:
             cur.execute(
-                "INSERT OR REPLACE  INTO image (path, exif, pos_prompt, size, date) VALUES (?, ?, ?, ?, ?)",
-                (self.path, self.exif, self.pos_prompt, self.size, self.date),
+                "INSERT OR REPLACE  INTO image (path, exif, pos_prompt, size, date, is_flux) VALUES (?, ?, ?, ?, ?, ?)",
+                (self.path, self.exif, self.pos_prompt, self.size, self.date, self.is_flux),
             )
             self.id = cur.lastrowid
 
@@ -169,6 +170,10 @@ class Image:
                         )"""
             )
             cur.execute("CREATE INDEX IF NOT EXISTS image_idx_path ON image(path)")
+            cur.execute("PRAGMA table_info(image)")
+            columns = [column[1] for column in cur.fetchall()]
+            if "is_flux" not in columns:
+                cur.execute("ALTER TABLE image ADD COLUMN is_flux INTEGER DEFAULT 0")
 
     @classmethod
     def count(cls, conn):

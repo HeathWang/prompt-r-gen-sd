@@ -26,7 +26,7 @@ def get_exif_data(file_path):
     return params, info
 
 
-def update_image_data(search_dirs: List[str], is_rebuild = False):
+def update_image_data(search_dirs: List[str], is_rebuild = False, is_flux = False):
     conn = DataBase.get_conn()
     tag_incr_count_rec: Dict[int, int] = {}
 
@@ -57,12 +57,18 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
                 parsed_params, info = get_exif_data(file_path)
                 if parsed_params is None or info is None:
                     continue
+                # print parsed_params and info with 1 line
+                print(parsed_params, info)
+                is_flux_value = 0
+                if is_flux:
+                    is_flux_value = 1
                 img = DbImg(
                     file_path,
                     info,
                     parsed_params["pos_all"],
                     os.path.getsize(file_path),
                     get_modified_date(file_path),
+                    is_flux=is_flux_value
                 )
                 img.save(conn)
 
@@ -95,9 +101,10 @@ def update_image_data(search_dirs: List[str], is_rebuild = False):
                 for i in lyco:
                     tag = Tag.get_or_create(conn, i["name"], "lyco")
                     safe_save_img_tag(ImageTag(img.id, tag.id))
-                for k in pos:
-                    tag = Tag.get_or_create(conn, k, "pos")
-                    safe_save_img_tag(ImageTag(img.id, tag.id))
+                if not is_flux:
+                    for k in pos:
+                        tag = Tag.get_or_create(conn, k, "pos")
+                        safe_save_img_tag(ImageTag(img.id, tag.id))
                 # neg暂时跳过感觉个没人会搜索这个
 
         # 提交对数据库的更改
