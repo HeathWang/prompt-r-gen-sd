@@ -288,7 +288,7 @@ def base_search_action(key_input, limit_slider, sort_drop, check_res_show, check
     query_cursor = next_cursor
     # make cache_search to List[Tuple[str, float | str]]]
     cache_search_list = cache_search_list = [(key, str(value)) for key, value in cache_search.items()]
-    print(cache_search_list)
+    # print(cache_search_list)
 
     return [result_count, table_html, cache_search_list]
 

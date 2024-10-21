@@ -58,7 +58,7 @@ def update_image_data(search_dirs: List[str], is_rebuild = False, is_flux = Fals
                 if parsed_params is None or info is None:
                     continue
                 # print parsed_params and info with 1 line
-                print(parsed_params, info)
+                # print(parsed_params, info)
                 is_flux_value = 0
                 if is_flux:
                     is_flux_value = 1

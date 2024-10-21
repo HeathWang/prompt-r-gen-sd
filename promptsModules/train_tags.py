@@ -38,7 +38,7 @@ def handle_train_tag(folder_path, alias_name:str):
                 # 更新标签计数
                 tag_counter.update(tags)
     json_str = json.dumps(tag_counter, ensure_ascii=False)
-    print(json_str)
+    # print(json_str)
     return json_str, alias_name, file_text_lsit
 
 
