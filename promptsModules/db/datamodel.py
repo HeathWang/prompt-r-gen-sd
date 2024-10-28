@@ -315,7 +315,7 @@ class TrainImageTags:
     def getAllTags(cls, conn, tain_tag_id):
         with closing(conn.cursor()) as cur:
             cur.execute(
-                "SELECT * FROM train_image_tags WHERE tain_tag_id = ?", (tain_tag_id,)
+                "SELECT * FROM train_image_tags WHERE tain_tag_id = ? ORDER BY file_name ASC", (tain_tag_id,)
             )
             rows = cur.fetchall()
             tags: list[dict] = []
