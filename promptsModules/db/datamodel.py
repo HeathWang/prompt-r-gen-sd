@@ -263,10 +263,11 @@ class Image:
         return images, cursor_date
 
 class TrainImageTags:
-    def __init__(self, tain_tag_id: str, tags_info: str):
+    def __init__(self, tain_tag_id: str, tags_info: str, file_name: str = ""):
         self.tain_tag_id = tain_tag_id
         self.tags_info = tags_info
         self.id = None
+        self.file_name = file_name
 
     @classmethod
     def create_table(cls, conn):
@@ -280,9 +281,14 @@ class TrainImageTags:
             )
             cur.execute("CREATE INDEX IF NOT EXISTS train_image_tags_idx_tain_tag_id ON train_image_tags(tain_tag_id)")
             cur.execute("PRAGMA table_info(train_image_tags)")
+            # add new column "file_name" string
+            columns = [column[1] for column in cur.fetchall()]
+            if "file_name" not in columns:
+                cur.execute("ALTER TABLE train_image_tags ADD COLUMN file_name TEXT DEFAULT ''")
+
 
     @classmethod
-    def saveTags(cls, conn, tain_tag_id, tags_info: List[str]):
+    def saveTags(cls, conn, tain_tag_id, tags_info: List[dict]):
         with closing(conn.cursor()) as cur:
             # find if tain_tag_id has relate data, if have, delete all
             cur.execute(
@@ -297,9 +303,11 @@ class TrainImageTags:
 
             # loop and insert all
             for tag in tags_info:
+                tag_name = tag.get("content")
+                source_file_name = tag.get("filename")
                 cur.execute(
-                    "INSERT INTO train_image_tags (tain_tag_id, tags_info) VALUES (?, ?)",
-                    (tain_tag_id, tag),
+                    "INSERT INTO train_image_tags (tain_tag_id, tags_info, file_name) VALUES (?, ?, ?)",
+                    (tain_tag_id, tag_name, source_file_name),
                 )
             conn.commit()
 
@@ -310,9 +318,9 @@ class TrainImageTags:
                 "SELECT * FROM train_image_tags WHERE tain_tag_id = ?", (tain_tag_id,)
             )
             rows = cur.fetchall()
-            tags: list[str] = []
+            tags: list[dict] = []
             for row in rows:
-                tags.append(row[2])
+                tags.append({"content": row[2], "filename": row[3]})
             return tags
 
 class TrainTag:
