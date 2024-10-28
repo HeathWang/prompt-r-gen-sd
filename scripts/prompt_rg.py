@@ -406,8 +406,8 @@ def reload_train_models(check_flux_flag: bool):
     return gr.update(choices=load_train_models(is_flux=check_flux_flag))
 
 
-def load_query_tips():
-    tags = Tag.get_all_model_tags(DataBase.get_conn())
+def load_query_tips(check_search_flux=False):
+    tags = Tag.get_all_model_tags(DataBase.get_conn(), check_search_flux)
     tips = []
     for tag in tags:
         tips.append(f"{tag.name} [✨{tag_count_to_short_str(tag.count)}]")
@@ -425,8 +425,8 @@ def tag_count_to_short_str(count):
     return cnt
 
 
-def reload_query_tips():
-    return gr.update(choices=load_query_tips())
+def reload_query_tips(check_search_flux: bool):
+    return gr.update(choices=load_query_tips(check_search_flux))
 
 
 def update_lora_score_action(lora_list_dropdown, score_slider):
@@ -474,7 +474,7 @@ def on_ui_tabs():
                                                 check_adetailer_show,
                                                 check_search_adetailer_prompt, check_search_flux],
                                         outputs=[search_info, html_table, search_history])
-                refresh_dp_button.click(reload_query_tips, inputs=None, outputs=key_dropdown)
+                refresh_dp_button.click(reload_query_tips, inputs=[check_search_flux], outputs=key_dropdown)
         with gr.Tab("Model"):
             with gr.Tab("Tags"):
                 with gr.Row():
