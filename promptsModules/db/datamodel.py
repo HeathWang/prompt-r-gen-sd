@@ -980,6 +980,9 @@ class PromptRecord:
             # 添加排序
             base_query += " ORDER BY priority DESC"
 
+            if not query_conditions:
+                base_query += " LIMIT 1000"
+
             # 执行查询
             cur.execute(base_query, query_params)
             rows = cur.fetchall()

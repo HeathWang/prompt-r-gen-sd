@@ -487,6 +487,7 @@ def prompt_search_action(prompt_search_key, prompt_check_meta):
     table_html += "</table>"
     return table_html
 
+
 ######### UI #########
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as ui_component:
@@ -622,8 +623,11 @@ def on_ui_tabs():
                 prompt_check_meta = gr.Checkbox(False, label="meta", info="是否搜索meta", interactive=True)
                 prompt_search_btn = gr.Button("搜索", variant="primary")
                 prompt_search_table = gr.HTML("", label=None, show_label=False, interactive=False)
-                prompt_search_btn.click(prompt_search_action, inputs=[prompt_search_key, prompt_check_meta], outputs=[prompt_search_table])
-            with gr.Tab("Add"):
+                prompt_search_key.submit(prompt_search_action, inputs=[prompt_search_key, prompt_check_meta],
+                                         outputs=[prompt_search_table])
+                prompt_search_btn.click(prompt_search_action, inputs=[prompt_search_key, prompt_check_meta],
+                                        outputs=[prompt_search_table])
+            with gr.Tab("📜"):
                 with gr.Row():
                     prompt_text = gr.Textbox(None, label="prompt", lines=2, interactive=True, min_width=600,
                                              show_copy_button=True)
