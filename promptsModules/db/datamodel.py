@@ -78,6 +78,7 @@ class DataBase:
             ExtraPath.create_table(conn)
             TrainTag.create_table(conn)
             TrainImageTags.create_table(conn)
+            PromptRecord.create_table(conn)
         finally:
             conn.commit()
         clz.num += 1
@@ -894,3 +895,124 @@ class ExtraPath:
                             type TEXT NOT NULL
                         )"""
             )
+
+class PromptRecord:
+    def __init__(self, prompt_text: str, memo: str = "", priority: int = 0):
+        self.prompt_text = prompt_text
+        self.memo = memo
+        self.priority = priority
+        self.id = None
+
+    @classmethod
+    def create_table(cls, conn):
+        with closing(conn.cursor()) as cur:
+            cur.execute(
+                """CREATE TABLE IF NOT EXISTS prompt_records (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            prompt_text TEXT,
+                            memo TEXT,
+                            priority INTEGER DEFAULT 0
+                        )"""
+            )
+            # 创建索引以优化查询性能
+            cur.execute("CREATE INDEX IF NOT EXISTS prompt_records_idx_priority ON prompt_records(priority)")
+            cur.execute("CREATE INDEX IF NOT EXISTS prompt_records_idx_text ON prompt_records(prompt_text)")
+
+            # 检查并添加新列
+            # cur.execute("PRAGMA table_info(prompt_records)")
+            # columns = [column[1] for column in cur.fetchall()]
+
+    def save(self, conn):
+        with closing(conn.cursor()) as cur:
+            cur.execute(
+                "INSERT INTO prompt_records (prompt_text, memo, priority) VALUES (?, ?, ?)",
+                (self.prompt_text, self.memo, self.priority),
+            )
+            conn.commit()
+            self.id = cur.lastrowid
+
+    def update(self, conn):
+        with closing(conn.cursor()) as cur:
+            cur.execute(
+                "UPDATE prompt_records SET prompt_text = ?, memo = ?, priority = ? WHERE id = ?",
+                (self.prompt_text, self.memo, self.priority, self.id),
+            )
+            conn.commit()
+
+    @classmethod
+    def get(cls, conn: Connection, prompt_id: int):
+        with closing(conn.cursor()) as cur:
+            cur.execute(
+                "SELECT * FROM prompt_records WHERE id = ?",
+                (prompt_id,)
+            )
+            row = cur.fetchone()
+            if row is None:
+                return None
+            return cls.from_row(row)
+
+    @classmethod
+    def search(cls, conn: Connection, search_text: str = None, is_meta: bool = False, priority: int = None):
+        with closing(conn.cursor()) as cur:
+            query_conditions = []
+            query_params = []
+
+            # 基础查询
+            base_query = "SELECT * FROM prompt_records"
+
+            # 添加搜索条件
+            if search_text:
+                if is_meta:
+                    query_conditions.append("memo LIKE ?")
+                else:
+                    query_conditions.append("prompt_text LIKE ?")
+                query_params.append(f"%{search_text}%")
+
+            # 添加优先级条件
+            if priority is not None:
+                query_conditions.append("priority = ?")
+                query_params.append(priority)
+
+            # 组合查询条件
+            if query_conditions:
+                base_query += " WHERE " + " AND ".join(query_conditions)
+
+            # 添加排序
+            base_query += " ORDER BY priority DESC"
+
+            # 执行查询
+            cur.execute(base_query, query_params)
+            rows = cur.fetchall()
+            return [cls.from_row(row) for row in rows]
+
+    @classmethod
+    def get_all(cls, conn: Connection, order_by_priority: bool = True):
+        with closing(conn.cursor()) as cur:
+            if order_by_priority:
+                cur.execute("SELECT * FROM prompt_records ORDER BY priority DESC")
+            else:
+                cur.execute("SELECT * FROM prompt_records")
+            rows = cur.fetchall()
+            return [cls.from_row(row) for row in rows]
+
+    @classmethod
+    def from_row(cls, row: tuple):
+        prompt_record = cls(
+            prompt_text=row[1],
+            memo=row[2],
+            priority=row[3]
+        )
+        prompt_record.id = row[0]
+        return prompt_record
+
+    @classmethod
+    def remove(cls, conn: Connection, prompt_id: int):
+        with closing(conn.cursor()) as cur:
+            cur.execute("DELETE FROM prompt_records WHERE id = ?", (prompt_id,))
+            conn.commit()
+
+    @classmethod
+    def remove_by_prompt(cls, conn: Connection, prompt_text: str):
+        with closing(conn.cursor()) as cur:
+            cur.execute("DELETE FROM prompt_records WHERE prompt_text = ?", (prompt_text,))
+            conn.commit()

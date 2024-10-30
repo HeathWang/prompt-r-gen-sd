@@ -11,7 +11,7 @@ from promptsModules.db.datamodel import (
     Image as DbImg,
     Tag,
     TrainTag,
-    TrainImageTags,
+    TrainImageTags, PromptRecord
 )
 from promptsModules.db.update_image_data import (update_image_data)
 from promptsModules.train_tags import (handle_train_tag)
@@ -434,6 +434,59 @@ def update_lora_score_action(lora_list_dropdown, score_slider):
     return inner_fetch_lora(DataBase.get_conn())
 
 
+def add_prompt_action(prompt_text, prompt_memo, priority_slider):
+    conn = DataBase.get_conn()
+    pr = PromptRecord(prompt_text, prompt_memo, priority_slider)
+    pr.save(conn)
+    return "success"
+
+
+def prompt_search_action(prompt_search_key, prompt_check_meta):
+    conn = DataBase.get_conn()
+    prompt_search_result = PromptRecord.search(conn, prompt_search_key, is_meta=prompt_check_meta)
+
+    # 添加 CSS 样式来控制列宽
+    table_html = """
+    <style>
+        .prompt-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .prompt-table th, .prompt-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .prompt-table th {
+            
+        }
+        .priority-col {
+            width: 10%;
+        }
+        .prompt-col {
+            width: 80%;
+        }
+        .comment-col {
+            width: 10%;
+        }
+    </style>
+    <table class="prompt-table">
+        <tr>
+            <th class="priority-col">Priority</th>
+            <th class="prompt-col">Prompt</th>
+            <th class="comment-col">Comment</th>
+        </tr>"""
+
+    for index, prompt in enumerate(prompt_search_result):
+        table_html += (f'<tr>'
+                       f'<td class="priority-col">{prompt.priority}</td>'
+                       f'<td class="prompt-col">{create_tag_html(prompt.prompt_text.replace("<", "&lt;").replace(">", "&gt;"), height=None)}</td>'
+                       f'<td class="comment-col">{prompt.memo}</td>'
+                       f'</tr>')
+
+    table_html += "</table>"
+    return table_html
+
 ######### UI #########
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as ui_component:
@@ -514,7 +567,7 @@ def on_ui_tabs():
                 html_lyco = gr.HTML("", label=None, show_label=False, interactive=False)
                 fetch_lyco_btn.click(fetch_lyco_action, outputs=html_lyco)
 
-        with gr.Tab('提取Prompt'):
+        with gr.Tab('Get Prompt'):
             with gr.Tab("Images"):
                 with gr.Column():
                     with gr.Row():
@@ -562,6 +615,25 @@ def on_ui_tabs():
                     train_update_btn = gr.Button("更新备注", variant="primary")
                     train_update_btn.click(update_train_tag_comments,
                                            inputs=[train_model_dropdown, train_update_comments])
+
+        with gr.Tab('Prompt Record'):
+            with gr.Tab("🔍"):
+                prompt_search_key = gr.Textbox("", label="搜索", lines=1, interactive=True)
+                prompt_check_meta = gr.Checkbox(False, label="meta", info="是否搜索meta", interactive=True)
+                prompt_search_btn = gr.Button("搜索", variant="primary")
+                prompt_search_table = gr.HTML("", label=None, show_label=False, interactive=False)
+                prompt_search_btn.click(prompt_search_action, inputs=[prompt_search_key, prompt_check_meta], outputs=[prompt_search_table])
+            with gr.Tab("Add"):
+                with gr.Row():
+                    prompt_text = gr.Textbox(None, label="prompt", lines=2, interactive=True, min_width=600,
+                                             show_copy_button=True)
+                    prompt_memo = gr.Textbox(None, label="备注", lines=1, interactive=True)
+                with gr.Row():
+                    priority_slider = gr.Slider(1, 500, value=1, label="优先级", step=5, interactive=True)
+                add_prompt_btn = gr.Button("添加", variant="primary")
+                add_prompt_result = gr.Textbox("", label="添加结果", lines=1, interactive=False)
+                add_prompt_btn.click(add_prompt_action, inputs=[prompt_text, prompt_memo, priority_slider],
+                                     outputs=add_prompt_result)
 
         if IS_PLUGIN:
             return [(ui_component, "RP", "RP")]
