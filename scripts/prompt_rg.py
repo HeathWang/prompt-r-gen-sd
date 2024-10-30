@@ -441,9 +441,9 @@ def add_prompt_action(prompt_text, prompt_memo, priority_slider, drop_type):
     return "success"
 
 
-def prompt_search_action(prompt_search_key, prompt_check_meta):
+def prompt_search_action(prompt_search_key, prompt_check_meta, drop_type_search):
     conn = DataBase.get_conn()
-    prompt_search_result = PromptRecord.search(conn, prompt_search_key, is_meta=prompt_check_meta)
+    prompt_search_result = PromptRecord.search(conn, prompt_search_key, is_meta=prompt_check_meta, p_type=drop_type_search)
 
     # 添加 CSS 样式来控制列宽
     table_html = """
@@ -625,12 +625,15 @@ def on_ui_tabs():
         with gr.Tab('Prompt Record'):
             with gr.Tab("🔍"):
                 prompt_search_key = gr.Textbox("", label="搜索", lines=1, interactive=True)
-                prompt_check_meta = gr.Checkbox(False, label="meta", info="是否搜索meta", interactive=True)
+                with gr.Row():
+                    prompt_check_meta = gr.Checkbox(False, label="meta", info="是否搜索meta", interactive=True)
+                    drop_type_search = gr.Dropdown(["人物", "背景", "姿势", "视角", "光影", "穿搭", "其他", None], value=None,
+                                            type="value", label="类型", interactive=True)
                 prompt_search_btn = gr.Button("搜索", variant="primary")
                 prompt_search_table = gr.HTML("", label=None, show_label=False, interactive=False)
-                prompt_search_key.submit(prompt_search_action, inputs=[prompt_search_key, prompt_check_meta],
+                prompt_search_key.submit(prompt_search_action, inputs=[prompt_search_key, prompt_check_meta, drop_type_search],
                                          outputs=[prompt_search_table])
-                prompt_search_btn.click(prompt_search_action, inputs=[prompt_search_key, prompt_check_meta],
+                prompt_search_btn.click(prompt_search_action, inputs=[prompt_search_key, prompt_check_meta, drop_type_search],
                                         outputs=[prompt_search_table])
             with gr.Tab("📜"):
                 with gr.Row():

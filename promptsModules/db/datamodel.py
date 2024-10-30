@@ -929,8 +929,8 @@ class PromptRecord:
     def save(self, conn):
         with closing(conn.cursor()) as cur:
             cur.execute(
-                "INSERT INTO prompt_records (prompt_text, memo, priority) VALUES (?, ?, ?)",
-                (self.prompt_text, self.memo, self.priority),
+                "INSERT INTO prompt_records (prompt_text, memo, priority, p_type) VALUES (?, ?, ?, ?)",
+                (self.prompt_text, self.memo, self.priority, self.p_type),
             )
             conn.commit()
             self.id = cur.lastrowid
@@ -957,6 +957,7 @@ class PromptRecord:
 
     @classmethod
     def search(cls, conn: Connection, search_text: str = None, is_meta: bool = False, p_type: str = None):
+        print(p_type)
         with closing(conn.cursor()) as cur:
             query_conditions = []
             query_params = []
@@ -972,7 +973,7 @@ class PromptRecord:
                     query_conditions.append("prompt_text LIKE ?")
                 query_params.append(f"%{search_text}%")
 
-            if p_type:
+            if p_type and p_type != 'None':
                 query_conditions.append("p_type = ?")
                 query_params.append(p_type)
 
