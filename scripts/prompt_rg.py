@@ -18,7 +18,7 @@ from promptsModules.train_tags import (handle_train_tag)
 
 t2i_text_box = None
 query_cursor: str = None
-IS_PLUGIN = True
+IS_PLUGIN = False
 
 cache_search = defaultdict(int)
 
@@ -393,7 +393,7 @@ def get_train_model_tags(train_input_model):
     return results, html_comments, table_html
 
 
-def load_train_models(is_flux=False):
+def load_train_models(is_flux=True):
     conn = DataBase.get_conn()
     train_models = TrainTag.get_all(conn, is_flux=is_flux)
     names = []
@@ -406,7 +406,7 @@ def reload_train_models(check_flux_flag: bool):
     return gr.update(choices=load_train_models(is_flux=check_flux_flag))
 
 
-def load_query_tips(check_search_flux=False):
+def load_query_tips(check_search_flux=True):
     tags = Tag.get_all_model_tags(DataBase.get_conn(), check_search_flux)
     tips = []
     for tag in tags:
@@ -445,12 +445,12 @@ def on_ui_tabs():
                 with gr.Row():
                     sort_drop = gr.Dropdown(["数量", "时间"], value="数量", type="index", label="排序方式",
                                             interactive=True)
+                    check_search_flux = gr.Checkbox(True, label="flux模型", info="是否是flux模型", interactive=True)
                     check_res_show = gr.Checkbox(True, label="分辨率", info="是否显示分辨率", interactive=True)
                     check_adetailer_show = gr.Checkbox(True, label="adetailer", info="显示adetailer提示词",
                                                        interactive=True)
                     check_search_adetailer_prompt = gr.Checkbox(False, label="adetailer prompt", info="搜索adetailer",
                                                                 interactive=True)
-                    check_search_flux = gr.Checkbox(False, label="flux模型", info="是否是flux模型", interactive=True)
                     limit_slider = gr.Slider(64, 5120, value=512, label="搜索limit", step=4, min_width=600,
                                              interactive=True)
                 search_history = gr.HighlightedText(show_label=False)
@@ -478,7 +478,7 @@ def on_ui_tabs():
         with gr.Tab("Model"):
             with gr.Tab("Tags"):
                 with gr.Row():
-                    check_flux_flag = gr.Checkbox(False, label="flux模型", info="是否是flux模型", interactive=True)
+                    check_flux_flag = gr.Checkbox(True, label="flux模型", info="是否是flux模型", interactive=True)
                 with gr.Row(equal_height=False):
                     train_input_model = gr.Dropdown(choices=load_train_models(), allow_custom_value=True,
                                                     interactive=True, type="value", show_label=False)
@@ -518,10 +518,10 @@ def on_ui_tabs():
             with gr.Tab("Images"):
                 with gr.Column():
                     with gr.Row():
-                        file_path = gr.Textbox("/notebooks/resource/outputs/20231225", label="文件路径", lines=1,
+                        file_path = gr.Textbox("/notebooks/", label="文件路径", lines=1,
                                                show_copy_button=True, interactive=True)
                         check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
-                        check_flux_flag_2 = gr.Checkbox(False, label="flux模型", info="是否是flux模型",
+                        check_flux_flag_2 = gr.Checkbox(True, label="flux模型", info="是否是flux模型",
                                                         interactive=True)
                     extract_btn = gr.Button("提取prompt", variant="primary")
                     with gr.Row():
@@ -538,10 +538,10 @@ def on_ui_tabs():
                                                        show_copy_button=True, interactive=True)
                         train_alias = gr.Textbox(None, label="别名", lines=1, interactive=True)
                         train_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
+                        check_is_flux_model = gr.Checkbox(True, label="是否flux模型",
+                                                          info="是否是flux模型，不处理tag分组", interactive=True)
                         check_handle_train_folder = gr.Checkbox(False, label="是否处理文件夹",
                                                                 info="勾选则处理文件夹下所有子目录", interactive=True)
-                        check_is_flux_model = gr.Checkbox(False, label="是否flux模型",
-                                                          info="是否是flux模型，不处理tag分组", interactive=True)
                     train_result = gr.Textbox("", label="汇总结果", lines=1, show_copy_button=True, interactive=False)
                     with gr.Row():
                         train_tag_btn = gr.Button("汇总tag", variant="primary")
@@ -562,10 +562,6 @@ def on_ui_tabs():
                     train_update_btn = gr.Button("更新备注", variant="primary")
                     train_update_btn.click(update_train_tag_comments,
                                            inputs=[train_model_dropdown, train_update_comments])
-
-        with gr.Tab("其他"):
-            with gr.Column():
-                gr.HTML(open_sd_image_broswer_html(), label=None, show_label=False, interactive=True)
 
         if IS_PLUGIN:
             return [(ui_component, "RP", "RP")]
