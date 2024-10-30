@@ -897,10 +897,11 @@ class ExtraPath:
             )
 
 class PromptRecord:
-    def __init__(self, prompt_text: str, memo: str = "", priority: int = 0):
+    def __init__(self, prompt_text: str, memo: str = "", priority: int = 0, p_type: str = ""):
         self.prompt_text = prompt_text
         self.memo = memo
         self.priority = priority
+        self.p_type = p_type
         self.id = None
 
     @classmethod
@@ -919,8 +920,11 @@ class PromptRecord:
             cur.execute("CREATE INDEX IF NOT EXISTS prompt_records_idx_text ON prompt_records(prompt_text)")
 
             # 检查并添加新列
-            # cur.execute("PRAGMA table_info(prompt_records)")
-            # columns = [column[1] for column in cur.fetchall()]
+            cur.execute("PRAGMA table_info(prompt_records)")
+            columns = [column[1] for column in cur.fetchall()]
+            # add column "type" string
+            if "p_type" not in columns:
+                cur.execute("ALTER TABLE prompt_records ADD COLUMN p_type TEXT DEFAULT ''")
 
     def save(self, conn):
         with closing(conn.cursor()) as cur:
@@ -952,7 +956,7 @@ class PromptRecord:
             return cls.from_row(row)
 
     @classmethod
-    def search(cls, conn: Connection, search_text: str = None, is_meta: bool = False, priority: int = None):
+    def search(cls, conn: Connection, search_text: str = None, is_meta: bool = False, p_type: str = None):
         with closing(conn.cursor()) as cur:
             query_conditions = []
             query_params = []
@@ -968,10 +972,9 @@ class PromptRecord:
                     query_conditions.append("prompt_text LIKE ?")
                 query_params.append(f"%{search_text}%")
 
-            # 添加优先级条件
-            if priority is not None:
-                query_conditions.append("priority = ?")
-                query_params.append(priority)
+            if p_type:
+                query_conditions.append("p_type = ?")
+                query_params.append(p_type)
 
             # 组合查询条件
             if query_conditions:
@@ -1003,7 +1006,8 @@ class PromptRecord:
         prompt_record = cls(
             prompt_text=row[1],
             memo=row[2],
-            priority=row[3]
+            priority=row[3],
+            p_type=row[4]
         )
         prompt_record.id = row[0]
         return prompt_record

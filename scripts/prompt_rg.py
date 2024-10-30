@@ -434,9 +434,9 @@ def update_lora_score_action(lora_list_dropdown, score_slider):
     return inner_fetch_lora(DataBase.get_conn())
 
 
-def add_prompt_action(prompt_text, prompt_memo, priority_slider):
+def add_prompt_action(prompt_text, prompt_memo, priority_slider, drop_type):
     conn = DataBase.get_conn()
-    pr = PromptRecord(prompt_text, prompt_memo, priority_slider)
+    pr = PromptRecord(prompt_text, prompt_memo, priority_slider, p_type=drop_type)
     pr.save(conn)
     return "success"
 
@@ -461,10 +461,13 @@ def prompt_search_action(prompt_search_key, prompt_check_meta):
             
         }
         .priority-col {
-            width: 10%;
+            width: 5%;
         }
         .prompt-col {
             width: 80%;
+        }
+        .type-col {
+            width: 5%;
         }
         .comment-col {
             width: 10%;
@@ -474,6 +477,7 @@ def prompt_search_action(prompt_search_key, prompt_check_meta):
         <tr>
             <th class="priority-col">Priority</th>
             <th class="prompt-col">Prompt</th>
+            <th class="type-col">Type</th>
             <th class="comment-col">Comment</th>
         </tr>"""
 
@@ -481,6 +485,7 @@ def prompt_search_action(prompt_search_key, prompt_check_meta):
         table_html += (f'<tr>'
                        f'<td class="priority-col">{prompt.priority}</td>'
                        f'<td class="prompt-col">{create_tag_html(prompt.prompt_text.replace("<", "&lt;").replace(">", "&gt;"), height=None)}</td>'
+                       f'<td class="type-col">{prompt.p_type}</td>'
                        f'<td class="comment-col">{prompt.memo}</td>'
                        f'</tr>')
 
@@ -633,10 +638,11 @@ def on_ui_tabs():
                                              show_copy_button=True)
                     prompt_memo = gr.Textbox(None, label="备注", lines=1, interactive=True)
                 with gr.Row():
+                    drop_type = gr.Dropdown(["人物", "背景", "姿势", "视角", "光影", "穿搭", "其他"], value="其他", type="value", label="类型", interactive=True)
                     priority_slider = gr.Slider(1, 500, value=1, label="优先级", step=5, interactive=True)
                 add_prompt_btn = gr.Button("添加", variant="primary")
                 add_prompt_result = gr.Textbox("", label="添加结果", lines=1, interactive=False)
-                add_prompt_btn.click(add_prompt_action, inputs=[prompt_text, prompt_memo, priority_slider],
+                add_prompt_btn.click(add_prompt_action, inputs=[prompt_text, prompt_memo, priority_slider, drop_type],
                                      outputs=add_prompt_result)
 
         if IS_PLUGIN:
