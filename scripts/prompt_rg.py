@@ -3,6 +3,7 @@ import json
 import os
 import re
 from collections import defaultdict
+import duckdb
 
 import gradio as gr
 
@@ -493,6 +494,53 @@ def prompt_search_action(prompt_search_key, prompt_check_meta, drop_type_search)
     return table_html
 
 
+# 创建一个数据库连接
+# 获取脚本当前目录
+# 获取当前脚本的上级目录
+current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# 拼接文件路径
+file_path = os.path.join(current_dir, "flux-prompts-photoreal-portrait.parquet")
+
+
+# 创建数据库连接
+con = duckdb.connect()
+
+# 使用计算出的路径创建视图
+con.execute(f"CREATE TEMPORARY VIEW train_data AS SELECT * FROM '{file_path}'")
+
+def flux_prompt_search_action(flux_prompt_search):
+    # SQL 查询，按 `prompt` 列分组，并计算每组的数量
+    query = "SELECT prompt FROM train_data WHERE prompt LIKE ? ORDER BY prompt ASC LIMIT 512"
+
+    # 执行查询并返回结果
+    df = con.execute(query, (f"%{flux_prompt_search}%",)).fetchdf()
+
+    # 添加 CSS 样式来控制列宽
+    table_html = """
+    <style>
+        .flux-prompt-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .flux-prompt-table th, .flux-prompt-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+    <table class="flux-prompt-table">
+        <tr>
+            <th>Prompt</th>
+        </tr>"""
+
+    for index, row in df.iterrows():
+        table_html += f'<tr><td>{create_tag_html(row["prompt"].replace("<", "&lt;").replace(">", "&gt;"), height=None)}</td></tr>'
+
+    table_html += "</table>"
+    return table_html
+
+
 ######### UI #########
 def on_ui_tabs():
     with gr.Blocks(analytics_enabled=False) as ui_component:
@@ -647,6 +695,15 @@ def on_ui_tabs():
                 add_prompt_result = gr.Textbox("", label="添加结果", lines=1, interactive=False)
                 add_prompt_btn.click(add_prompt_action, inputs=[prompt_text, prompt_memo, priority_slider, drop_type],
                                      outputs=add_prompt_result)
+
+            with gr.Tab("flux-prompts-photoreal-portrait"):
+                flux_prompt_search = gr.Textbox("", label="搜索", lines=1, interactive=True)
+                flux_prompt_search_btn = gr.Button("搜索", variant="primary")
+                flux_search_table = gr.HTML("", label=None, show_label=False, interactive=False)
+                flux_prompt_search_btn.click(flux_prompt_search_action, inputs=[flux_prompt_search],
+                                            outputs=[flux_search_table])
+                flux_prompt_search.submit(flux_prompt_search_action, inputs=[flux_prompt_search],
+                                        outputs=[flux_search_table])
 
         if IS_PLUGIN:
             return [(ui_component, "RP", "RP")]
