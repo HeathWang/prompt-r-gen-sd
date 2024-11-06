@@ -494,24 +494,27 @@ def prompt_search_action(prompt_search_key, prompt_check_meta, drop_type_search)
     return table_html
 
 
-# 创建一个数据库连接
-# 获取脚本当前目录
 # 获取当前脚本的上级目录
 current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 # 拼接文件路径
-file_path = os.path.join(current_dir, "flux-prompts-photoreal-portrait.parquet")
+photoreal_portrait_file_path = os.path.join(current_dir, "flux-prompts-photoreal-portrait.parquet")
+prompts_file_path = os.path.join(current_dir, "flux-prompts.parquet")
 
 
 # 创建数据库连接
 con = duckdb.connect()
 
 # 使用计算出的路径创建视图
-con.execute(f"CREATE TEMPORARY VIEW train_data AS SELECT * FROM '{file_path}'")
+con.execute(f"CREATE TEMPORARY VIEW train_data_portrait AS SELECT * FROM '{photoreal_portrait_file_path}'")
+con.execute(f"CREATE TEMPORARY VIEW train_data_prompt AS SELECT * FROM '{prompts_file_path}'")
 
-def flux_prompt_search_action(flux_prompt_search):
+def flux_prompt_search_action(flux_prompt_search, flux_dataset_drop):
     # SQL 查询，按 `prompt` 列分组，并计算每组的数量
-    query = "SELECT prompt FROM train_data WHERE prompt LIKE ? ORDER BY prompt ASC LIMIT 512"
+    if flux_dataset_drop == 'k-mktr/improved-flux-prompts':
+        query = "SELECT prompt FROM train_data_prompt WHERE prompt LIKE ? ORDER BY prompt ASC LIMIT 512"
+
+    else:
+        query = "SELECT prompt FROM train_data_portrait WHERE prompt LIKE ? ORDER BY prompt ASC LIMIT 512"
 
     # 执行查询并返回结果
     df = con.execute(query, (f"%{flux_prompt_search}%",)).fetchdf()
@@ -696,13 +699,15 @@ def on_ui_tabs():
                 add_prompt_btn.click(add_prompt_action, inputs=[prompt_text, prompt_memo, priority_slider, drop_type],
                                      outputs=add_prompt_result)
 
-            with gr.Tab("flux-prompts-photoreal-portrait"):
-                flux_prompt_search = gr.Textbox("", label="搜索", lines=1, interactive=True)
+            with gr.Tab("flux-prompts-dataset"):
+                with gr.Row():
+                    flux_prompt_search = gr.Textbox("", label="搜索", lines=1, interactive=True)
+                    flux_dataset_drop = gr.Dropdown(['k-mktr/improved-flux-prompts', 'k-mktr/improved-flux-prompts-photoreal-portrait'], value='k-mktr/improved-flux-prompts', type="value", label="数据集", interactive=True)
                 flux_prompt_search_btn = gr.Button("搜索", variant="primary")
                 flux_search_table = gr.HTML("", label=None, show_label=False, interactive=False)
-                flux_prompt_search_btn.click(flux_prompt_search_action, inputs=[flux_prompt_search],
+                flux_prompt_search_btn.click(flux_prompt_search_action, inputs=[flux_prompt_search, flux_dataset_drop],
                                             outputs=[flux_search_table])
-                flux_prompt_search.submit(flux_prompt_search_action, inputs=[flux_prompt_search],
+                flux_prompt_search.submit(flux_prompt_search_action, inputs=[flux_prompt_search, flux_dataset_drop],
                                         outputs=[flux_search_table])
 
         if IS_PLUGIN:
