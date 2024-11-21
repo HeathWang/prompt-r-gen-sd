@@ -328,29 +328,26 @@ def parse_prompt(x: str):
 def parse_generation_parameters(x: str):
     res = {}
     prompt = ""
-    negative_prompt = ""
-    done_with_prompt = False
     if not x:
         return {"meta": {}, "pos_prompt": [], "pos_all": prompt, "lora": [], "lyco": []}
+
+    # 直接通过查找"Negative prompt:"来获取prompt
+    negative_prompt_index = x.find("Negative prompt:")
+
+    if negative_prompt_index == -1:
+        # 如果没有找到"Negative prompt:"，整个输入作为prompt
+        prompt = x.strip()
+    else:
+        # 获取prompt为"Negative prompt:"之前的部分
+        prompt = x[:negative_prompt_index].strip()
+
     *lines, lastline = x.strip().split("\n")
     if len(re_param.findall(lastline)) < 3:
         lines.append(lastline)
         lastline = ""
-    if len(lines) == 1 and lines[0].startswith("Postprocess"):  # 把上面改成<2应该也可以，当时不敢动
-        lastline = lines[
-            0
-        ]  # 把Postprocess upscale by: 4, Postprocess upscaler: R-ESRGAN 4x+ Anime6B 推到res解析
+    if len(lines) == 1 and lines[0].startswith("Postprocess"):
+        lastline = lines[0]
         lines = []
-    for i, line in enumerate(lines):
-        line = line.strip()
-        if line.startswith("Negative prompt:"):
-            done_with_prompt = True
-            line = line[16:].strip()
-
-        if done_with_prompt:
-            negative_prompt += ("" if negative_prompt == "" else "\n") + line
-        else:
-            prompt += ("" if prompt == "" else "\n") + line
 
     for k, v in re_param.findall(lastline):
         v = v[1:-1] if len(v) > 1 and v[0] == '"' and v[-1] == '"' else v

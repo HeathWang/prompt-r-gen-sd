@@ -54,7 +54,7 @@ def create_tag_html(tag, height, suffix=None, border_color="#25BDCDAD", score=No
         height_style = f"height: {height}px;"
     tag_html += (
         f"<div style='display: flex; align-items: center; justify-content: flex-start; padding: 0px 12px 0px 12px; margin: 0 12px 12px 0; border: 2px solid {border_color}; border-radius: 12px; {height_style} font-size: 16px;font-family: monospace;'>"
-        f"<div>{tag}</div>"
+        f"<div style='white-space: pre-wrap;'>{tag}</div>"
     )
     if suffix is not None:
         text, color = suffix
