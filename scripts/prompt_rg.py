@@ -3,10 +3,11 @@ import json
 import os
 import re
 from collections import defaultdict
-import duckdb
 
+import duckdb
 import gradio as gr
 
+from promptsModules.comfy_api import (load_comfy_ui_loras, load_comfyui_workflow, start_run_comfyui_workflow)
 from promptsModules.db.datamodel import (
     DataBase,
     Image as DbImg,
@@ -22,6 +23,8 @@ query_cursor: str = None
 IS_PLUGIN = False
 
 cache_search = defaultdict(int)
+comfyUI_lora_list = []
+comfyUI_curr_workflow: json = None
 
 
 def get_model_input(com_value):
@@ -444,7 +447,8 @@ def add_prompt_action(prompt_text, prompt_memo, priority_slider, drop_type):
 
 def prompt_search_action(prompt_search_key, prompt_check_meta, drop_type_search):
     conn = DataBase.get_conn()
-    prompt_search_result = PromptRecord.search(conn, prompt_search_key, is_meta=prompt_check_meta, p_type=drop_type_search)
+    prompt_search_result = PromptRecord.search(conn, prompt_search_key, is_meta=prompt_check_meta,
+                                               p_type=drop_type_search)
 
     # 添加 CSS 样式来控制列宽
     table_html = """
@@ -500,13 +504,13 @@ current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 photoreal_portrait_file_path = os.path.join(current_dir, "flux-prompts-photoreal-portrait.parquet")
 prompts_file_path = os.path.join(current_dir, "flux-prompts.parquet")
 
-
 # 创建数据库连接
 con = duckdb.connect()
 
 # 使用计算出的路径创建视图
 con.execute(f"CREATE TEMPORARY VIEW train_data_portrait AS SELECT * FROM '{photoreal_portrait_file_path}'")
 con.execute(f"CREATE TEMPORARY VIEW train_data_prompt AS SELECT * FROM '{prompts_file_path}'")
+
 
 def flux_prompt_search_action(flux_prompt_search, flux_dataset_drop):
     # SQL 查询，按 `prompt` 列分组，并计算每组的数量
@@ -542,6 +546,32 @@ def flux_prompt_search_action(flux_prompt_search, flux_dataset_drop):
 
     table_html += "</table>"
     return table_html
+
+
+##### Comfy UI #####
+
+def load_comfyui_loras(lora_path):
+    global comfyUI_lora_list
+    comfyUI_lora_list = load_comfy_ui_loras(lora_path)
+    gr.Info("load comfyUI loras success")
+
+
+def load_comfyui_wf(workflow_path):
+    global comfyUI_curr_workflow
+    comfyUI_curr_workflow = load_comfyui_workflow(workflow_path)
+    gr.Info("load comfyUI workflow success")
+
+
+def refresh_comfyui_loras():
+    return gr.update(choices=comfyUI_lora_list), gr.update(choices=comfyUI_lora_list)
+
+
+def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
+                         lora_second_strength, lora_second_clip_strength):
+    global comfyUI_curr_workflow
+    print(comfyUI_curr_workflow)
+    return start_run_comfyui_workflow(comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
+                                      enable_second, lora_second, lora_second_strength, lora_second_clip_strength)
 
 
 ######### UI #########
@@ -678,13 +708,16 @@ def on_ui_tabs():
                 prompt_search_key = gr.Textbox("", label="搜索", lines=1, interactive=True)
                 with gr.Row():
                     prompt_check_meta = gr.Checkbox(False, label="meta", info="是否搜索meta", interactive=True)
-                    drop_type_search = gr.Dropdown(["人物", "背景", "姿势", "视角", "光影", "穿搭", "其他", None], value=None,
-                                            type="value", label="类型", interactive=True)
+                    drop_type_search = gr.Dropdown(["人物", "背景", "姿势", "视角", "光影", "穿搭", "其他", None],
+                                                   value=None,
+                                                   type="value", label="类型", interactive=True)
                 prompt_search_btn = gr.Button("搜索", variant="primary")
                 prompt_search_table = gr.HTML("", label=None, show_label=False, interactive=False)
-                prompt_search_key.submit(prompt_search_action, inputs=[prompt_search_key, prompt_check_meta, drop_type_search],
+                prompt_search_key.submit(prompt_search_action,
+                                         inputs=[prompt_search_key, prompt_check_meta, drop_type_search],
                                          outputs=[prompt_search_table])
-                prompt_search_btn.click(prompt_search_action, inputs=[prompt_search_key, prompt_check_meta, drop_type_search],
+                prompt_search_btn.click(prompt_search_action,
+                                        inputs=[prompt_search_key, prompt_check_meta, drop_type_search],
                                         outputs=[prompt_search_table])
             with gr.Tab("📜"):
                 with gr.Row():
@@ -692,7 +725,8 @@ def on_ui_tabs():
                                              show_copy_button=True)
                     prompt_memo = gr.Textbox(None, label="备注", lines=1, interactive=True)
                 with gr.Row():
-                    drop_type = gr.Dropdown(["人物", "背景", "姿势", "视角", "光影", "穿搭", "其他"], value="其他", type="value", label="类型", interactive=True)
+                    drop_type = gr.Dropdown(["人物", "背景", "姿势", "视角", "光影", "穿搭", "其他"], value="其他",
+                                            type="value", label="类型", interactive=True)
                     priority_slider = gr.Slider(1, 500, value=1, label="优先级", step=5, interactive=True)
                 add_prompt_btn = gr.Button("添加", variant="primary")
                 add_prompt_result = gr.Textbox("", label="添加结果", lines=1, interactive=False)
@@ -702,13 +736,59 @@ def on_ui_tabs():
             with gr.Tab("flux-prompts-dataset"):
                 with gr.Row():
                     flux_prompt_search = gr.Textbox("", label="搜索", lines=1, interactive=True)
-                    flux_dataset_drop = gr.Dropdown(['k-mktr/improved-flux-prompts', 'k-mktr/improved-flux-prompts-photoreal-portrait'], value='k-mktr/improved-flux-prompts', type="value", label="数据集", interactive=True)
+                    flux_dataset_drop = gr.Dropdown(
+                        ['k-mktr/improved-flux-prompts', 'k-mktr/improved-flux-prompts-photoreal-portrait'],
+                        value='k-mktr/improved-flux-prompts', type="value", label="数据集", interactive=True)
                 flux_prompt_search_btn = gr.Button("搜索", variant="primary")
                 flux_search_table = gr.HTML("", label=None, show_label=False, interactive=False)
                 flux_prompt_search_btn.click(flux_prompt_search_action, inputs=[flux_prompt_search, flux_dataset_drop],
-                                            outputs=[flux_search_table])
+                                             outputs=[flux_search_table])
                 flux_prompt_search.submit(flux_prompt_search_action, inputs=[flux_prompt_search, flux_dataset_drop],
-                                        outputs=[flux_search_table])
+                                          outputs=[flux_search_table])
+
+        with gr.Tab("ComfyUI Api"):
+            with gr.Tab("flux dual lora"):
+                with gr.Row():
+                    with gr.Column(scale=1):
+                        with gr.Column(variant="compact"):
+                            dropdown_lora_first = gr.Dropdown(choices=comfyUI_lora_list, interactive=True,
+                                                              label="select lora")
+                            slider_lora_first = gr.Slider(0, 1, value=1, label="model strength", step=0.1,
+                                                          interactive=True)
+                        checkbox_enable_second = gr.Checkbox(True, label="enable second lora", interactive=True)
+                        with gr.Column():
+                            dropdown_lora_second = gr.Dropdown(choices=comfyUI_lora_list, interactive=True,
+                                                               label="select lora")
+                            slider_lora_second = gr.Slider(0, 1, value=1, label="model strength", step=0.1,
+                                                           interactive=True)
+                            slider_lora_second_clip = gr.Slider(0, 1, value=1, label="clip strength", step=0.1,
+                                                                interactive=True)
+                        btn_refresh_comfyui_lora = gr.Button("刷新lora", variant='secondary')
+                        btn_refresh_comfyui_lora.click(refresh_comfyui_loras,
+                                                       outputs=[dropdown_lora_first, dropdown_lora_second])
+                    with gr.Column(scale=2):
+                        input_comfyui_prompt = gr.Textbox("", label="prompt", lines=14, interactive=True)
+                        slider_gen_num = gr.Slider(1, 512, value=2, label="gen num", step=1, interactive=True)
+                        btn_gen_comfyui = gr.Button("gen comfyui", variant='primary')
+                        info_run_comfyui = gr.Textbox("", label="run result", lines=1, interactive=False)
+                        btn_gen_comfyui.click(start_run_comfyui_wf,
+                                              inputs=[input_comfyui_prompt, slider_gen_num, dropdown_lora_first,
+                                                      slider_lora_first, checkbox_enable_second, dropdown_lora_second,
+                                                      slider_lora_second, slider_lora_second_clip],
+                                              outputs=[info_run_comfyui])
+
+            with gr.Tab("load"):
+                with gr.Column():
+                    input_lora_path = gr.Textbox("/Users/hb/Downloads/notebook/", label="lora folder path", lines=1,
+                                                 interactive=True)
+                    btn_lora_load = gr.Button("load lora", variant='primary')
+                    btn_lora_load.click(load_comfyui_loras, inputs=[input_lora_path])
+                with gr.Column():
+                    workflow_path = gr.Textbox("/notebooks/", label="workflow path", lines=1, interactive=True)
+                    btn_workflow_load = gr.Button("load workflow", variant='primary')
+                    btn_workflow_load.click(load_comfyui_wf, inputs=[workflow_path])
+            with gr.Tab("Basic"):
+                pass
 
         if IS_PLUGIN:
             return [(ui_component, "RP", "RP")]
