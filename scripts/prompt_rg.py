@@ -788,7 +788,7 @@ def on_ui_tabs():
                                                        outputs=[dropdown_lora_first, dropdown_lora_second])
                     with gr.Column(scale=2):
                         input_comfyui_prompt = gr.Textbox("", label="prompt", lines=14, interactive=True)
-                        slider_gen_num = gr.Slider(1, 512, value=2, label="gen num", step=1, interactive=True)
+                        slider_gen_num = gr.Slider(1, 64, value=2, label="gen num", step=1, interactive=True)
                         btn_gen_comfyui = gr.Button("gen comfyui", variant='primary')
                         info_run_comfyui = gr.Textbox("", label="run result", lines=1, interactive=False)
                         btn_gen_comfyui.click(start_run_comfyui_wf,
