@@ -570,13 +570,11 @@ def refresh_comfyui_loras():
 
 async def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
                               lora_second_strength, lora_second_clip_strength, img_size):
+    gr.Warning("Start run comfyUI workflow SUCCESS")
     global comfyUI_curr_workflow
-    asyncio.to_thread(start_run_comfyui_workflow, comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
+    await asyncio.to_thread(start_run_comfyui_workflow, comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
                                                      enable_second, lora_second, lora_second_strength, lora_second_clip_strength,
                                                      img_size)
-    gr.Warning("Start run comfyUI workflow SUCCESS")
-
-
 
 def fetch_comfyui_queue():
     result = queue_count()
