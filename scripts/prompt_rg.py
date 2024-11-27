@@ -571,7 +571,7 @@ def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enabl
     global comfyUI_curr_workflow
     print(comfyUI_curr_workflow)
     return start_run_comfyui_workflow(comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
-                                      enable_second, lora_second, lora_second_strength, lora_second_clip_strength)
+                                      enable_second, lora_second, lora_second_strength, lora_second_clip_strength, img_size)
 
 
 ######### UI #########
