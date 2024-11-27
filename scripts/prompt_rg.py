@@ -7,7 +7,8 @@ from collections import defaultdict
 import duckdb
 import gradio as gr
 
-from promptsModules.comfy_api import (load_comfy_ui_loras, load_comfyui_workflow, start_run_comfyui_workflow)
+from promptsModules.comfy_api import (load_comfy_ui_loras, load_comfyui_workflow, start_run_comfyui_workflow,
+                                      queue_count, clear_queue)
 from promptsModules.db.datamodel import (
     DataBase,
     Image as DbImg,
@@ -570,7 +571,18 @@ def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enabl
                          lora_second_strength, lora_second_clip_strength, img_size):
     global comfyUI_curr_workflow
     return start_run_comfyui_workflow(comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
-                                      enable_second, lora_second, lora_second_strength, lora_second_clip_strength, img_size)
+                                      enable_second, lora_second, lora_second_strength, lora_second_clip_strength,
+                                      img_size)
+
+
+def fetch_comfyui_queue():
+    result = queue_count()
+    gr.Warning(f"当前队列长度: {result}")
+
+
+def clear_comfyui_queue():
+    result = clear_queue()
+    gr.Warning(f"清空队列: {result}")
 
 
 ######### UI #########
@@ -796,6 +808,11 @@ def on_ui_tabs():
                                                label="workflow path", lines=1, interactive=True)
                     btn_workflow_load = gr.Button("load workflow", variant='primary')
                     btn_workflow_load.click(load_comfyui_wf, inputs=[workflow_path])
+                with gr.Column():
+                    btn_query_queue = gr.Button("query queue", variant='primary')
+                    btn_query_queue.click(fetch_comfyui_queue)
+                    btn_clear_queue = gr.Button("clear queue", variant='secondary')
+                    btn_clear_queue.click(clear_comfyui_queue)
             with gr.Tab("Basic"):
                 pass
 

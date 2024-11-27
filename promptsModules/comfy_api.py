@@ -6,6 +6,11 @@ import random
 import time
 from urllib import request
 
+import requests
+
+COMFYUI_API_URL = "http://127.0.0.1:8188"
+
+
 def generate_large_seed():
     """
     Generate a truly random large seed number.
@@ -107,6 +112,41 @@ def load_comfyui_workflow(workflow_path):
         return None
 
 
+def queue_count():
+    try:
+        # 构造URL
+        url = f"{COMFYUI_API_URL}/prompt"
+        req = request.Request(url, method='GET')
+        with request.urlopen(req) as response:
+            # Read and decode the response
+            response_data = response.read().decode('utf-8')
+            # 解析JSON数据
+            json_data = json.loads(response_data)
+            # 返回queue_remaining的值
+            return json_data['exec_info']['queue_remaining']
+    except ConnectionRefusedError:
+        print("连接被拒绝，可能是API服务未启动")
+        return None
+    except Exception as e:
+        print(f"发生异常：{e}")
+        return None
+
+
+def clear_queue():
+    url = f'{COMFYUI_API_URL}/api/queue'
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Content-Type': 'application/json'
+    }
+    data = {
+        'clear': True
+    }
+
+    response = requests.post(url, headers=headers, data=json.dumps(data), verify=False)
+    if response.status_code == 200:
+        return 'success'
+
+
 def queue_prompt(prompt):
     """
     将prompt发送到指定API并获取响应。
@@ -120,7 +160,7 @@ def queue_prompt(prompt):
     try:
         p = {"prompt": prompt}
         data = json.dumps(p).encode('utf-8')
-        req = request.Request("http://127.0.0.1:8188/prompt", data=data)
+        req = request.Request(f"{COMFYUI_API_URL}/prompt", data=data)
         with request.urlopen(req) as response:
             # Read and decode the response
             response_data = response.read().decode('utf-8')
@@ -134,7 +174,6 @@ def queue_prompt(prompt):
 
 def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lora_first_strength, enable_second,
                                lora_second, lora_second_strength, lora_second_clip_strength, img_size):
-
     # copy workflow to avoid changing the original one
     workflow = origin_workflow.copy()
     workflow["76"]["inputs"]["string"] = prompt
