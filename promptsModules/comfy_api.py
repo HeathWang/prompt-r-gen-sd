@@ -145,7 +145,10 @@ def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lor
     workflow["90"]["inputs"]["float"] = lora_first_strength  # strength_model
     # second lora
     workflow["104"]["inputs"]["switch"] = "On" if enable_second else "Off"
-    workflow["104"]["inputs"]["lora_name"] = lora_second
+    if not enable_second:
+        workflow["104"]["inputs"]["lora_name"] = 'None'
+    else:
+        workflow["104"]["inputs"]["lora_name"] = lora_second
     workflow["104"]["inputs"]["strength_clip"] = lora_second_clip_strength
     workflow["116"]["inputs"]["float"] = lora_second_strength  # strength_model
     workflow["119"]["inputs"]["boolean"] = enable_second
