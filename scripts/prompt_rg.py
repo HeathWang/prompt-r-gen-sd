@@ -571,10 +571,11 @@ def refresh_comfyui_loras():
 async def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
                               lora_second_strength, lora_second_clip_strength, img_size):
     global comfyUI_curr_workflow
-    await asyncio.create_task(start_run_comfyui_workflow(comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
+    await asyncio.to_thread(start_run_comfyui_workflow, comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
                                                      enable_second, lora_second, lora_second_strength, lora_second_clip_strength,
-                                                     img_size))
+                                                     img_size)
     gr.Warning("Start run comfyUI workflow SUCCESS")
+
 
 
 def fetch_comfyui_queue():
@@ -789,7 +790,7 @@ def on_ui_tabs():
                         btn_refresh_comfyui_lora.click(refresh_comfyui_loras,
                                                        outputs=[dropdown_lora_first, dropdown_lora_second])
                     with gr.Column(scale=2):
-                        input_comfyui_prompt = gr.Textbox("", label="prompt", lines=14, interactive=True)
+                        input_comfyui_prompt = gr.Textbox("", label="prompt", lines=14, interactive=True, show_copy_button=True)
                         slider_gen_num = gr.Slider(1, 64, value=2, label="gen num", step=1, interactive=True)
                         btn_gen_comfyui = gr.Button("gen comfyui", variant='primary')
                         btn_gen_comfyui.click(start_run_comfyui_wf,
