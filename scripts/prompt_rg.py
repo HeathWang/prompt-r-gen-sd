@@ -569,7 +569,6 @@ def refresh_comfyui_loras():
 def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
                          lora_second_strength, lora_second_clip_strength, img_size):
     global comfyUI_curr_workflow
-    print(comfyUI_curr_workflow)
     return start_run_comfyui_workflow(comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
                                       enable_second, lora_second, lora_second_strength, lora_second_clip_strength, img_size)
 
@@ -793,7 +792,7 @@ def on_ui_tabs():
                     btn_lora_load = gr.Button("load lora", variant='primary')
                     btn_lora_load.click(load_comfyui_loras, inputs=[input_lora_path])
                 with gr.Column():
-                    workflow_path = gr.Textbox("/notebooks/ComfyUI/user/default/workflows/flux_lora_meta_dual.json",
+                    workflow_path = gr.Textbox("/notebooks/scripts/flux_lora_meta_dual.json",
                                                label="workflow path", lines=1, interactive=True)
                     btn_workflow_load = gr.Button("load workflow", variant='primary')
                     btn_workflow_load.click(load_comfyui_wf, inputs=[workflow_path])
