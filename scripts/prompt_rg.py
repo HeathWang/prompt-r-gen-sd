@@ -567,7 +567,7 @@ def refresh_comfyui_loras():
 
 
 def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
-                         lora_second_strength, lora_second_clip_strength):
+                         lora_second_strength, lora_second_clip_strength, img_size):
     global comfyUI_curr_workflow
     print(comfyUI_curr_workflow)
     return start_run_comfyui_workflow(comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
@@ -750,6 +750,15 @@ def on_ui_tabs():
             with gr.Tab("flux dual lora"):
                 with gr.Row():
                     with gr.Column(scale=1):
+                        dropdown_img_size = gr.Dropdown(
+                            choices=["704x1408 (0.5)", "704x1344 (0.52)", "768x1344 (0.57)", "768x1280 (0.6)",
+                                     "832x1216 (0.68)", "832x1152 (0.72)", "896x1152 (0.78)", "896x1088 (0.82)",
+                                     "960x1088 (0.88)", "960x1024 (0.94)", "1024x1024 (1.0)", "1024x960 (1.07)",
+                                     "1088x960 (1.13)", "1088x896 (1.21)", "1152x896 (1.29)", "1152x832 (1.38)",
+                                     "1216x832 (1.46)", "1280x768 (1.67)", "1344x768 (1.75)", "1344x704 (1.91)",
+                                     "1408x704 (2.0)", "1472x704 (2.09)", "1536x640 (2.4)", "1600x640 (2.5)",
+                                     "1664x576 (2.89)", "1728x576 (3.0)"], value="1024x1024 (1.0)", interactive=True,
+                            label="img size")
                         with gr.Column(variant="compact"):
                             dropdown_lora_first = gr.Dropdown(choices=comfyUI_lora_list, interactive=True,
                                                               label="select lora")
@@ -774,17 +783,18 @@ def on_ui_tabs():
                         btn_gen_comfyui.click(start_run_comfyui_wf,
                                               inputs=[input_comfyui_prompt, slider_gen_num, dropdown_lora_first,
                                                       slider_lora_first, checkbox_enable_second, dropdown_lora_second,
-                                                      slider_lora_second, slider_lora_second_clip],
+                                                      slider_lora_second, slider_lora_second_clip, dropdown_img_size],
                                               outputs=[info_run_comfyui])
 
             with gr.Tab("load"):
                 with gr.Column():
-                    input_lora_path = gr.Textbox("/Users/hb/Downloads/notebook/", label="lora folder path", lines=1,
+                    input_lora_path = gr.Textbox("/notebooks/ComfyUI/models/loras", label="lora folder path", lines=1,
                                                  interactive=True)
                     btn_lora_load = gr.Button("load lora", variant='primary')
                     btn_lora_load.click(load_comfyui_loras, inputs=[input_lora_path])
                 with gr.Column():
-                    workflow_path = gr.Textbox("/notebooks/", label="workflow path", lines=1, interactive=True)
+                    workflow_path = gr.Textbox("/notebooks/ComfyUI/user/default/workflows/flux_lora_meta_dual.json",
+                                               label="workflow path", lines=1, interactive=True)
                     btn_workflow_load = gr.Button("load workflow", variant='primary')
                     btn_workflow_load.click(load_comfyui_wf, inputs=[workflow_path])
             with gr.Tab("Basic"):

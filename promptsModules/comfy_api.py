@@ -133,10 +133,7 @@ def queue_prompt(prompt):
 
 
 def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lora_first_strength, enable_second,
-                               lora_second, lora_second_strength, lora_second_clip_strength):
-    # print all the parameters in 1 line
-    # print(
-    #     f"Parameters: {origin_workflow}, {prompt}, {gen_num}, {lora_first}, {lora_first_strength}, {enable_second}, {lora_second}, {lora_second_strength}, {lora_second_clip_strength}")
+                               lora_second, lora_second_strength, lora_second_clip_strength, img_size):
 
     # copy workflow to avoid changing the original one
     workflow = origin_workflow.copy()
@@ -152,6 +149,9 @@ def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lor
     workflow["104"]["inputs"]["strength_clip"] = lora_second_clip_strength
     workflow["116"]["inputs"]["float"] = lora_second_strength  # strength_model
     workflow["119"]["inputs"]["boolean"] = enable_second
+
+    # image size
+    workflow["102"]["inputs"]["resolution"] = img_size
 
     result = []
 
