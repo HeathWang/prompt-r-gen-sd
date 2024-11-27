@@ -121,7 +121,6 @@ def queue_prompt(prompt):
         p = {"prompt": prompt}
         data = json.dumps(p).encode('utf-8')
         req = request.Request("http://127.0.0.1:8188/prompt", data=data)
-        req.add_header('Content-Type', 'application/json')
         with request.urlopen(req) as response:
             # Read and decode the response
             response_data = response.read().decode('utf-8')
@@ -164,7 +163,7 @@ def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lor
         workflow["86"]["inputs"]["seed"] = random_seed
 
         # 调用 API
-        success = queue_prompt(prompt)
+        success = queue_prompt(workflow)
         result.append(success)
 
         if i < gen_num - 1:
