@@ -555,25 +555,26 @@ def flux_prompt_search_action(flux_prompt_search, flux_dataset_drop):
 def load_comfyui_loras(lora_path):
     global comfyUI_lora_list
     comfyUI_lora_list = load_comfy_ui_loras(lora_path)
-    gr.Info("load comfyUI loras success")
+    gr.Info("Load comfyUI loras SUCCESS")
 
 
 def load_comfyui_wf(workflow_path):
     global comfyUI_curr_workflow
     comfyUI_curr_workflow = load_comfyui_workflow(workflow_path)
-    gr.Info("load comfyUI workflow success")
+    gr.Info("Load comfyUI workflow SUCCESS")
 
 
 def refresh_comfyui_loras():
     return gr.update(choices=comfyUI_lora_list), gr.update(choices=comfyUI_lora_list)
 
 
-async def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
+def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
                               lora_second_strength, lora_second_clip_strength, img_size):
     global comfyUI_curr_workflow
-    return await start_run_comfyui_workflow(comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
+    start_run_comfyui_workflow(comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
                                             enable_second, lora_second, lora_second_strength, lora_second_clip_strength,
                                             img_size)
+    gr.Warning("Start run comfyUI workflow SUCCESS")
 
 
 def fetch_comfyui_queue():
@@ -791,12 +792,11 @@ def on_ui_tabs():
                         input_comfyui_prompt = gr.Textbox("", label="prompt", lines=14, interactive=True)
                         slider_gen_num = gr.Slider(1, 64, value=2, label="gen num", step=1, interactive=True)
                         btn_gen_comfyui = gr.Button("gen comfyui", variant='primary')
-                        info_run_comfyui = gr.Textbox("", label="run result", lines=1, interactive=False)
                         btn_gen_comfyui.click(start_run_comfyui_wf,
                                               inputs=[input_comfyui_prompt, slider_gen_num, dropdown_lora_first,
                                                       slider_lora_first, checkbox_enable_second, dropdown_lora_second,
-                                                      slider_lora_second, slider_lora_second_clip, dropdown_img_size],
-                                              outputs=[info_run_comfyui])
+                                                      slider_lora_second, slider_lora_second_clip, dropdown_img_size]
+                                              )
 
             with gr.Tab("load"):
                 with gr.Column():
