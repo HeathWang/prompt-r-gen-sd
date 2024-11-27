@@ -2,6 +2,7 @@ import importlib
 import json
 import os
 import re
+import asyncio
 from collections import defaultdict
 
 import duckdb
@@ -567,12 +568,12 @@ def refresh_comfyui_loras():
     return gr.update(choices=comfyUI_lora_list), gr.update(choices=comfyUI_lora_list)
 
 
-def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
-                         lora_second_strength, lora_second_clip_strength, img_size):
+async def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
+                              lora_second_strength, lora_second_clip_strength, img_size):
     global comfyUI_curr_workflow
-    return start_run_comfyui_workflow(comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
-                                      enable_second, lora_second, lora_second_strength, lora_second_clip_strength,
-                                      img_size)
+    return await start_run_comfyui_workflow(comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
+                                            enable_second, lora_second, lora_second_strength, lora_second_clip_strength,
+                                            img_size)
 
 
 def fetch_comfyui_queue():

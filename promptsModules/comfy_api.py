@@ -5,6 +5,7 @@ import os
 import random
 import time
 from urllib import request
+import asyncio
 
 import requests
 
@@ -172,7 +173,7 @@ def queue_prompt(prompt):
         return f"{e}"
 
 
-def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lora_first_strength, enable_second,
+async def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lora_first_strength, enable_second,
                                lora_second, lora_second_strength, lora_second_clip_strength, img_size):
     # copy workflow to avoid changing the original one
     workflow = origin_workflow.copy()
@@ -209,7 +210,7 @@ def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lor
         result.append(success)
 
         if i < gen_num - 1:
-            time.sleep(1)
+            await asyncio.sleep(1)
             print(f"Continuing to next execution...")
 
     return result
