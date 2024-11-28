@@ -1,8 +1,8 @@
+import asyncio
 import importlib
 import json
 import os
 import re
-import asyncio
 from collections import defaultdict
 
 import duckdb
@@ -569,12 +569,14 @@ def refresh_comfyui_loras():
 
 
 async def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
-                              lora_second_strength, lora_second_clip_strength, img_size):
+                               lora_second_strength, lora_second_clip_strength, img_size):
     gr.Warning("Start run comfyUI workflow SUCCESS")
     global comfyUI_curr_workflow
-    await asyncio.to_thread(start_run_comfyui_workflow, comfyUI_curr_workflow, prompt, gen_num, lora_first, lora_first_strength,
-                                                     enable_second, lora_second, lora_second_strength, lora_second_clip_strength,
-                                                     img_size)
+    await asyncio.to_thread(start_run_comfyui_workflow, comfyUI_curr_workflow, prompt, gen_num, lora_first,
+                            lora_first_strength,
+                            enable_second, lora_second, lora_second_strength, lora_second_clip_strength,
+                            img_size)
+
 
 def fetch_comfyui_queue():
     result = queue_count()
@@ -761,7 +763,7 @@ def on_ui_tabs():
         with gr.Tab("ComfyUI Api"):
             with gr.Tab("flux dual lora"):
                 with gr.Row():
-                    with gr.Column(scale=1):
+                    with gr.Column(scale=3):
                         dropdown_img_size = gr.Dropdown(
                             choices=["704x1408 (0.5)", "704x1344 (0.52)", "768x1344 (0.57)", "768x1280 (0.6)",
                                      "832x1216 (0.68)", "832x1152 (0.72)", "896x1152 (0.78)", "896x1088 (0.82)",
@@ -784,13 +786,17 @@ def on_ui_tabs():
                                                            interactive=True)
                             slider_lora_second_clip = gr.Slider(0, 1, value=1, label="clip strength", step=0.1,
                                                                 interactive=True)
-                        btn_refresh_comfyui_lora = gr.Button("刷新lora", variant='secondary')
+
+                    with gr.Column(scale=7):
+                        input_comfyui_prompt = gr.Textbox("", label="prompt", lines=14, interactive=True,
+                                                          show_copy_button=True)
+                        slider_gen_num = gr.Slider(1, 64, value=2, label="gen num", step=1, interactive=True)
+                        with gr.Row():
+                            btn_gen_comfyui = gr.Button("GEN COMFYUI", variant='primary')
+                            btn_refresh_comfyui_lora = gr.Button("刷新LORA", variant='secondary')
+
                         btn_refresh_comfyui_lora.click(refresh_comfyui_loras,
                                                        outputs=[dropdown_lora_first, dropdown_lora_second])
-                    with gr.Column(scale=2):
-                        input_comfyui_prompt = gr.Textbox("", label="prompt", lines=14, interactive=True, show_copy_button=True)
-                        slider_gen_num = gr.Slider(1, 64, value=2, label="gen num", step=1, interactive=True)
-                        btn_gen_comfyui = gr.Button("gen comfyui", variant='primary')
                         btn_gen_comfyui.click(start_run_comfyui_wf,
                                               inputs=[input_comfyui_prompt, slider_gen_num, dropdown_lora_first,
                                                       slider_lora_first, checkbox_enable_second, dropdown_lora_second,
@@ -798,21 +804,25 @@ def on_ui_tabs():
                                               )
 
             with gr.Tab("load"):
-                with gr.Column():
-                    input_lora_path = gr.Textbox("/notebooks/ComfyUI/models/loras", label="lora folder path", lines=1,
-                                                 interactive=True)
-                    btn_lora_load = gr.Button("load lora", variant='primary')
-                    btn_lora_load.click(load_comfyui_loras, inputs=[input_lora_path])
-                with gr.Column():
-                    workflow_path = gr.Textbox("/notebooks/scripts/flux_lora_meta_dual.json",
-                                               label="workflow path", lines=1, interactive=True)
-                    btn_workflow_load = gr.Button("load workflow", variant='primary')
-                    btn_workflow_load.click(load_comfyui_wf, inputs=[workflow_path])
-                with gr.Column():
-                    btn_query_queue = gr.Button("query queue", variant='primary')
-                    btn_query_queue.click(fetch_comfyui_queue)
-                    btn_clear_queue = gr.Button("clear queue", variant='secondary')
-                    btn_clear_queue.click(clear_comfyui_queue)
+                with gr.Row():
+                    with gr.Column(scale=3):
+                        with gr.Column():
+                            input_lora_path = gr.Textbox("/notebooks/ComfyUI/models/loras", label="lora folder path",
+                                                         lines=1,
+                                                         interactive=True)
+                            btn_lora_load = gr.Button("LOAD LORA", variant='primary')
+                            btn_lora_load.click(load_comfyui_loras, inputs=[input_lora_path])
+                        with gr.Column():
+                            workflow_path = gr.Textbox("/notebooks/scripts/flux_lora_meta_dual.json",
+                                                       label="workflow path", lines=1, interactive=True)
+                            btn_workflow_load = gr.Button("LOAD WORKFLOW", variant='primary')
+                            btn_workflow_load.click(load_comfyui_wf, inputs=[workflow_path])
+                        with gr.Column():
+                            btn_query_queue = gr.Button("QUERY QUEUE", variant='primary')
+                            btn_query_queue.click(fetch_comfyui_queue)
+                    with gr.Column(scale=1):
+                        btn_clear_queue = gr.Button("CLEAR QUEUE", variant='stop')
+                        btn_clear_queue.click(clear_comfyui_queue)
             with gr.Tab("Basic"):
                 pass
 
