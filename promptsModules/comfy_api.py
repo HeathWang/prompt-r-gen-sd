@@ -194,7 +194,7 @@ def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lor
     workflow["104"]["inputs"]["strength_clip"] = lora_second_clip_strength
     workflow["116"]["inputs"]["float"] = lora_second_strength  # strength_model
     workflow["119"]["inputs"]["boolean"] = enable_second
-    workflow["115"]["inputs"]["string"] = f"<{remove_path(lora_second)}:"
+    workflow["115"]["inputs"]["string"] = f", <{remove_path(lora_second)}:"
 
     # image size
     workflow["102"]["inputs"]["resolution"] = img_size
