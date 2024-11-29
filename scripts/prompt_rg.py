@@ -569,13 +569,13 @@ def refresh_comfyui_loras():
 
 
 async def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
-                               lora_second_strength, lora_second_clip_strength, img_size):
+                               lora_second_strength, lora_second_clip_strength, img_size, steps):
     gr.Warning("Start run comfyUI workflow SUCCESS")
     global comfyUI_curr_workflow
     await asyncio.to_thread(start_run_comfyui_workflow, comfyUI_curr_workflow, prompt, gen_num, lora_first,
                             lora_first_strength,
                             enable_second, lora_second, lora_second_strength, lora_second_clip_strength,
-                            img_size)
+                            img_size, steps)
 
 
 def fetch_comfyui_queue():
@@ -790,6 +790,7 @@ def on_ui_tabs():
                     with gr.Column(scale=7):
                         input_comfyui_prompt = gr.Textbox("", label="prompt", lines=14, interactive=True,
                                                           show_copy_button=True)
+                        slider_run_steps = gr.Slider(8, 50, value=20, label="steps", step=1, interactive=True)
                         slider_gen_num = gr.Slider(1, 64, value=2, label="gen num", step=1, interactive=True)
                         with gr.Row():
                             btn_gen_comfyui = gr.Button("GEN COMFYUI", variant='primary')
@@ -800,7 +801,7 @@ def on_ui_tabs():
                         btn_gen_comfyui.click(start_run_comfyui_wf,
                                               inputs=[input_comfyui_prompt, slider_gen_num, dropdown_lora_first,
                                                       slider_lora_first, checkbox_enable_second, dropdown_lora_second,
-                                                      slider_lora_second, slider_lora_second_clip, dropdown_img_size]
+                                                      slider_lora_second, slider_lora_second_clip, dropdown_img_size, slider_run_steps]
                                               )
 
             with gr.Tab("load"):

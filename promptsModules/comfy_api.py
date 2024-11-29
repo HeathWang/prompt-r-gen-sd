@@ -176,7 +176,7 @@ def remove_path(input_str):
     return os.path.basename(input_str)
 
 def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lora_first_strength, enable_second,
-                               lora_second, lora_second_strength, lora_second_clip_strength, img_size):
+                               lora_second, lora_second_strength, lora_second_clip_strength, img_size, steps):
     # copy workflow to avoid changing the original one
     workflow = origin_workflow.copy()
     workflow["76"]["inputs"]["string"] = prompt
@@ -198,6 +198,8 @@ def start_run_comfyui_workflow(origin_workflow, prompt, gen_num, lora_first, lor
 
     # image size
     workflow["102"]["inputs"]["resolution"] = img_size
+    # steps
+    workflow["82"]["inputs"]["int"] = steps
 
     result = []
 
