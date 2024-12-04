@@ -19,6 +19,7 @@ from promptsModules.db.datamodel import (
 )
 from promptsModules.db.update_image_data import (update_image_data)
 from promptsModules.train_tags import (handle_train_tag)
+from promptsModules.cache_param import (cache_param, load_cache_param, KEY_IMAGE_GET_PROMPT, KEY_TRAIN_TAGS_PROMPT, KEY_COMFYUI_PROMPT)
 
 t2i_text_box = None
 query_cursor: str = None
@@ -38,6 +39,7 @@ def get_model_input(com_value):
 
 
 def get_prompts_from_folder(file_path, check_force, check_flux_flag_2=False):
+    cache_param(KEY_IMAGE_GET_PROMPT, file_path)
     try:
         DataBase._initing = True
         img_count = DbImg.count(DataBase.get_conn())
@@ -284,6 +286,7 @@ def save_train_tag_action(train_source_path, train_alias, train_comments, check_
     Returns:
         str: 处理结果信息
     """
+    cache_param(KEY_TRAIN_TAGS_PROMPT, train_source_path)
     if check_handle_train_folder:
         # 检查是否为文件夹
         if not os.path.isdir(train_source_path):
@@ -570,6 +573,7 @@ def refresh_comfyui_loras():
 
 async def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
                                lora_second_strength, lora_second_clip_strength, img_size, steps):
+    cache_param(KEY_COMFYUI_PROMPT, prompt)
     gr.Warning("Start run comfyUI workflow SUCCESS")
     global comfyUI_curr_workflow
     await asyncio.to_thread(start_run_comfyui_workflow, comfyUI_curr_workflow, prompt, gen_num, lora_first,
@@ -672,7 +676,7 @@ def on_ui_tabs():
             with gr.Tab("Images"):
                 with gr.Column():
                     with gr.Row():
-                        file_path = gr.Textbox("/notebooks/", label="文件路径", lines=1,
+                        file_path = gr.Textbox(load_cache_param(KEY_IMAGE_GET_PROMPT, default="/notebooks/"), label="文件路径", lines=1,
                                                show_copy_button=True, interactive=True)
                         check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
                         check_flux_flag_2 = gr.Checkbox(True, label="flux模型", info="是否是flux模型",
@@ -688,7 +692,7 @@ def on_ui_tabs():
             with gr.Tab("Train Source"):
                 with gr.Column():
                     with gr.Row():
-                        train_source_path = gr.Textbox("/notebooks/", label="训练的tag文件路径", lines=1,
+                        train_source_path = gr.Textbox(load_cache_param(KEY_TRAIN_TAGS_PROMPT, default="/notebooks/"), label="训练的tag文件路径", lines=1,
                                                        show_copy_button=True, interactive=True)
                         train_alias = gr.Textbox(None, label="别名", lines=1, interactive=True)
                         train_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
@@ -788,7 +792,7 @@ def on_ui_tabs():
                                                                 interactive=True)
 
                     with gr.Column(scale=7):
-                        input_comfyui_prompt = gr.Textbox("", label="prompt", lines=14, interactive=True,
+                        input_comfyui_prompt = gr.Textbox(load_cache_param(KEY_COMFYUI_PROMPT, default=""), label="prompt", lines=14, interactive=True,
                                                           show_copy_button=True)
                         slider_run_steps = gr.Slider(8, 50, value=20, label="steps", step=1, interactive=True)
                         slider_gen_num = gr.Slider(1, 64, value=2, label="gen num", step=1, interactive=True)
