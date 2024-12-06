@@ -1,13 +1,12 @@
 import asyncio
 import importlib
-import json
-import os
 import re
 from collections import defaultdict
 
 import duckdb
 import gradio as gr
 
+from promptsModules.cache_param import *
 from promptsModules.comfy_api import (load_comfy_ui_loras, load_comfyui_workflow, start_run_comfyui_workflow,
                                       queue_count, clear_queue)
 from promptsModules.db.datamodel import (
@@ -19,15 +18,14 @@ from promptsModules.db.datamodel import (
 )
 from promptsModules.db.update_image_data import (update_image_data)
 from promptsModules.train_tags import (handle_train_tag)
-from promptsModules.cache_param import (cache_param, load_cache_param, KEY_IMAGE_GET_PROMPT, KEY_TRAIN_TAGS_PROMPT, KEY_COMFYUI_PROMPT)
 
 t2i_text_box = None
 query_cursor: str = None
 IS_PLUGIN = False
 
 cache_search = defaultdict(int)
-comfyUI_lora_list = []
-comfyUI_curr_workflow: json = None
+comfyUI_lora_list = load_cache_param(KEY_DATA_LORA_LIST, [])
+comfyUI_curr_workflow: json = load_cache_param(KEY_DATA_WORKFLOW_JSON, {})
 
 
 def get_model_input(com_value):
@@ -558,12 +556,14 @@ def flux_prompt_search_action(flux_prompt_search, flux_dataset_drop):
 def load_comfyui_loras(lora_path):
     global comfyUI_lora_list
     comfyUI_lora_list = load_comfy_ui_loras(lora_path)
+    cache_param(KEY_DATA_LORA_LIST, comfyUI_lora_list)
     gr.Info("Load comfyUI loras SUCCESS")
 
 
 def load_comfyui_wf(workflow_path):
     global comfyUI_curr_workflow
     comfyUI_curr_workflow = load_comfyui_workflow(workflow_path)
+    cache_param(KEY_DATA_WORKFLOW_JSON, comfyUI_curr_workflow)
     gr.Info("Load comfyUI workflow SUCCESS")
 
 
@@ -574,6 +574,13 @@ def refresh_comfyui_loras():
 async def start_run_comfyui_wf(prompt, gen_num, lora_first, lora_first_strength, enable_second, lora_second,
                                lora_second_strength, lora_second_clip_strength, img_size, steps):
     cache_param(KEY_COMFYUI_PROMPT, prompt)
+    cache_param(KEY_COMFYUI_IMAGE_SIZE, img_size)
+    cache_param(KEY_COMFYUI_SELECT_FIRST_LORA, lora_first)
+    cache_param(KEY_COMFYUI_STRENGTH_FIRST_LORA, lora_first_strength)
+    cache_param(KEY_COMFYUI_ENABLE_SECOND, enable_second)
+    cache_param(KEY_COMFYUI_SELECT_SECOND_LORA, lora_second)
+    cache_param(KEY_COMFYUI_STRENGTH_CLIP_SECOND_LORA, lora_second_clip_strength)
+    cache_param(KEY_COMFYUI_STRENGTH_SECOND_LORA, lora_second_strength)
     gr.Warning("Start run comfyUI workflow SUCCESS")
     global comfyUI_curr_workflow
     await asyncio.to_thread(start_run_comfyui_workflow, comfyUI_curr_workflow, prompt, gen_num, lora_first,
@@ -676,7 +683,8 @@ def on_ui_tabs():
             with gr.Tab("Images"):
                 with gr.Column():
                     with gr.Row():
-                        file_path = gr.Textbox(load_cache_param(KEY_IMAGE_GET_PROMPT, default="/notebooks/"), label="文件路径", lines=1,
+                        file_path = gr.Textbox(load_cache_param(KEY_IMAGE_GET_PROMPT, default="/notebooks/"),
+                                               label="文件路径", lines=1,
                                                show_copy_button=True, interactive=True)
                         check_force = gr.Checkbox(label='是否强制', show_label=True, info='')
                         check_flux_flag_2 = gr.Checkbox(True, label="flux模型", info="是否是flux模型",
@@ -692,7 +700,8 @@ def on_ui_tabs():
             with gr.Tab("Train Source"):
                 with gr.Column():
                     with gr.Row():
-                        train_source_path = gr.Textbox(load_cache_param(KEY_TRAIN_TAGS_PROMPT, default="/notebooks/"), label="训练的tag文件路径", lines=1,
+                        train_source_path = gr.Textbox(load_cache_param(KEY_TRAIN_TAGS_PROMPT, default="/notebooks/"),
+                                                       label="训练的tag文件路径", lines=1,
                                                        show_copy_button=True, interactive=True)
                         train_alias = gr.Textbox(None, label="别名", lines=1, interactive=True)
                         train_comments = gr.Textbox(None, label="添加备注，描述模型详情", lines=2, interactive=True)
@@ -775,24 +784,37 @@ def on_ui_tabs():
                                      "1088x960 (1.13)", "1088x896 (1.21)", "1152x896 (1.29)", "1152x832 (1.38)",
                                      "1216x832 (1.46)", "1280x768 (1.67)", "1344x768 (1.75)", "1344x704 (1.91)",
                                      "1408x704 (2.0)", "1472x704 (2.09)", "1536x640 (2.4)", "1600x640 (2.5)",
-                                     "1664x576 (2.89)", "1728x576 (3.0)"], value="1024x1024 (1.0)", interactive=True,
+                                     "1664x576 (2.89)", "1728x576 (3.0)"],
+                            value=load_cache_param(KEY_COMFYUI_IMAGE_SIZE, default="896x1152 (0.78)"), interactive=True,
                             label="img size")
                         with gr.Column(variant="compact"):
                             dropdown_lora_first = gr.Dropdown(choices=comfyUI_lora_list, interactive=True,
-                                                              label="select lora")
-                            slider_lora_first = gr.Slider(0, 1, value=1, label="model strength", step=0.1,
+                                                              value=load_cache_param(KEY_COMFYUI_SELECT_FIRST_LORA,
+                                                                                     default=None),
+                                                              label="select lora", allow_custom_value=True)
+                            slider_lora_first = gr.Slider(0, 1, value=load_cache_param(KEY_COMFYUI_STRENGTH_FIRST_LORA,
+                                                                                       default=1),
+                                                          label="model strength", step=0.1,
                                                           interactive=True)
-                        checkbox_enable_second = gr.Checkbox(True, label="enable second lora", interactive=True)
+                        checkbox_enable_second = gr.Checkbox(load_cache_param(KEY_COMFYUI_ENABLE_SECOND, default=False),
+                                                             label="enable second lora", interactive=True)
                         with gr.Column():
                             dropdown_lora_second = gr.Dropdown(choices=comfyUI_lora_list, interactive=True,
-                                                               label="select lora")
-                            slider_lora_second = gr.Slider(0, 1, value=1, label="model strength", step=0.1,
+                                                               value=load_cache_param(KEY_COMFYUI_SELECT_SECOND_LORA,
+                                                                                      default=None),
+                                                               label="select lora", allow_custom_value=True)
+                            slider_lora_second = gr.Slider(0, 1,
+                                                           value=load_cache_param(KEY_COMFYUI_STRENGTH_SECOND_LORA,
+                                                                                  default=1), label="model strength",
+                                                           step=0.1,
                                                            interactive=True)
-                            slider_lora_second_clip = gr.Slider(0, 1, value=1, label="clip strength", step=0.1,
+                            slider_lora_second_clip = gr.Slider(0, 1, value=load_cache_param(
+                                KEY_COMFYUI_STRENGTH_CLIP_SECOND_LORA, default=1), label="clip strength", step=0.1,
                                                                 interactive=True)
 
                     with gr.Column(scale=7):
-                        input_comfyui_prompt = gr.Textbox(load_cache_param(KEY_COMFYUI_PROMPT, default=""), label="prompt", lines=14, interactive=True,
+                        input_comfyui_prompt = gr.Textbox(load_cache_param(KEY_COMFYUI_PROMPT, default=""),
+                                                          label="prompt", lines=14, interactive=True,
                                                           show_copy_button=True)
                         slider_run_steps = gr.Slider(8, 50, value=20, label="steps", step=1, interactive=True)
                         slider_gen_num = gr.Slider(1, 64, value=2, label="gen num", step=1, interactive=True)
@@ -805,20 +827,24 @@ def on_ui_tabs():
                         btn_gen_comfyui.click(start_run_comfyui_wf,
                                               inputs=[input_comfyui_prompt, slider_gen_num, dropdown_lora_first,
                                                       slider_lora_first, checkbox_enable_second, dropdown_lora_second,
-                                                      slider_lora_second, slider_lora_second_clip, dropdown_img_size, slider_run_steps]
+                                                      slider_lora_second, slider_lora_second_clip, dropdown_img_size,
+                                                      slider_run_steps]
                                               )
 
             with gr.Tab("load"):
                 with gr.Row():
                     with gr.Column(scale=3):
                         with gr.Column():
-                            input_lora_path = gr.Textbox("/notebooks/ComfyUI/models/loras", label="lora folder path",
-                                                         lines=1,
-                                                         interactive=True)
+                            input_lora_path = gr.Textbox(
+                                load_cache_param(KEY_PATH_LORA_LOAD, default="/notebooks/ComfyUI/models/loras"),
+                                label="lora folder path",
+                                lines=1,
+                                interactive=True)
                             btn_lora_load = gr.Button("LOAD LORA", variant='primary')
                             btn_lora_load.click(load_comfyui_loras, inputs=[input_lora_path])
                         with gr.Column():
-                            workflow_path = gr.Textbox("/notebooks/scripts/flux_lora_meta_dual.json",
+                            workflow_path = gr.Textbox(load_cache_param(KEY_PATH_WORKFLOW,
+                                                                        default="/notebooks/scripts/flux_lora_meta_dual.json"),
                                                        label="workflow path", lines=1, interactive=True)
                             btn_workflow_load = gr.Button("LOAD WORKFLOW", variant='primary')
                             btn_workflow_load.click(load_comfyui_wf, inputs=[workflow_path])
@@ -853,4 +879,4 @@ if IS_PLUGIN:
 else:
     app = on_ui_tabs()
     app.queue(max_size=10)
-    app.launch(debug=True)
+    app.launch()

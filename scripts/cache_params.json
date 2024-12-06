@@ -1,0 +1,10 @@
+{
+    "comfyui_prompt": "zzz",
+    "comfyui_image_size": "896x1152 (0.78)",
+    "comfyui_select_first_lora": "111",
+    "comfyui_strength_first_lora": 0.9,
+    "comfyui_enable_second": true,
+    "comfyui_select_second_lora": "222",
+    "comfyui_strength_clip_second_lora": 0.7,
+    "comfyui_strength_second_lora": 0.9
+}
