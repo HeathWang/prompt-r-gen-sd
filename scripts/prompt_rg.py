@@ -794,7 +794,7 @@ def on_ui_tabs():
                                                               label="select lora", allow_custom_value=True)
                             slider_lora_first = gr.Slider(0, 1, value=load_cache_param(KEY_COMFYUI_STRENGTH_FIRST_LORA,
                                                                                        default=1),
-                                                          label="model strength", step=0.1,
+                                                          label="model strength", step=0.01,
                                                           interactive=True)
                         checkbox_enable_second = gr.Checkbox(load_cache_param(KEY_COMFYUI_ENABLE_SECOND, default=False),
                                                              label="enable second lora", interactive=True)
@@ -806,10 +806,10 @@ def on_ui_tabs():
                             slider_lora_second = gr.Slider(0, 1,
                                                            value=load_cache_param(KEY_COMFYUI_STRENGTH_SECOND_LORA,
                                                                                   default=1), label="model strength",
-                                                           step=0.1,
+                                                           step=0.01,
                                                            interactive=True)
                             slider_lora_second_clip = gr.Slider(0, 1, value=load_cache_param(
-                                KEY_COMFYUI_STRENGTH_CLIP_SECOND_LORA, default=1), label="clip strength", step=0.1,
+                                KEY_COMFYUI_STRENGTH_CLIP_SECOND_LORA, default=1), label="clip strength", step=0.01,
                                                                 interactive=True)
 
                     with gr.Column(scale=7):
@@ -817,7 +817,7 @@ def on_ui_tabs():
                                                           label="prompt", lines=14, interactive=True,
                                                           show_copy_button=True)
                         slider_run_steps = gr.Slider(8, 50, value=20, label="steps", step=1, interactive=True)
-                        slider_gen_num = gr.Slider(1, 64, value=2, label="gen num", step=1, interactive=True)
+                        slider_gen_num = gr.Slider(1, 256, value=2, label="gen num", step=1, interactive=True)
                         with gr.Row():
                             btn_gen_comfyui = gr.Button("GEN COMFYUI", variant='primary')
                             btn_refresh_comfyui_lora = gr.Button("刷新LORA", variant='secondary')
