@@ -21,7 +21,7 @@ from promptsModules.train_tags import (handle_train_tag)
 
 t2i_text_box = None
 query_cursor: str = None
-IS_PLUGIN = False
+IS_PLUGIN = True
 
 cache_search = defaultdict(int)
 comfyUI_lora_list = load_cache_param(KEY_DATA_LORA_LIST, [])
